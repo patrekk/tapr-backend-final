@@ -3,11 +3,37 @@
 <head>
   <title>Join Tapr</title>
   <style>
-    body { font-family: Arial; text-align: center; padding: 30px; }
-    input { padding: 12px; margin: 8px; width: 250px; font-size: 16px; }
-    button { padding: 12px 20px; font-size: 16px; margin-top: 10px; cursor: pointer; }
-    #status { margin-top: 20px; font-weight: bold; }
-    #walletBtn { display: none; margin-top: 20px; background: black; color: white; }
+    body {
+      font-family: Arial;
+      text-align: center;
+      padding: 30px;
+    }
+
+    input {
+      padding: 12px;
+      margin: 8px;
+      width: 250px;
+      font-size: 16px;
+    }
+
+    button {
+      padding: 12px 20px;
+      font-size: 16px;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+
+    #status {
+      margin-top: 20px;
+      font-weight: bold;
+    }
+
+    #walletBtn {
+      display: none;
+      margin-top: 20px;
+      background: black;
+      color: white;
+    }
   </style>
 </head>
 <body>
@@ -22,13 +48,15 @@
 
   <p id="status"></p>
 
-  <button id="walletBtn" onclick="openWallet()">Add to Wallet</button>
+  <button id="walletBtn"></button>
 
   <script>
     const API = "https://tapr-backend-final-production.up.railway.app";
 
-    let walletToken = null;
+    let saveJWT = null;
+    let isExistingUser = false;
 
+    // 🔥 GET MERCHANT FROM URL
     const params = new URLSearchParams(window.location.search);
     const merchantKey = params.get("m");
 
@@ -50,8 +78,10 @@
       }
 
       status.innerText = "Processing...";
+      walletBtn.style.display = "none";
 
       try {
+        // 🔥 GET SAVE JWT (REAL WALLET TOKEN)
         const walletRes = await fetch(`${API}/wallet/${phone}`, {
           headers: {
             "x-api-key": merchantKey
@@ -60,6 +90,7 @@
 
         const walletData = await walletRes.json();
 
+        // 🔥 SAVE CUSTOMER DETAILS
         const setupRes = await fetch(`${API}/customer/setup`, {
           method: "POST",
           headers: {
@@ -71,13 +102,22 @@
 
         const setupData = await setupRes.json();
 
-        walletToken = walletData.qrToken;
+        saveJWT = walletData.saveJWT;
 
-        // 🔥 FIXED LOGIC
+        // 🔥 DETERMINE STATE
         if (setupData.message === "Customer already exists") {
-          status.innerText = "You already have a pass. Open your wallet.";
+          isExistingUser = true;
+          status.innerText = "You already have a pass.";
+
+          walletBtn.innerText = "Open Wallet";
+          walletBtn.onclick = openWalletApp;
+
         } else {
+          isExistingUser = false;
           status.innerText = "Account created!";
+
+          walletBtn.innerText = "Add to Wallet";
+          walletBtn.onclick = addToWallet;
         }
 
         walletBtn.style.display = "inline-block";
@@ -87,10 +127,15 @@
       }
     }
 
-    function openWallet() {
-      if (!walletToken) return;
-      const url = `https://pay.google.com/gp/v/save/${walletToken}`;
+    function addToWallet() {
+      if (!saveJWT) return;
+
+      const url = `https://pay.google.com/gp/v/save/${saveJWT}`;
       window.location.href = url;
+    }
+
+    function openWalletApp() {
+      window.location.href = "https://pay.google.com/gp/v/";
     }
   </script>
 
