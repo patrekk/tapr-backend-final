@@ -29,7 +29,6 @@
 
     let walletToken = null;
 
-    // 🔥 GET MERCHANT FROM URL
     const params = new URLSearchParams(window.location.search);
     const merchantKey = params.get("m");
 
@@ -50,10 +49,9 @@
         return;
       }
 
-      status.innerText = "Creating account...";
+      status.innerText = "Processing...";
 
       try {
-        // 🔥 CREATE / GET WALLET FOR THIS MERCHANT
         const walletRes = await fetch(`${API}/wallet/${phone}`, {
           headers: {
             "x-api-key": merchantKey
@@ -62,8 +60,7 @@
 
         const walletData = await walletRes.json();
 
-        // 🔥 SAVE DETAILS (WITH MERCHANT CONTEXT)
-        await fetch(`${API}/customer/setup`, {
+        const setupRes = await fetch(`${API}/customer/setup`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -72,9 +69,17 @@
           body: JSON.stringify({ phone, name, email })
         });
 
+        const setupData = await setupRes.json();
+
         walletToken = walletData.qrToken;
 
-        status.innerText = "Account created!";
+        // 🔥 FIXED LOGIC
+        if (setupData.message === "Customer already exists") {
+          status.innerText = "You already have a pass. Open your wallet.";
+        } else {
+          status.innerText = "Account created!";
+        }
+
         walletBtn.style.display = "inline-block";
 
       } catch (err) {
