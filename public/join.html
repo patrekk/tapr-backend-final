@@ -6,8 +6,7 @@
     body { font-family: Arial; text-align: center; padding: 30px; }
     input { padding: 12px; margin: 8px; width: 250px; font-size: 16px; }
     button { padding: 12px 20px; font-size: 16px; margin-top: 10px; cursor: pointer; }
-    #status { margin-top: 20px; font-weight: bold; }
-    #walletBtn { display: none; margin-top: 20px; background: black; color: white; }
+    #status { margin-top: 20px; font-weight: bold; white-space: pre-wrap; }
   </style>
 </head>
 <body>
@@ -20,14 +19,10 @@
 
   <button onclick="submitForm()">Join</button>
 
-  <p id="status"></p>
-
-  <button id="walletBtn">Add to Wallet</button>
+  <pre id="status"></pre>
 
   <script>
     const API = "https://tapr-backend-final-production.up.railway.app";
-
-    let saveJWT = null;
 
     const params = new URLSearchParams(window.location.search);
     const merchantKey = params.get("m");
@@ -38,36 +33,45 @@
       const email = document.getElementById("email").value.trim();
 
       const status = document.getElementById("status");
-      const walletBtn = document.getElementById("walletBtn");
 
-      status.innerText = "Processing...";
-      walletBtn.style.display = "none";
+      status.innerText = "START...\n";
 
       try {
+        status.innerText += "MERCHANT KEY: " + merchantKey + "\n\n";
+
         const walletRes = await fetch(`${API}/wallet/${phone}`, {
           headers: { "x-api-key": merchantKey }
         });
 
         const walletData = await walletRes.json();
 
-        saveJWT = walletData.saveJWT;
+        status.innerText += "WALLET RESPONSE:\n";
+        status.innerText += JSON.stringify(walletData, null, 2) + "\n\n";
 
-        if (!saveJWT) {
-          status.innerText = "Wallet error";
-          return;
+        const setupRes = await fetch(`${API}/customer/setup`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-api-key": merchantKey
+          },
+          body: JSON.stringify({ phone, name, email })
+        });
+
+        const setupData = await setupRes.json();
+
+        status.innerText += "SETUP RESPONSE:\n";
+        status.innerText += JSON.stringify(setupData, null, 2) + "\n\n";
+
+        if (walletData.saveJWT) {
+          status.innerText += "JWT FOUND ✅\n";
+
+          window.location.href = `https://pay.google.com/gp/v/save/${walletData.saveJWT}`;
+        } else {
+          status.innerText += "JWT MISSING ❌\n";
         }
 
-        status.innerText = "Ready to add to wallet";
-
-        walletBtn.style.display = "inline-block";
-
-        // 🔥 DIRECT NAVIGATION (NO POPUP)
-        walletBtn.onclick = function () {
-          window.location.href = `https://pay.google.com/gp/v/save/${saveJWT}`;
-        };
-
       } catch (err) {
-        status.innerText = "Something went wrong";
+        status.innerText += "ERROR:\n" + err.message;
       }
     }
   </script>
