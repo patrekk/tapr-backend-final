@@ -2,43 +2,166 @@
 <html>
 <head>
   <title>Dashboard</title>
+  <style>
+    body {
+      font-family: Arial;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+
+    h2 {
+      margin-bottom: 10px;
+    }
+
+    .card {
+      background: white;
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 10px;
+    }
+
+    .stats {
+      display: flex;
+      gap: 20px;
+    }
+
+    .stat {
+      flex: 1;
+      background: black;
+      color: white;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+    }
+
+    th {
+      background: #eee;
+    }
+  </style>
 </head>
 <body>
 
-  <h2>Merchant Dashboard</h2>
+  <h2>Dashboard</h2>
 
-  <p id="stats">Loading...</p>
+  <div class="card stats">
+    <div class="stat" id="totalCustomers">0<br>Customers</div>
+    <div class="stat" id="totalScans">0<br>Total Scans</div>
+    <div class="stat" id="todayScans">0<br>Today</div>
+  </div>
+
+  <div class="card">
+    <h3>Customers</h3>
+    <table id="customersTable">
+      <thead>
+        <tr>
+          <th>Phone</th>
+          <th>Name</th>
+          <th>Visits</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Recent Scans</h3>
+    <table id="logsTable">
+      <thead>
+        <tr>
+          <th>Phone</th>
+          <th>Time</th>
+          <th>Result</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
 
   <script>
     const API = "https://tapr-backend-final-production.up.railway.app";
+    const token = localStorage.getItem("token");
 
-    async function loadDashboard() {
-      const token = localStorage.getItem("token");
+    if (!token) {
+      window.location.href = "/login.html";
+    }
 
-      if (!token) {
-        window.location.href = "/login.html";
-        return;
-      }
-
+    async function loadStats() {
       const res = await fetch(`${API}/merchant/stats`, {
-        headers: {
-          "authorization": token
-        }
+        headers: { authorization: token }
       });
 
       const data = await res.json();
 
-      if (data.error) {
-        window.location.href = "/login.html";
-        return;
-      }
+      document.getElementById("totalCustomers").innerHTML =
+        data.total_customers + "<br>Customers";
 
-      document.getElementById("stats").innerText =
-        "Customers: " + data.total_customers +
-        " | Scans: " + data.total_scans;
+      document.getElementById("totalScans").innerHTML =
+        data.total_scans + "<br>Total Scans";
+
+      document.getElementById("todayScans").innerHTML =
+        data.today_scans + "<br>Today";
     }
 
-    loadDashboard();
+    async function loadCustomers() {
+      const res = await fetch(`${API}/merchant/customers`, {
+        headers: { authorization: token }
+      });
+
+      const data = await res.json();
+
+      const tbody = document.querySelector("#customersTable tbody");
+      tbody.innerHTML = "";
+
+      data.forEach(c => {
+        const row = `
+          <tr>
+            <td>${c.phone}</td>
+            <td>${c.name || "-"}</td>
+            <td>${c.visit_count}</td>
+          </tr>
+        `;
+        tbody.innerHTML += row;
+      });
+    }
+
+    async function loadLogs() {
+      const res = await fetch(`${API}/merchant/scan-logs`, {
+        headers: { authorization: token }
+      });
+
+      const data = await res.json();
+
+      const tbody = document.querySelector("#logsTable tbody");
+      tbody.innerHTML = "";
+
+      data.forEach(l => {
+        const time = new Date(l.scanned_at).toLocaleString();
+
+        const row = `
+          <tr>
+            <td>${l.phone}</td>
+            <td>${time}</td>
+            <td>${l.result}</td>
+          </tr>
+        `;
+        tbody.innerHTML += row;
+      });
+    }
+
+    loadStats();
+    loadCustomers();
+    loadLogs();
   </script>
 
 </body>

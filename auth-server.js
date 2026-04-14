@@ -71,7 +71,7 @@ const verifySession = async (req, res, next) => {
   }
 };
 
-// 🔥 DASHBOARD STATS
+// 🔥 STATS
 app.get('/merchant/stats', verifySession, async (req, res) => {
   const merchant = req.merchant;
 
@@ -85,10 +85,44 @@ app.get('/merchant/stats', verifySession, async (req, res) => {
     .select('*')
     .eq('merchant_id', merchant.id);
 
+  const today = new Date().toDateString();
+
+  const todayScans = logs.filter(l =>
+    new Date(l.scanned_at).toDateString() === today
+  );
+
   res.json({
     total_customers: customers.length,
-    total_scans: logs.length
+    total_scans: logs.length,
+    today_scans: todayScans.length
   });
+});
+
+// 🔥 CUSTOMERS
+app.get('/merchant/customers', verifySession, async (req, res) => {
+  const merchant = req.merchant;
+
+  const { data } = await supabase
+    .from('customers')
+    .select('*')
+    .eq('merchant_id', merchant.id)
+    .order('id', { ascending: false });
+
+  res.json(data);
+});
+
+// 🔥 SCAN LOGS
+app.get('/merchant/scan-logs', verifySession, async (req, res) => {
+  const merchant = req.merchant;
+
+  const { data } = await supabase
+    .from('scan_logs')
+    .select('*')
+    .eq('merchant_id', merchant.id)
+    .order('scanned_at', { ascending: false })
+    .limit(50);
+
+  res.json(data);
 });
 
 app.listen(PORT, () => {
