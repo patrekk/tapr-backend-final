@@ -3,30 +3,10 @@
 <head>
   <title>Tapr Scanner</title>
   <style>
-    body {
-      font-family: Arial;
-      text-align: center;
-      padding: 20px;
-    }
-
-    #video {
-      width: 300px;
-      border-radius: 12px;
-      margin-top: 20px;
-    }
-
-    #status {
-      margin-top: 20px;
-      font-size: 18px;
-      font-weight: bold;
-    }
-
-    button {
-      padding: 12px 20px;
-      font-size: 16px;
-      margin-top: 20px;
-      cursor: pointer;
-    }
+    body { font-family: Arial; text-align: center; padding: 20px; }
+    #video { width: 300px; border-radius: 12px; margin-top: 20px; }
+    #status { margin-top: 20px; font-size: 18px; font-weight: bold; }
+    button { padding: 12px 20px; font-size: 16px; margin-top: 20px; cursor: pointer; }
   </style>
 </head>
 <body>
@@ -60,7 +40,6 @@
 
       video.srcObject = stream;
 
-      // 🔥 WAIT UNTIL VIDEO IS READY
       video.onloadedmetadata = () => {
         video.play();
         scanning = true;
@@ -96,8 +75,15 @@
       requestAnimationFrame(scanFrame);
     }
 
-    async function handleScan(token) {
+    async function handleScan(rawToken) {
       scanning = false;
+
+      // 🔥 CLEAN TOKEN (CRITICAL FIX)
+      const token = rawToken.trim();
+
+      console.log("RAW:", rawToken);
+      console.log("CLEAN:", token);
+
       status.innerText = "Processing...";
 
       try {
@@ -112,7 +98,7 @@
 
         const data = await res.json();
 
-        console.log(data);
+        console.log("RESPONSE:", data);
 
         if (data.error === "missing_details") {
           status.innerText = "Missing details - need setup";
