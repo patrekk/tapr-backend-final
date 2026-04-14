@@ -3,37 +3,11 @@
 <head>
   <title>Join Tapr</title>
   <style>
-    body {
-      font-family: Arial;
-      text-align: center;
-      padding: 30px;
-    }
-
-    input {
-      padding: 12px;
-      margin: 8px;
-      width: 250px;
-      font-size: 16px;
-    }
-
-    button {
-      padding: 12px 20px;
-      font-size: 16px;
-      margin-top: 10px;
-      cursor: pointer;
-    }
-
-    #status {
-      margin-top: 20px;
-      font-weight: bold;
-    }
-
-    #walletBtn {
-      display: none;
-      margin-top: 20px;
-      background: black;
-      color: white;
-    }
+    body { font-family: Arial; text-align: center; padding: 30px; }
+    input { padding: 12px; margin: 8px; width: 250px; font-size: 16px; }
+    button { padding: 12px 20px; font-size: 16px; margin-top: 10px; cursor: pointer; }
+    #status { margin-top: 20px; font-weight: bold; }
+    #walletBtn { display: none; margin-top: 20px; background: black; color: white; }
   </style>
 </head>
 <body>
@@ -48,21 +22,15 @@
 
   <p id="status"></p>
 
-  <button id="walletBtn"></button>
+  <button id="walletBtn">TEST BUTTON</button>
 
   <script>
     const API = "https://tapr-backend-final-production.up.railway.app";
 
     let saveJWT = null;
-    let isExistingUser = false;
 
-    // 🔥 GET MERCHANT FROM URL
     const params = new URLSearchParams(window.location.search);
     const merchantKey = params.get("m");
-
-    if (!merchantKey) {
-      document.body.innerHTML = "<h3>Invalid merchant link</h3>";
-    }
 
     async function submitForm() {
       const phone = document.getElementById("phone").value.trim();
@@ -72,70 +40,43 @@
       const status = document.getElementById("status");
       const walletBtn = document.getElementById("walletBtn");
 
-      if (!phone || !name || !email) {
-        status.innerText = "Fill all fields";
-        return;
-      }
-
       status.innerText = "Processing...";
       walletBtn.style.display = "none";
 
       try {
-        // 🔥 GET SAVE JWT (REAL WALLET TOKEN)
         const walletRes = await fetch(`${API}/wallet/${phone}`, {
-          headers: {
-            "x-api-key": merchantKey
-          }
+          headers: { "x-api-key": merchantKey }
         });
 
         const walletData = await walletRes.json();
 
-        // 🔥 SAVE CUSTOMER DETAILS
-        const setupRes = await fetch(`${API}/customer/setup`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-api-key": merchantKey
-          },
-          body: JSON.stringify({ phone, name, email })
-        });
-
-        const setupData = await setupRes.json();
+        console.log("WALLET RESPONSE:", walletData);
 
         saveJWT = walletData.saveJWT;
 
-        // 🔥 DETERMINE STATE
-        if (setupData.message === "Customer already exists") {
-          isExistingUser = true;
-          status.innerText = "You already have a pass.";
-
-          walletBtn.innerText = "Open Wallet";
-          walletBtn.onclick = openWalletApp;
-
-        } else {
-          isExistingUser = false;
-          status.innerText = "Account created!";
-
-          walletBtn.innerText = "Add to Wallet";
-          walletBtn.onclick = addToWallet;
+        // 🔴 FORCE SHOW TOKEN STATE
+        if (!saveJWT) {
+          status.innerText = "ERROR: saveJWT is null";
+          return;
         }
 
+        status.innerText = "JWT READY";
+
         walletBtn.style.display = "inline-block";
+        walletBtn.innerText = "GO TO WALLET";
+
+        walletBtn.onclick = () => {
+          const url = `https://pay.google.com/gp/v/save/${saveJWT}`;
+          console.log("OPENING:", url);
+
+          // 🔥 FORCE OPEN (NEW TAB)
+          window.open(url, "_blank");
+        };
 
       } catch (err) {
-        status.innerText = "Something went wrong";
+        status.innerText = "FAIL";
+        console.error(err);
       }
-    }
-
-    function addToWallet() {
-      if (!saveJWT) return;
-
-      const url = `https://pay.google.com/gp/v/save/${saveJWT}`;
-      window.location.href = url;
-    }
-
-    function openWalletApp() {
-      window.location.href = "https://pay.google.com/gp/v/";
     }
   </script>
 
