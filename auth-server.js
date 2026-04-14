@@ -17,10 +17,7 @@ const PORT = process.env.PORT || 4000;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// serve scanner
-app.use(express.static(path.join(__dirname, 'public'), {
-  index: false
-}));
+app.use(express.static(path.join(__dirname, 'public'), { index: false }));
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -29,7 +26,7 @@ const supabase = createClient(
 
 const LOOP = [10, 10, 20, 0, 50];
 
-// AUTH
+// 🔥 VERIFY MERCHANT
 const verifyMerchant = async (req, res, next) => {
   const apiKey = req.headers['x-api-key'];
 
@@ -45,14 +42,12 @@ const verifyMerchant = async (req, res, next) => {
   next();
 };
 
-// QR TOKEN
+// 🔥 TOKEN
 function generateQRToken(phone) {
   return jwt.sign({ phone }, process.env.JWT_SECRET);
 }
 
-//
-// WALLET (NO GOOGLE CALL)
-//
+// 🔥 WALLET
 app.get('/wallet/:phone', verifyMerchant, async (req, res) => {
   const { phone } = req.params;
   const merchant = req.merchant;
@@ -87,29 +82,54 @@ app.get('/wallet/:phone', verifyMerchant, async (req, res) => {
   res.json({ qrToken });
 });
 
-//
-// CUSTOMER SETUP
-//
+// 🔥 CUSTOMER SETUP (FIXED)
 app.post('/customer/setup', verifyMerchant, async (req, res) => {
   const { phone, name, email } = req.body;
   const merchant = req.merchant;
 
-  if (!name || !email) {
+  if (!phone || !name || !email) {
     return res.json({ error: 'Missing fields' });
   }
 
-  await supabase
+  // 🔥 CHECK EXISTING
+  const { data: existing } = await supabase
     .from('customers')
-    .update({ name, email })
+    .select('*')
     .eq('phone', phone)
-    .eq('merchant_id', merchant.id);
+    .eq('merchant_id', merchant.id)
+    .maybeSingle();
 
-  res.json({ success: true });
+  if (!existing) {
+    return res.json({ error: 'Customer not found' });
+  }
+
+  // 🔥 IF ALREADY HAS DATA → DO NOT OVERWRITE
+  if (existing.name && existing.email) {
+    return res.json({
+      success: true,
+      message: 'Customer already exists',
+      customer: existing
+    });
+  }
+
+  // 🔥 ONLY UPDATE IF EMPTY
+  const { data: updated } = await supabase
+    .from('customers')
+    .update({
+      name,
+      email
+    })
+    .eq('id', existing.id)
+    .select()
+    .single();
+
+  res.json({
+    success: true,
+    customer: updated
+  });
 });
 
-//
-// SCAN (NO WALLET CALL)
-//
+// 🔥 SCAN
 app.post('/scan', verifyMerchant, async (req, res) => {
   try {
     const { token } = req.body;
