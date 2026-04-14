@@ -3,37 +3,11 @@
 <head>
   <title>Join Tapr</title>
   <style>
-    body {
-      font-family: Arial;
-      text-align: center;
-      padding: 30px;
-    }
-
-    input {
-      padding: 12px;
-      margin: 8px;
-      width: 250px;
-      font-size: 16px;
-    }
-
-    button {
-      padding: 12px 20px;
-      font-size: 16px;
-      margin-top: 10px;
-      cursor: pointer;
-    }
-
-    #status {
-      margin-top: 20px;
-      font-weight: bold;
-    }
-
-    #walletBtn {
-      display: none;
-      margin-top: 20px;
-      background: black;
-      color: white;
-    }
+    body { font-family: Arial; text-align: center; padding: 30px; }
+    input { padding: 12px; margin: 8px; width: 250px; font-size: 16px; }
+    button { padding: 12px 20px; font-size: 16px; margin-top: 10px; cursor: pointer; }
+    #status { margin-top: 20px; font-weight: bold; }
+    #walletBtn { display: none; margin-top: 20px; background: black; color: white; }
   </style>
 </head>
 <body>
@@ -55,6 +29,14 @@
 
     let walletToken = null;
 
+    // 🔥 GET MERCHANT FROM URL
+    const params = new URLSearchParams(window.location.search);
+    const merchantKey = params.get("m");
+
+    if (!merchantKey) {
+      document.body.innerHTML = "<h3>Invalid merchant link</h3>";
+    }
+
     async function submitForm() {
       const phone = document.getElementById("phone").value.trim();
       const name = document.getElementById("name").value.trim();
@@ -71,21 +53,21 @@
       status.innerText = "Creating account...";
 
       try {
-        // create wallet + customer
+        // 🔥 CREATE / GET WALLET FOR THIS MERCHANT
         const walletRes = await fetch(`${API}/wallet/${phone}`, {
           headers: {
-            "x-api-key": "test_merchant_key_123"
+            "x-api-key": merchantKey
           }
         });
 
         const walletData = await walletRes.json();
 
-        // save details
+        // 🔥 SAVE DETAILS (WITH MERCHANT CONTEXT)
         await fetch(`${API}/customer/setup`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "x-api-key": "test_merchant_key_123"
+            "x-api-key": merchantKey
           },
           body: JSON.stringify({ phone, name, email })
         });
@@ -102,10 +84,7 @@
 
     function openWallet() {
       if (!walletToken) return;
-
-      // 🔥 Google Wallet Save URL
       const url = `https://pay.google.com/gp/v/save/${walletToken}`;
-
       window.location.href = url;
     }
   </script>
