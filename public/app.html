@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Tapr Scanner</title>
+  <script src="https://unpkg.com/html5-qrcode"></script>
+</head>
+<body>
+
+  <h2>Tapr Scanner</h2>
+
+  <div id="reader" style="width:300px;"></div>
+
+  <p id="result"></p>
+
+  <script>
+    const API_KEY = "test_key_123"; // 🔥 your merchant API key
+
+    function onScanSuccess(decodedText) {
+      console.log("QR:", decodedText);
+
+      fetch('/scan', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': API_KEY
+        },
+        body: JSON.stringify({ token: decodedText })
+      })
+      .then(res => res.json())
+      .then(data => {
+        console.log(data);
+
+        if (data.error) {
+          document.getElementById('result').innerText = data.error;
+        } else {
+          document.getElementById('result').innerText =
+            `Visits: ${data.visit_count} | Reward: ₱${data.earned_discount}`;
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        document.getElementById('result').innerText = 'Scan failed';
+      });
+    }
+
+    const html5QrCode = new Html5Qrcode("reader");
+
+    Html5Qrcode.getCameras().then(devices => {
+      if (devices && devices.length) {
+        const cameraId = devices[0].id;
+
+        html5QrCode.start(
+          cameraId,
+          { fps: 10, qrbox: 250 },
+          onScanSuccess
+        );
+      }
+    }).catch(err => {
+      console.error(err);
+    });
+  </script>
+
+</body>
+</html>
