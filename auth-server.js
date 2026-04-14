@@ -28,10 +28,7 @@ const supabase = createClient(
 const PRIVATE_KEY = process.env.PRIVATE_KEY.replace(/\\n/g, '\n');
 const SERVICE_ACCOUNT_EMAIL = process.env.SERVICE_ACCOUNT_EMAIL;
 
-// 🔴 REPLACE THIS WITH YOUR REAL ISSUER ID FROM GOOGLE
 const ISSUER_ID = "3388000000023096184";
-
-// 🔴 THIS CLASS MUST EXIST IN GOOGLE WALLET
 const CLASS_ID = `${ISSUER_ID}.tapr_class_v1`;
 
 const LOOP = [10, 10, 20, 0, 50];
@@ -72,10 +69,9 @@ async function getAccessToken() {
   return data.access_token;
 }
 
-// 🔥 CREATE WALLET OBJECT (NO SILENT FAIL)
+// 🔥 FIXED OBJECT CREATION (NO FAIL ON 409)
 async function createWalletObject(customer, merchant) {
   const accessToken = await getAccessToken();
-
   const objectId = `${ISSUER_ID}.${customer.wallet_id}`;
 
   const res = await fetch(`https://walletobjects.googleapis.com/walletobjects/v1/genericObject`, {
@@ -104,14 +100,21 @@ async function createWalletObject(customer, merchant) {
   const data = await res.json();
   console.log("WALLET OBJECT RESPONSE:", data);
 
+  // 🔥 KEY FIX
   if (!res.ok) {
-    throw new Error("Wallet object creation failed");
+    // allow "already exists"
+    if (data?.error?.code === 409) {
+      console.log("Object already exists, continuing...");
+      return objectId;
+    }
+
+    throw new Error(JSON.stringify(data));
   }
 
   return objectId;
 }
 
-// 🔥 GENERATE SAVE JWT
+// 🔥 SAVE JWT
 function generateSaveJWT(objectId) {
   return jwt.sign({
     iss: SERVICE_ACCOUNT_EMAIL,
@@ -119,14 +122,12 @@ function generateSaveJWT(objectId) {
     origins: [],
     typ: "savetowallet",
     payload: {
-      genericObjects: [
-        { id: objectId }
-      ]
+      genericObjects: [{ id: objectId }]
     }
   }, PRIVATE_KEY, { algorithm: "RS256" });
 }
 
-// 🔥 WALLET ENDPOINT
+// 🔥 WALLET
 app.get('/wallet/:phone', verifyMerchant, async (req, res) => {
   const { phone } = req.params;
   const merchant = req.merchant;
