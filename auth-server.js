@@ -28,7 +28,10 @@ const supabase = createClient(
 const PRIVATE_KEY = process.env.PRIVATE_KEY.replace(/\\n/g, '\n');
 const SERVICE_ACCOUNT_EMAIL = process.env.SERVICE_ACCOUNT_EMAIL;
 
+// 🔴 REPLACE THIS WITH YOUR REAL ISSUER ID FROM GOOGLE
 const ISSUER_ID = "3388000000023096184";
+
+// 🔴 THIS CLASS MUST EXIST IN GOOGLE WALLET
 const CLASS_ID = `${ISSUER_ID}.tapr_class_v1`;
 
 const LOOP = [10, 10, 20, 0, 50];
@@ -69,13 +72,13 @@ async function getAccessToken() {
   return data.access_token;
 }
 
-// 🔥 CREATE WALLET OBJECT (IF NOT EXISTS)
+// 🔥 CREATE WALLET OBJECT (NO SILENT FAIL)
 async function createWalletObject(customer, merchant) {
   const accessToken = await getAccessToken();
 
   const objectId = `${ISSUER_ID}.${customer.wallet_id}`;
 
-  await fetch(`https://walletobjects.googleapis.com/walletobjects/v1/genericObject`, {
+  const res = await fetch(`https://walletobjects.googleapis.com/walletobjects/v1/genericObject`, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${accessToken}`,
@@ -96,10 +99,19 @@ async function createWalletObject(customer, merchant) {
         value: "init"
       }
     })
-  }).catch(() => {});
+  });
+
+  const data = await res.json();
+  console.log("WALLET OBJECT RESPONSE:", data);
+
+  if (!res.ok) {
+    throw new Error("Wallet object creation failed");
+  }
+
+  return objectId;
 }
 
-// 🔥 GENERATE SAVE JWT (THIS FIXES YOUR ERROR)
+// 🔥 GENERATE SAVE JWT
 function generateSaveJWT(objectId) {
   return jwt.sign({
     iss: SERVICE_ACCOUNT_EMAIL,
@@ -108,9 +120,7 @@ function generateSaveJWT(objectId) {
     typ: "savetowallet",
     payload: {
       genericObjects: [
-        {
-          id: objectId
-        }
+        { id: objectId }
       ]
     }
   }, PRIVATE_KEY, { algorithm: "RS256" });
@@ -146,16 +156,19 @@ app.get('/wallet/:phone', verifyMerchant, async (req, res) => {
     customer = newCustomer;
   }
 
-  const objectId = `${ISSUER_ID}.${customer.wallet_id}`;
+  try {
+    const objectId = await createWalletObject(customer, merchant);
+    const saveJWT = generateSaveJWT(objectId);
 
-  await createWalletObject(customer, merchant);
+    res.json({ saveJWT });
 
-  const saveJWT = generateSaveJWT(objectId);
-
-  res.json({ saveJWT });
+  } catch (err) {
+    console.error("WALLET ERROR:", err.message);
+    res.json({ error: "wallet_failed", details: err.message });
+  }
 });
 
-// 🔥 CUSTOMER SETUP (same as step 2)
+// 🔥 CUSTOMER SETUP
 app.post('/customer/setup', verifyMerchant, async (req, res) => {
   const { phone, name, email } = req.body;
   const merchant = req.merchant;
@@ -179,7 +192,7 @@ app.post('/customer/setup', verifyMerchant, async (req, res) => {
   res.json({ success: true });
 });
 
-// 🔥 SCAN (unchanged from step 3)
+// 🔥 SCAN
 app.post('/scan', verifyMerchant, async (req, res) => {
   try {
     const { token } = req.body;
@@ -204,9 +217,9 @@ app.post('/scan', verifyMerchant, async (req, res) => {
       return res.json({ error: 'missing_details' });
     }
 
-    const now = Date.now();
+    const today = new Date().toDateString();
 
-    if (customer.last_reward_day === new Date().toDateString()) {
+    if (customer.last_reward_day === today) {
       return res.json({ error: 'Already claimed today' });
     }
 
@@ -219,7 +232,7 @@ app.post('/scan', verifyMerchant, async (req, res) => {
       .from('customers')
       .update({
         visit_count: visit,
-        last_reward_day: new Date().toDateString()
+        last_reward_day: today
       })
       .eq('id', customer.id);
 
