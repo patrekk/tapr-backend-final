@@ -37,7 +37,7 @@
 
   <br>
 
-  <video id="video" autoplay></video>
+  <video id="video" autoplay playsinline></video>
 
   <p id="status">Idle</p>
 
@@ -53,7 +53,6 @@
 
     async function startScanner() {
       status.innerText = "Starting camera...";
-      scanning = true;
 
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: "environment" }
@@ -61,11 +60,22 @@
 
       video.srcObject = stream;
 
-      requestAnimationFrame(scanFrame);
+      // 🔥 WAIT UNTIL VIDEO IS READY
+      video.onloadedmetadata = () => {
+        video.play();
+        scanning = true;
+        status.innerText = "Ready to scan";
+        requestAnimationFrame(scanFrame);
+      };
     }
 
     function scanFrame() {
       if (!scanning) return;
+
+      if (video.videoWidth === 0 || video.videoHeight === 0) {
+        requestAnimationFrame(scanFrame);
+        return;
+      }
 
       const canvas = document.createElement("canvas");
       const ctx = canvas.getContext("2d");
