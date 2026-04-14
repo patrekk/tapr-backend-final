@@ -22,7 +22,7 @@
 
   <p id="status"></p>
 
-  <button id="walletBtn">TEST BUTTON</button>
+  <button id="walletBtn">Add to Wallet</button>
 
   <script>
     const API = "https://tapr-backend-final-production.up.railway.app";
@@ -50,32 +50,24 @@
 
         const walletData = await walletRes.json();
 
-        console.log("WALLET RESPONSE:", walletData);
-
         saveJWT = walletData.saveJWT;
 
-        // 🔴 FORCE SHOW TOKEN STATE
         if (!saveJWT) {
-          status.innerText = "ERROR: saveJWT is null";
+          status.innerText = "Wallet error";
           return;
         }
 
-        status.innerText = "JWT READY";
+        status.innerText = "Ready to add to wallet";
 
         walletBtn.style.display = "inline-block";
-        walletBtn.innerText = "GO TO WALLET";
 
-        walletBtn.onclick = () => {
-          const url = `https://pay.google.com/gp/v/save/${saveJWT}`;
-          console.log("OPENING:", url);
-
-          // 🔥 FORCE OPEN (NEW TAB)
-          window.open(url, "_blank");
+        // 🔥 DIRECT NAVIGATION (NO POPUP)
+        walletBtn.onclick = function () {
+          window.location.href = `https://pay.google.com/gp/v/save/${saveJWT}`;
         };
 
       } catch (err) {
-        status.innerText = "FAIL";
-        console.error(err);
+        status.innerText = "Something went wrong";
       }
     }
   </script>
