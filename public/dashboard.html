@@ -32,6 +32,7 @@
       padding: 20px;
       border-radius: 10px;
       text-align: center;
+      font-size: 18px;
     }
 
     table {
@@ -62,7 +63,7 @@
 
   <div class="card">
     <h3>Customers</h3>
-    <table id="customersTable">
+    <table>
       <thead>
         <tr>
           <th>Phone</th>
@@ -70,13 +71,13 @@
           <th>Visits</th>
         </tr>
       </thead>
-      <tbody></tbody>
+      <tbody id="customersBody"></tbody>
     </table>
   </div>
 
   <div class="card">
     <h3>Recent Scans</h3>
-    <table id="logsTable">
+    <table>
       <thead>
         <tr>
           <th>Phone</th>
@@ -84,7 +85,7 @@
           <th>Result</th>
         </tr>
       </thead>
-      <tbody></tbody>
+      <tbody id="logsBody"></tbody>
     </table>
   </div>
 
@@ -97,66 +98,84 @@
     }
 
     async function loadStats() {
-      const res = await fetch(`${API}/merchant/stats`, {
-        headers: { authorization: token }
-      });
+      try {
+        const res = await fetch(`${API}/merchant/stats`, {
+          headers: { authorization: token }
+        });
 
-      const data = await res.json();
+        const data = await res.json();
+        console.log("STATS:", data);
 
-      document.getElementById("totalCustomers").innerHTML =
-        data.total_customers + "<br>Customers";
+        document.getElementById("totalCustomers").innerHTML =
+          (data.total_customers || 0) + "<br>Customers";
 
-      document.getElementById("totalScans").innerHTML =
-        data.total_scans + "<br>Total Scans";
+        document.getElementById("totalScans").innerHTML =
+          (data.total_scans || 0) + "<br>Total Scans";
 
-      document.getElementById("todayScans").innerHTML =
-        data.today_scans + "<br>Today";
+        document.getElementById("todayScans").innerHTML =
+          (data.today_scans || 0) + "<br>Today";
+
+      } catch (err) {
+        console.error("Stats error:", err);
+      }
     }
 
     async function loadCustomers() {
-      const res = await fetch(`${API}/merchant/customers`, {
-        headers: { authorization: token }
-      });
+      try {
+        const res = await fetch(`${API}/merchant/customers`, {
+          headers: { authorization: token }
+        });
 
-      const data = await res.json();
+        const data = await res.json();
+        console.log("CUSTOMERS:", data);
 
-      const tbody = document.querySelector("#customersTable tbody");
-      tbody.innerHTML = "";
+        const tbody = document.getElementById("customersBody");
+        tbody.innerHTML = "";
 
-      data.forEach(c => {
-        const row = `
-          <tr>
-            <td>${c.phone}</td>
-            <td>${c.name || "-"}</td>
-            <td>${c.visit_count}</td>
-          </tr>
-        `;
-        tbody.innerHTML += row;
-      });
+        data.forEach(c => {
+          const row = `
+            <tr>
+              <td>${c.phone}</td>
+              <td>${c.name || "-"}</td>
+              <td>${c.visit_count || 0}</td>
+            </tr>
+          `;
+          tbody.innerHTML += row;
+        });
+
+      } catch (err) {
+        console.error("Customers error:", err);
+      }
     }
 
     async function loadLogs() {
-      const res = await fetch(`${API}/merchant/scan-logs`, {
-        headers: { authorization: token }
-      });
+      try {
+        const res = await fetch(`${API}/merchant/scan-logs`, {
+          headers: { authorization: token }
+        });
 
-      const data = await res.json();
+        const data = await res.json();
+        console.log("LOGS:", data);
 
-      const tbody = document.querySelector("#logsTable tbody");
-      tbody.innerHTML = "";
+        const tbody = document.getElementById("logsBody");
+        tbody.innerHTML = "";
 
-      data.forEach(l => {
-        const time = new Date(l.scanned_at).toLocaleString();
+        data.forEach(l => {
+          const time = new Date(l.scanned_at).toLocaleString();
 
-        const row = `
-          <tr>
-            <td>${l.phone}</td>
-            <td>${time}</td>
-            <td>${l.result}</td>
-          </tr>
-        `;
-        tbody.innerHTML += row;
-      });
+          const row = `
+            <tr>
+              <td>${l.phone}</td>
+              <td>${time}</td>
+              <td>${l.result || "-"}</td>
+            </tr>
+          `;
+          tbody.innerHTML += row;
+        });
+
+      } catch (err) {
+        console.error("Logs error:", err);
+      }
     }
 
     loadStats();
