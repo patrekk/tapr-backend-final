@@ -4,9 +4,28 @@
   <title>Tapr Scanner</title>
   <style>
     body { font-family: Arial; text-align: center; padding: 20px; }
+
     #video { width: 300px; border-radius: 12px; margin-top: 20px; }
+
     #status { margin-top: 20px; font-size: 18px; font-weight: bold; }
-    button { padding: 12px 20px; font-size: 16px; margin-top: 20px; cursor: pointer; }
+
+    button {
+      padding: 12px 20px;
+      font-size: 16px;
+      margin-top: 20px;
+      cursor: pointer;
+    }
+
+    #form {
+      display: none;
+      margin-top: 20px;
+    }
+
+    input {
+      padding: 10px;
+      margin: 5px;
+      width: 200px;
+    }
   </style>
 </head>
 <body>
@@ -21,6 +40,14 @@
 
   <p id="status">Idle</p>
 
+  <!-- 🔥 CUSTOMER FORM -->
+  <div id="form">
+    <h3>Enter Details</h3>
+    <input id="name" placeholder="Name"><br>
+    <input id="email" placeholder="Email"><br>
+    <button onclick="submitDetails()">Submit</button>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/jsqr"></script>
 
   <script>
@@ -28,8 +55,10 @@
 
     const video = document.getElementById("video");
     const status = document.getElementById("status");
+    const form = document.getElementById("form");
 
     let scanning = false;
+    let currentPhone = null;
 
     async function startScanner() {
       status.innerText = "Starting camera...";
@@ -51,7 +80,7 @@
     function scanFrame() {
       if (!scanning) return;
 
-      if (video.videoWidth === 0 || video.videoHeight === 0) {
+      if (video.videoWidth === 0) {
         requestAnimationFrame(scanFrame);
         return;
       }
@@ -68,22 +97,15 @@
       const code = jsQR(imageData.data, canvas.width, canvas.height);
 
       if (code) {
-        handleScan(code.data);
+        handleScan(code.data.trim());
         return;
       }
 
       requestAnimationFrame(scanFrame);
     }
 
-    async function handleScan(rawToken) {
+    async function handleScan(token) {
       scanning = false;
-
-      // 🔥 CLEAN TOKEN (CRITICAL FIX)
-      const token = rawToken.trim();
-
-      console.log("RAW:", rawToken);
-      console.log("CLEAN:", token);
-
       status.innerText = "Processing...";
 
       try {
@@ -98,26 +120,61 @@
 
         const data = await res.json();
 
-        console.log("RESPONSE:", data);
-
         if (data.error === "missing_details") {
-          status.innerText = "Missing details - need setup";
-        } else if (data.error) {
+          status.innerText = "Enter customer details";
+          form.style.display = "block";
+
+          // 🔥 decode phone from JWT
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          currentPhone = payload.phone;
+
+          return;
+        }
+
+        if (data.error) {
           status.innerText = data.error;
         } else {
           status.innerText = `Visit: ${data.visit} | Reward: ₱${data.applied_discount}`;
         }
 
       } catch (err) {
-        console.error(err);
         status.innerText = "Scan failed";
       }
 
+      resetScanner();
+    }
+
+    async function submitDetails() {
+      const name = document.getElementById("name").value;
+      const email = document.getElementById("email").value;
+
+      status.innerText = "Saving...";
+
+      await fetch(`${API}/customer/setup`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": "test_merchant_key_123"
+        },
+        body: JSON.stringify({
+          phone: currentPhone,
+          name,
+          email
+        })
+      });
+
+      form.style.display = "none";
+      status.innerText = "Saved. Scan again.";
+
+      resetScanner();
+    }
+
+    function resetScanner() {
       setTimeout(() => {
-        status.innerText = "Ready";
         scanning = true;
+        status.innerText = "Ready";
         requestAnimationFrame(scanFrame);
-      }, 3000);
+      }, 2000);
     }
   </script>
 
