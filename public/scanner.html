@@ -2,10 +2,43 @@
 <html>
 <head>
   <title>Tapr Scanner</title>
+  <style>
+    body {
+      font-family: Arial;
+      text-align: center;
+      padding: 20px;
+    }
+
+    #video {
+      width: 300px;
+      border-radius: 12px;
+      margin-top: 20px;
+    }
+
+    #status {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    button {
+      padding: 12px 20px;
+      font-size: 16px;
+      margin-top: 20px;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
+
   <h2>Tapr Scanner</h2>
-  <video id="video" width="300" autoplay></video>
+
+  <button onclick="startScanner()">Start Scanner</button>
+
+  <br>
+
+  <video id="video" autoplay></video>
+
   <p id="status">Idle</p>
 
   <script src="https://cdn.jsdelivr.net/npm/jsqr"></script>
@@ -16,12 +49,24 @@
     const video = document.getElementById("video");
     const status = document.getElementById("status");
 
-    async function startCamera() {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+    let scanning = false;
+
+    async function startScanner() {
+      status.innerText = "Starting camera...";
+      scanning = true;
+
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "environment" }
+      });
+
       video.srcObject = stream;
+
+      requestAnimationFrame(scanFrame);
     }
 
-    async function scanFrame() {
+    function scanFrame() {
+      if (!scanning) return;
+
       const canvas = document.createElement("canvas");
       const ctx = canvas.getContext("2d");
 
@@ -35,17 +80,14 @@
 
       if (code) {
         handleScan(code.data);
+        return;
       }
 
       requestAnimationFrame(scanFrame);
     }
 
-    let scanning = true;
-
     async function handleScan(token) {
-      if (!scanning) return;
       scanning = false;
-
       status.innerText = "Processing...";
 
       try {
@@ -60,10 +102,10 @@
 
         const data = await res.json();
 
-        console.log("SCAN RESULT:", data);
+        console.log(data);
 
         if (data.error === "missing_details") {
-          status.innerText = "Missing details";
+          status.innerText = "Missing details - need setup";
         } else if (data.error) {
           status.innerText = data.error;
         } else {
@@ -76,12 +118,12 @@
       }
 
       setTimeout(() => {
-        scanning = true;
         status.innerText = "Ready";
+        scanning = true;
+        requestAnimationFrame(scanFrame);
       }, 3000);
     }
-
-    startCamera().then(scanFrame);
   </script>
+
 </body>
 </html>
