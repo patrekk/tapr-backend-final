@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import jwt from 'jsonwebtoken';
 import { createClient } from '@supabase/supabase-js';
+import fetch from 'node-fetch';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -17,36 +18,39 @@ const PORT = process.env.PORT || 4000;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-app.use(express.static(path.join(__dirname, 'public'), { index: false }));
+// 🔥 IMPORTANT: API routes FIRST
+// (static comes LAST to avoid overriding)
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
-// 🔥 LOGIN
-app.post('/merchant/login', async (req, res) => {
-  const { email, password } = req.body;
+const PRIVATE_KEY = process.env.PRIVATE_KEY.replace(/\\n/g, '\n');
+const SERVICE_ACCOUNT_EMAIL = process.env.SERVICE_ACCOUNT_EMAIL;
+
+const ISSUER_ID = "3388000000023096184";
+const CLASS_ID = `${ISSUER_ID}.tapr_class_v2`;
+
+const LOOP = [10, 10, 20, 0, 50];
+
+// 🔥 VERIFY MERCHANT (API KEY)
+const verifyMerchant = async (req, res, next) => {
+  const apiKey = req.headers['x-api-key'];
 
   const { data: merchant } = await supabase
     .from('merchants')
     .select('*')
-    .eq('email', email)
+    .eq('api_key', apiKey)
     .single();
 
-  if (!merchant || merchant.password !== password) {
-    return res.json({ error: 'Invalid credentials' });
-  }
+  if (!merchant) return res.json({ error: 'Invalid merchant' });
 
-  const token = jwt.sign(
-    { merchant_id: merchant.id },
-    process.env.JWT_SECRET
-  );
+  req.merchant = merchant;
+  next();
+};
 
-  res.json({ token });
-});
-
-// 🔥 VERIFY SESSION
+// 🔥 VERIFY SESSION (DASHBOARD)
 const verifySession = async (req, res, next) => {
   const token = req.headers['authorization'];
 
@@ -71,7 +75,214 @@ const verifySession = async (req, res, next) => {
   }
 };
 
-// 🔥 STATS
+// 🔥 GOOGLE TOKEN
+async function getAccessToken() {
+  const token = jwt.sign({
+    iss: SERVICE_ACCOUNT_EMAIL,
+    scope: 'https://www.googleapis.com/auth/wallet_object.issuer',
+    aud: 'https://oauth2.googleapis.com/token',
+    exp: Math.floor(Date.now() / 1000) + 3600,
+    iat: Math.floor(Date.now() / 1000)
+  }, PRIVATE_KEY, { algorithm: 'RS256' });
+
+  const res = await fetch('https://oauth2.googleapis.com/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${token}`
+  });
+
+  const data = await res.json();
+  return data.access_token;
+}
+
+// 🔥 CREATE WALLET OBJECT
+async function createWalletObject(customer, merchant) {
+  const accessToken = await getAccessToken();
+  const objectId = `${ISSUER_ID}.${customer.wallet_id}`;
+
+  const res = await fetch(`https://walletobjects.googleapis.com/walletobjects/v1/genericObject`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      id: objectId,
+      classId: CLASS_ID,
+      state: "ACTIVE",
+      cardTitle: {
+        defaultValue: { language: "en", value: merchant.name }
+      },
+      header: {
+        defaultValue: { language: "en", value: customer.phone }
+      },
+      barcode: {
+        type: "QR_CODE",
+        value: "init"
+      }
+    })
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    if (data?.error?.code === 409) return objectId;
+    throw new Error(JSON.stringify(data));
+  }
+
+  return objectId;
+}
+
+// 🔥 SAVE JWT
+function generateSaveJWT(objectId) {
+  return jwt.sign({
+    iss: SERVICE_ACCOUNT_EMAIL,
+    aud: "google",
+    typ: "savetowallet",
+    payload: {
+      genericObjects: [{ id: objectId }]
+    }
+  }, PRIVATE_KEY, { algorithm: "RS256" });
+}
+
+// 🔥 WALLET
+app.get('/wallet/:phone', verifyMerchant, async (req, res) => {
+  const { phone } = req.params;
+  const merchant = req.merchant;
+
+  let { data: customer } = await supabase
+    .from('customers')
+    .select('*')
+    .eq('phone', phone)
+    .eq('merchant_id', merchant.id)
+    .maybeSingle();
+
+  if (!customer) {
+    const wallet_id = `tapr_${phone}_${Date.now()}`;
+
+    const { data: newCustomer } = await supabase
+      .from('customers')
+      .insert([{
+        phone,
+        merchant_id: merchant.id,
+        wallet_id,
+        visit_count: 0
+      }])
+      .select()
+      .single();
+
+    customer = newCustomer;
+  }
+
+  try {
+    const objectId = await createWalletObject(customer, merchant);
+    const saveJWT = generateSaveJWT(objectId);
+
+    res.json({ saveJWT });
+
+  } catch (err) {
+    res.json({ error: 'wallet_failed', details: err.message });
+  }
+});
+
+// 🔥 CUSTOMER SETUP
+app.post('/customer/setup', verifyMerchant, async (req, res) => {
+  const { phone, name, email } = req.body;
+  const merchant = req.merchant;
+
+  const { data: existing } = await supabase
+    .from('customers')
+    .select('*')
+    .eq('phone', phone)
+    .eq('merchant_id', merchant.id)
+    .maybeSingle();
+
+  if (existing.name && existing.email) {
+    return res.json({ success: true, message: "Customer already exists" });
+  }
+
+  await supabase
+    .from('customers')
+    .update({ name, email })
+    .eq('id', existing.id);
+
+  res.json({ success: true });
+});
+
+// 🔥 SCAN
+app.post('/scan', verifyMerchant, async (req, res) => {
+  try {
+    const { token } = req.body;
+    const merchant = req.merchant;
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    if (decoded.merchant_id !== merchant.id) {
+      return res.json({ error: 'Invalid customer for this merchant' });
+    }
+
+    const phone = decoded.phone;
+
+    const { data: customer } = await supabase
+      .from('customers')
+      .select('*')
+      .eq('phone', phone)
+      .eq('merchant_id', merchant.id)
+      .single();
+
+    if (!customer.name || !customer.email) {
+      return res.json({ error: 'missing_details' });
+    }
+
+    const today = new Date().toDateString();
+
+    if (customer.last_reward_day === today) {
+      return res.json({ error: 'Already claimed today' });
+    }
+
+    let visit = customer.visit_count + 1;
+    if (visit > 5) visit = 1;
+
+    const applied_discount = LOOP[visit - 1];
+
+    await supabase
+      .from('customers')
+      .update({
+        visit_count: visit,
+        last_reward_day: today
+      })
+      .eq('id', customer.id);
+
+    res.json({ success: true, visit, applied_discount });
+
+  } catch (err) {
+    res.json({ error: err.message });
+  }
+});
+
+// 🔥 LOGIN
+app.post('/merchant/login', async (req, res) => {
+  const { email, password } = req.body;
+
+  const { data: merchant } = await supabase
+    .from('merchants')
+    .select('*')
+    .eq('email', email)
+    .single();
+
+  if (!merchant || merchant.password !== password) {
+    return res.json({ error: 'Invalid credentials' });
+  }
+
+  const token = jwt.sign(
+    { merchant_id: merchant.id },
+    process.env.JWT_SECRET
+  );
+
+  res.json({ token });
+});
+
+// 🔥 DASHBOARD
 app.get('/merchant/stats', verifySession, async (req, res) => {
   const merchant = req.merchant;
 
@@ -85,45 +296,14 @@ app.get('/merchant/stats', verifySession, async (req, res) => {
     .select('*')
     .eq('merchant_id', merchant.id);
 
-  const today = new Date().toDateString();
-
-  const todayScans = logs.filter(l =>
-    new Date(l.scanned_at).toDateString() === today
-  );
-
   res.json({
     total_customers: customers.length,
-    total_scans: logs.length,
-    today_scans: todayScans.length
+    total_scans: logs.length
   });
 });
 
-// 🔥 CUSTOMERS
-app.get('/merchant/customers', verifySession, async (req, res) => {
-  const merchant = req.merchant;
-
-  const { data } = await supabase
-    .from('customers')
-    .select('*')
-    .eq('merchant_id', merchant.id)
-    .order('id', { ascending: false });
-
-  res.json(data);
-});
-
-// 🔥 SCAN LOGS
-app.get('/merchant/scan-logs', verifySession, async (req, res) => {
-  const merchant = req.merchant;
-
-  const { data } = await supabase
-    .from('scan_logs')
-    .select('*')
-    .eq('merchant_id', merchant.id)
-    .order('scanned_at', { ascending: false })
-    .limit(50);
-
-  res.json(data);
-});
+// 🔥 STATIC LAST
+app.use(express.static(path.join(__dirname, 'public'), { index: false }));
 
 app.listen(PORT, () => {
   console.log(`Server running on ${PORT}`);
