@@ -29,7 +29,7 @@ const PRIVATE_KEY = process.env.PRIVATE_KEY.replace(/\\n/g, '\n');
 const SERVICE_ACCOUNT_EMAIL = process.env.SERVICE_ACCOUNT_EMAIL;
 
 const ISSUER_ID = "3388000000023096184";
-const CLASS_ID = `${ISSUER_ID}.tapr_class_v1`;
+const CLASS_ID = `${ISSUER_ID}.tapr_class_v2`;
 
 const LOOP = [10, 10, 20, 0, 50];
 
