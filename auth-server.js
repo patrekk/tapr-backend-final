@@ -42,9 +42,12 @@ const verifyMerchant = async (req, res, next) => {
   next();
 };
 
-// 🔥 TOKEN
-function generateQRToken(phone) {
-  return jwt.sign({ phone }, process.env.JWT_SECRET);
+// 🔥 TOKEN NOW INCLUDES MERCHANT
+function generateQRToken(phone, merchantId) {
+  return jwt.sign(
+    { phone, merchant_id: merchantId },
+    process.env.JWT_SECRET
+  );
 }
 
 // 🔥 WALLET
@@ -77,12 +80,12 @@ app.get('/wallet/:phone', verifyMerchant, async (req, res) => {
     customer = newCustomer;
   }
 
-  const qrToken = generateQRToken(phone);
+  const qrToken = generateQRToken(phone, merchant.id);
 
   res.json({ qrToken });
 });
 
-// 🔥 CUSTOMER SETUP (FIXED)
+// 🔥 CUSTOMER SETUP (same as step 2)
 app.post('/customer/setup', verifyMerchant, async (req, res) => {
   const { phone, name, email } = req.body;
   const merchant = req.merchant;
@@ -91,7 +94,6 @@ app.post('/customer/setup', verifyMerchant, async (req, res) => {
     return res.json({ error: 'Missing fields' });
   }
 
-  // 🔥 CHECK EXISTING
   const { data: existing } = await supabase
     .from('customers')
     .select('*')
@@ -103,7 +105,6 @@ app.post('/customer/setup', verifyMerchant, async (req, res) => {
     return res.json({ error: 'Customer not found' });
   }
 
-  // 🔥 IF ALREADY HAS DATA → DO NOT OVERWRITE
   if (existing.name && existing.email) {
     return res.json({
       success: true,
@@ -112,13 +113,9 @@ app.post('/customer/setup', verifyMerchant, async (req, res) => {
     });
   }
 
-  // 🔥 ONLY UPDATE IF EMPTY
   const { data: updated } = await supabase
     .from('customers')
-    .update({
-      name,
-      email
-    })
+    .update({ name, email })
     .eq('id', existing.id)
     .select()
     .single();
@@ -129,13 +126,19 @@ app.post('/customer/setup', verifyMerchant, async (req, res) => {
   });
 });
 
-// 🔥 SCAN
+// 🔥 SCAN WITH MERCHANT VALIDATION
 app.post('/scan', verifyMerchant, async (req, res) => {
   try {
     const { token } = req.body;
     const merchant = req.merchant;
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    // 🔥 BLOCK CROSS-MERCHANT
+    if (decoded.merchant_id !== merchant.id) {
+      return res.json({ error: 'Invalid customer for this merchant' });
+    }
+
     const phone = decoded.phone;
 
     const { data: customer } = await supabase
