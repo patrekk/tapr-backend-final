@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Merchant Login</title>
+</head>
+<body>
+
+  <h2>Merchant Login</h2>
+
+  <input id="email" placeholder="Email"><br><br>
+  <input id="password" type="password" placeholder="Password"><br><br>
+
+  <button onclick="login()">Login</button>
+
+  <p id="status"></p>
+
+  <script>
+    const API = "https://tapr-backend-final-production.up.railway.app";
+
+    async function login() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      const status = document.getElementById("status");
+
+      const res = await fetch(`${API}/merchant/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ email, password })
+      });
+
+      const data = await res.json();
+
+      if (data.error) {
+        status.innerText = data.error;
+        return;
+      }
+
+      localStorage.setItem("token", data.token);
+
+      window.location.href = "/dashboard.html";
+    }
+  </script>
+
+</body>
+</html>
