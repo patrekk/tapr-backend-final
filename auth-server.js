@@ -3,7 +3,6 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import jwt from 'jsonwebtoken';
 import { createClient } from '@supabase/supabase-js';
-import fetch from 'node-fetch';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -25,223 +24,71 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
-const PRIVATE_KEY = process.env.PRIVATE_KEY.replace(/\\n/g, '\n');
-const SERVICE_ACCOUNT_EMAIL = process.env.SERVICE_ACCOUNT_EMAIL;
-
-const ISSUER_ID = "3388000000023096184";
-const CLASS_ID = `${ISSUER_ID}.tapr_class_v2`;
-
-const LOOP = [10, 10, 20, 0, 50];
-
-// 🔥 VERIFY MERCHANT
-const verifyMerchant = async (req, res, next) => {
-  const apiKey = req.headers['x-api-key'];
+// 🔥 LOGIN
+app.post('/merchant/login', async (req, res) => {
+  const { email, password } = req.body;
 
   const { data: merchant } = await supabase
     .from('merchants')
     .select('*')
-    .eq('api_key', apiKey)
+    .eq('email', email)
     .single();
 
-  if (!merchant) return res.json({ error: 'Invalid merchant' });
-
-  req.merchant = merchant;
-  next();
-};
-
-// 🔥 GOOGLE ACCESS TOKEN
-async function getAccessToken() {
-  const token = jwt.sign({
-    iss: SERVICE_ACCOUNT_EMAIL,
-    scope: 'https://www.googleapis.com/auth/wallet_object.issuer',
-    aud: 'https://oauth2.googleapis.com/token',
-    exp: Math.floor(Date.now() / 1000) + 3600,
-    iat: Math.floor(Date.now() / 1000)
-  }, PRIVATE_KEY, { algorithm: 'RS256' });
-
-  const res = await fetch('https://oauth2.googleapis.com/token', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${token}`
-  });
-
-  const data = await res.json();
-  return data.access_token;
-}
-
-// 🔥 FIXED OBJECT CREATION (NO FAIL ON 409)
-async function createWalletObject(customer, merchant) {
-  const accessToken = await getAccessToken();
-  const objectId = `${ISSUER_ID}.${customer.wallet_id}`;
-
-  const res = await fetch(`https://walletobjects.googleapis.com/walletobjects/v1/genericObject`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      id: objectId,
-      classId: CLASS_ID,
-      state: "ACTIVE",
-      cardTitle: {
-        defaultValue: { language: "en", value: merchant.name }
-      },
-      header: {
-        defaultValue: { language: "en", value: customer.phone }
-      },
-      barcode: {
-        type: "QR_CODE",
-        value: "init"
-      }
-    })
-  });
-
-  const data = await res.json();
-  console.log("WALLET OBJECT RESPONSE:", data);
-
-  // 🔥 KEY FIX
-  if (!res.ok) {
-    // allow "already exists"
-    if (data?.error?.code === 409) {
-      console.log("Object already exists, continuing...");
-      return objectId;
-    }
-
-    throw new Error(JSON.stringify(data));
+  if (!merchant || merchant.password !== password) {
+    return res.json({ error: 'Invalid credentials' });
   }
 
-  return objectId;
-}
+  const token = jwt.sign(
+    { merchant_id: merchant.id },
+    process.env.JWT_SECRET
+  );
 
-// 🔥 SAVE JWT
-function generateSaveJWT(objectId) {
-  return jwt.sign({
-    iss: SERVICE_ACCOUNT_EMAIL,
-    aud: "google",
-    origins: [],
-    typ: "savetowallet",
-    payload: {
-      genericObjects: [{ id: objectId }]
-    }
-  }, PRIVATE_KEY, { algorithm: "RS256" });
-}
-
-// 🔥 WALLET
-app.get('/wallet/:phone', verifyMerchant, async (req, res) => {
-  const { phone } = req.params;
-  const merchant = req.merchant;
-
-  let { data: customer } = await supabase
-    .from('customers')
-    .select('*')
-    .eq('phone', phone)
-    .eq('merchant_id', merchant.id)
-    .maybeSingle();
-
-  if (!customer) {
-    const wallet_id = `tapr_${phone}_${Date.now()}`;
-
-    const { data: newCustomer } = await supabase
-      .from('customers')
-      .insert([{
-        phone,
-        merchant_id: merchant.id,
-        wallet_id,
-        visit_count: 0,
-        pending_discount: 10
-      }])
-      .select()
-      .single();
-
-    customer = newCustomer;
-  }
-
-  try {
-    const objectId = await createWalletObject(customer, merchant);
-    const saveJWT = generateSaveJWT(objectId);
-
-    res.json({ saveJWT });
-
-  } catch (err) {
-    console.error("WALLET ERROR:", err.message);
-    res.json({ error: "wallet_failed", details: err.message });
-  }
+  res.json({ token });
 });
 
-// 🔥 CUSTOMER SETUP
-app.post('/customer/setup', verifyMerchant, async (req, res) => {
-  const { phone, name, email } = req.body;
-  const merchant = req.merchant;
+// 🔥 VERIFY SESSION
+const verifySession = async (req, res, next) => {
+  const token = req.headers['authorization'];
 
-  const { data: existing } = await supabase
-    .from('customers')
-    .select('*')
-    .eq('phone', phone)
-    .eq('merchant_id', merchant.id)
-    .maybeSingle();
+  if (!token) return res.json({ error: 'No session' });
 
-  if (existing.name && existing.email) {
-    return res.json({ success: true, message: "Customer already exists" });
-  }
-
-  await supabase
-    .from('customers')
-    .update({ name, email })
-    .eq('id', existing.id);
-
-  res.json({ success: true });
-});
-
-// 🔥 SCAN
-app.post('/scan', verifyMerchant, async (req, res) => {
   try {
-    const { token } = req.body;
-    const merchant = req.merchant;
-
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    if (decoded.merchant_id !== merchant.id) {
-      return res.json({ error: 'Invalid customer for this merchant' });
-    }
-
-    const phone = decoded.phone;
-
-    const { data: customer } = await supabase
-      .from('customers')
+    const { data: merchant } = await supabase
+      .from('merchants')
       .select('*')
-      .eq('phone', phone)
-      .eq('merchant_id', merchant.id)
+      .eq('id', decoded.merchant_id)
       .single();
 
-    if (!customer.name || !customer.email) {
-      return res.json({ error: 'missing_details' });
-    }
+    if (!merchant) return res.json({ error: 'Invalid session' });
 
-    const today = new Date().toDateString();
+    req.merchant = merchant;
+    next();
 
-    if (customer.last_reward_day === today) {
-      return res.json({ error: 'Already claimed today' });
-    }
-
-    let visit = customer.visit_count + 1;
-    if (visit > 5) visit = 1;
-
-    const applied_discount = LOOP[visit - 1];
-
-    await supabase
-      .from('customers')
-      .update({
-        visit_count: visit,
-        last_reward_day: today
-      })
-      .eq('id', customer.id);
-
-    res.json({ success: true, visit, applied_discount });
-
-  } catch (err) {
-    res.json({ error: err.message });
+  } catch {
+    res.json({ error: 'Invalid session' });
   }
+};
+
+// 🔥 DASHBOARD STATS
+app.get('/merchant/stats', verifySession, async (req, res) => {
+  const merchant = req.merchant;
+
+  const { data: customers } = await supabase
+    .from('customers')
+    .select('*')
+    .eq('merchant_id', merchant.id);
+
+  const { data: logs } = await supabase
+    .from('scan_logs')
+    .select('*')
+    .eq('merchant_id', merchant.id);
+
+  res.json({
+    total_customers: customers.length,
+    total_scans: logs.length
+  });
 });
 
 app.listen(PORT, () => {
