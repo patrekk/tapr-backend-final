@@ -3,7 +3,6 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import jwt from 'jsonwebtoken';
 import { createClient } from '@supabase/supabase-js';
-import fetch from 'node-fetch';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -23,19 +22,12 @@ app.use(express.static(path.join(__dirname, 'public'), {
   index: false
 }));
 
-// 🔥 ENV-BASED GOOGLE AUTH (NO FILE)
-const PRIVATE_KEY = process.env.PRIVATE_KEY.replace(/\\n/g, '\n');
-const SERVICE_ACCOUNT_EMAIL = process.env.SERVICE_ACCOUNT_EMAIL;
-
-// SUPABASE
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
-// REWARD LOOP
 const LOOP = [10, 10, 20, 0, 50];
-const ISSUER_ID = '3388000000023096184';
 
 // AUTH
 const verifyMerchant = async (req, res, next) => {
@@ -58,60 +50,8 @@ function generateQRToken(phone) {
   return jwt.sign({ phone }, process.env.JWT_SECRET);
 }
 
-// GOOGLE ACCESS TOKEN
-async function getAccessToken() {
-  const token = jwt.sign({
-    iss: SERVICE_ACCOUNT_EMAIL,
-    scope: 'https://www.googleapis.com/auth/wallet_object.issuer',
-    aud: 'https://oauth2.googleapis.com/token',
-    exp: Math.floor(Date.now() / 1000) + 3600,
-    iat: Math.floor(Date.now() / 1000)
-  }, PRIVATE_KEY, { algorithm: 'RS256' });
-
-  const res = await fetch('https://oauth2.googleapis.com/token', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${token}`
-  });
-
-  const data = await res.json();
-  return data.access_token;
-}
-
-// UPDATE WALLET OBJECT
-async function updateWallet(customer, merchant, qrToken) {
-  const accessToken = await getAccessToken();
-  const objectId = `${ISSUER_ID}.${customer.wallet_id}`;
-
-  await fetch(`https://walletobjects.googleapis.com/walletobjects/v1/genericObject/${objectId}`, {
-    method: 'PUT',
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      id: objectId,
-      classId: `${ISSUER_ID}.tapr_class_v2`,
-      cardTitle: {
-        defaultValue: { language: 'en', value: merchant.name }
-      },
-      header: {
-        defaultValue: { language: 'en', value: `Customer: ${customer.phone}` }
-      },
-      textModulesData: [
-        { id: 'progress', header: 'Progress', body: `${customer.visit_count} / 5 visits` },
-        { id: 'reward', header: 'Next Reward', body: `₱${customer.pending_discount}` }
-      ],
-      barcode: {
-        type: 'QR_CODE',
-        value: qrToken
-      }
-    })
-  });
-}
-
 //
-// 🔥 WALLET (ENTRY POINT)
+// WALLET (NO GOOGLE CALL)
 //
 app.get('/wallet/:phone', verifyMerchant, async (req, res) => {
   const { phone } = req.params;
@@ -143,13 +83,12 @@ app.get('/wallet/:phone', verifyMerchant, async (req, res) => {
   }
 
   const qrToken = generateQRToken(phone);
-  await updateWallet(customer, merchant, qrToken);
 
   res.json({ qrToken });
 });
 
 //
-// 🔥 CUSTOMER SETUP
+// CUSTOMER SETUP
 //
 app.post('/customer/setup', verifyMerchant, async (req, res) => {
   const { phone, name, email } = req.body;
@@ -169,7 +108,7 @@ app.post('/customer/setup', verifyMerchant, async (req, res) => {
 });
 
 //
-// 🔥 SCAN
+// SCAN (NO WALLET CALL)
 //
 app.post('/scan', verifyMerchant, async (req, res) => {
   try {
@@ -228,14 +167,6 @@ app.post('/scan', verifyMerchant, async (req, res) => {
       scanned_at: now,
       result: 'success'
     }]);
-
-    // 🔥 refresh QR in wallet
-    const newQR = generateQRToken(phone);
-    await updateWallet(
-      { ...customer, visit_count: visit, pending_discount: next_reward },
-      merchant,
-      newQR
-    );
 
     res.json({
       success: true,
