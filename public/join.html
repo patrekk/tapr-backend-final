@@ -27,6 +27,13 @@
       margin-top: 20px;
       font-weight: bold;
     }
+
+    #walletBtn {
+      display: none;
+      margin-top: 20px;
+      background: black;
+      color: white;
+    }
   </style>
 </head>
 <body>
@@ -41,8 +48,12 @@
 
   <p id="status"></p>
 
+  <button id="walletBtn" onclick="openWallet()">Add to Wallet</button>
+
   <script>
     const API = "https://tapr-backend-final-production.up.railway.app";
+
+    let walletToken = null;
 
     async function submitForm() {
       const phone = document.getElementById("phone").value.trim();
@@ -50,6 +61,7 @@
       const email = document.getElementById("email").value.trim();
 
       const status = document.getElementById("status");
+      const walletBtn = document.getElementById("walletBtn");
 
       if (!phone || !name || !email) {
         status.innerText = "Fill all fields";
@@ -59,7 +71,7 @@
       status.innerText = "Creating account...";
 
       try {
-        // 🔥 create wallet (also creates customer if not exists)
+        // create wallet + customer
         const walletRes = await fetch(`${API}/wallet/${phone}`, {
           headers: {
             "x-api-key": "test_merchant_key_123"
@@ -68,7 +80,7 @@
 
         const walletData = await walletRes.json();
 
-        // 🔥 save details
+        // save details
         await fetch(`${API}/customer/setup`, {
           method: "POST",
           headers: {
@@ -78,13 +90,23 @@
           body: JSON.stringify({ phone, name, email })
         });
 
-        status.innerText = "Success! Add to wallet soon.";
+        walletToken = walletData.qrToken;
 
-        console.log("QR TOKEN:", walletData.qrToken);
+        status.innerText = "Account created!";
+        walletBtn.style.display = "inline-block";
 
       } catch (err) {
         status.innerText = "Something went wrong";
       }
+    }
+
+    function openWallet() {
+      if (!walletToken) return;
+
+      // 🔥 Google Wallet Save URL
+      const url = `https://pay.google.com/gp/v/save/${walletToken}`;
+
+      window.location.href = url;
     }
   </script>
 
