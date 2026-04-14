@@ -4,7 +4,6 @@ import cors from 'cors';
 import jwt from 'jsonwebtoken';
 import { createClient } from '@supabase/supabase-js';
 import fetch from 'node-fetch';
-import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -24,13 +23,9 @@ app.use(express.static(path.join(__dirname, 'public'), {
   index: false
 }));
 
-// GOOGLE
-const serviceAccount = JSON.parse(
-  fs.readFileSync('./service-account.json', 'utf8')
-);
-
-const PRIVATE_KEY = serviceAccount.private_key;
-const SERVICE_ACCOUNT_EMAIL = serviceAccount.client_email;
+// 🔥 ENV-BASED GOOGLE AUTH (NO FILE)
+const PRIVATE_KEY = process.env.PRIVATE_KEY.replace(/\\n/g, '\n');
+const SERVICE_ACCOUNT_EMAIL = process.env.SERVICE_ACCOUNT_EMAIL;
 
 // SUPABASE
 const supabase = createClient(
@@ -58,12 +53,12 @@ const verifyMerchant = async (req, res, next) => {
   next();
 };
 
-// QR
+// QR TOKEN
 function generateQRToken(phone) {
   return jwt.sign({ phone }, process.env.JWT_SECRET);
 }
 
-// GOOGLE TOKEN
+// GOOGLE ACCESS TOKEN
 async function getAccessToken() {
   const token = jwt.sign({
     iss: SERVICE_ACCOUNT_EMAIL,
@@ -83,7 +78,7 @@ async function getAccessToken() {
   return data.access_token;
 }
 
-// UPDATE WALLET
+// UPDATE WALLET OBJECT
 async function updateWallet(customer, merchant, qrToken) {
   const accessToken = await getAccessToken();
   const objectId = `${ISSUER_ID}.${customer.wallet_id}`;
@@ -97,6 +92,16 @@ async function updateWallet(customer, merchant, qrToken) {
     body: JSON.stringify({
       id: objectId,
       classId: `${ISSUER_ID}.tapr_class_v2`,
+      cardTitle: {
+        defaultValue: { language: 'en', value: merchant.name }
+      },
+      header: {
+        defaultValue: { language: 'en', value: `Customer: ${customer.phone}` }
+      },
+      textModulesData: [
+        { id: 'progress', header: 'Progress', body: `${customer.visit_count} / 5 visits` },
+        { id: 'reward', header: 'Next Reward', body: `₱${customer.pending_discount}` }
+      ],
       barcode: {
         type: 'QR_CODE',
         value: qrToken
@@ -106,7 +111,7 @@ async function updateWallet(customer, merchant, qrToken) {
 }
 
 //
-// 🔥 WALLET (FIXED)
+// 🔥 WALLET (ENTRY POINT)
 //
 app.get('/wallet/:phone', verifyMerchant, async (req, res) => {
   const { phone } = req.params;
@@ -138,18 +143,21 @@ app.get('/wallet/:phone', verifyMerchant, async (req, res) => {
   }
 
   const qrToken = generateQRToken(phone);
-
   await updateWallet(customer, merchant, qrToken);
 
   res.json({ qrToken });
 });
 
 //
-// CUSTOMER SETUP
+// 🔥 CUSTOMER SETUP
 //
 app.post('/customer/setup', verifyMerchant, async (req, res) => {
   const { phone, name, email } = req.body;
   const merchant = req.merchant;
+
+  if (!name || !email) {
+    return res.json({ error: 'Missing fields' });
+  }
 
   await supabase
     .from('customers')
@@ -161,7 +169,7 @@ app.post('/customer/setup', verifyMerchant, async (req, res) => {
 });
 
 //
-// SCAN
+// 🔥 SCAN
 //
 app.post('/scan', verifyMerchant, async (req, res) => {
   try {
@@ -221,31 +229,24 @@ app.post('/scan', verifyMerchant, async (req, res) => {
       result: 'success'
     }]);
 
+    // 🔥 refresh QR in wallet
+    const newQR = generateQRToken(phone);
+    await updateWallet(
+      { ...customer, visit_count: visit, pending_discount: next_reward },
+      merchant,
+      newQR
+    );
+
     res.json({
       success: true,
       visit,
-      applied_discount
+      applied_discount,
+      next_reward
     });
 
   } catch (err) {
     res.json({ error: err.message });
   }
-});
-
-//
-// STATS
-//
-app.get('/merchant/stats', verifyMerchant, async (req, res) => {
-  const merchant = req.merchant;
-
-  const { data: logs } = await supabase
-    .from('scan_logs')
-    .select('*')
-    .eq('merchant_id', merchant.id);
-
-  const total_scans = logs.length;
-
-  res.json({ total_scans });
 });
 
 app.listen(PORT, () => {
