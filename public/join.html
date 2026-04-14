@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Join Tapr</title>
+  <style>
+    body {
+      font-family: Arial;
+      text-align: center;
+      padding: 30px;
+    }
+
+    input {
+      padding: 12px;
+      margin: 8px;
+      width: 250px;
+      font-size: 16px;
+    }
+
+    button {
+      padding: 12px 20px;
+      font-size: 16px;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+
+    #status {
+      margin-top: 20px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Join Tapr</h2>
+
+  <input id="phone" placeholder="Phone Number"><br>
+  <input id="name" placeholder="Name"><br>
+  <input id="email" placeholder="Email"><br>
+
+  <button onclick="submitForm()">Join</button>
+
+  <p id="status"></p>
+
+  <script>
+    const API = "https://tapr-backend-final-production.up.railway.app";
+
+    async function submitForm() {
+      const phone = document.getElementById("phone").value.trim();
+      const name = document.getElementById("name").value.trim();
+      const email = document.getElementById("email").value.trim();
+
+      const status = document.getElementById("status");
+
+      if (!phone || !name || !email) {
+        status.innerText = "Fill all fields";
+        return;
+      }
+
+      status.innerText = "Creating account...";
+
+      try {
+        // 🔥 create wallet (also creates customer if not exists)
+        const walletRes = await fetch(`${API}/wallet/${phone}`, {
+          headers: {
+            "x-api-key": "test_merchant_key_123"
+          }
+        });
+
+        const walletData = await walletRes.json();
+
+        // 🔥 save details
+        await fetch(`${API}/customer/setup`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-api-key": "test_merchant_key_123"
+          },
+          body: JSON.stringify({ phone, name, email })
+        });
+
+        status.innerText = "Success! Add to wallet soon.";
+
+        console.log("QR TOKEN:", walletData.qrToken);
+
+      } catch (err) {
+        status.innerText = "Something went wrong";
+      }
+    }
+  </script>
+
+</body>
+</html>
