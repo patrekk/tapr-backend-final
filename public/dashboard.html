@@ -146,6 +146,25 @@
       window.location.href = "/scanner.html";
     }
 
+    let merchantSlug = null;
+
+    // 🔥 CRITICAL: load merchant FIRST
+    async function loadMerchant() {
+      const res = await fetch(`${API}/merchant/me`, {
+        headers: { authorization: getToken() }
+      });
+
+      const data = await res.json();
+
+      if (!data.slug) {
+        alert("Session broken. Please login again.");
+        window.location.href = "/login.html";
+        return;
+      }
+
+      merchantSlug = data.slug;
+    }
+
     async function loadStats() {
       const res = await fetch(`${API}/merchant/stats`, {
         headers: { authorization: getToken() }
@@ -196,14 +215,13 @@
       });
     }
 
-    async function generateQR() {
-      const res = await fetch(`${API}/merchant/me`, {
-        headers: { authorization: getToken() }
-      });
+    function generateQR() {
+      if (!merchantSlug) {
+        alert("Still loading merchant...");
+        return;
+      }
 
-      const data = await res.json();
-
-      const url = `${window.location.origin}/join/${data.slug}`;
+      const url = `${window.location.origin}/join/${merchantSlug}`;
 
       document.getElementById("link").innerText = url;
 
@@ -211,9 +229,15 @@
         `<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${url}" />`;
     }
 
-    loadStats();
-    loadCustomers();
-    loadLogs();
+    // 🔥 INIT FLOW (ORDER MATTERS)
+    async function init() {
+      await loadMerchant();   // MUST BE FIRST
+      await loadStats();
+      await loadCustomers();
+      await loadLogs();
+    }
+
+    init();
   </script>
 
 </body>
