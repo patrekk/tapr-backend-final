@@ -7,58 +7,70 @@
 
 <h2>Dashboard</h2>
 
-<button onclick="generateQR()">Generate QR</button>
-
-<p id="debug"></p>
+<p id="status">Initializing...</p>
 <p id="link"></p>
+
+<button onclick="generateQR()">Generate QR</button>
 
 <script>
 const API = "https://tapr-backend-final-production.up.railway.app";
 
-// 🔥 HARD TOKEN CHECK
 function getToken() {
-  const token = localStorage.getItem("token");
-
-  console.log("TOKEN FROM STORAGE:", token);
-
-  document.getElementById("debug").innerText =
-    "TOKEN: " + (token ? "FOUND" : "MISSING");
-
-  if (!token) {
-    alert("No token. Login again.");
-    window.location.href = "/login.html";
-    throw new Error("NO TOKEN");
-  }
-
-  return token;
+  return localStorage.getItem("token");
 }
 
-// 🔥 FORCE SAME TOKEN EVERYWHERE
-const TOKEN = getToken();
+// 🔥 HARD BLOCK UNTIL TOKEN IS VALID
+async function waitForValidSession() {
+  let attempts = 0;
 
-// 🔥 VERIFY SESSION IMMEDIATELY
-async function verify() {
-  const res = await fetch(`${API}/merchant/me`, {
-    headers: { authorization: TOKEN }
-  });
+  while (attempts < 5) {
+    const token = getToken();
 
-  const data = await res.json();
+    console.log("Checking token:", token);
 
-  console.log("ME RESPONSE:", data);
+    if (!token) {
+      await new Promise(r => setTimeout(r, 500));
+      attempts++;
+      continue;
+    }
 
-  if (!data.slug) {
-    alert("Session broken → token invalid");
-    localStorage.clear();
-    window.location.href = "/login.html";
-    return;
+    const res = await fetch(`${API}/merchant/me`, {
+      headers: { authorization: token }
+    });
+
+    const data = await res.json();
+
+    console.log("Session check:", data);
+
+    if (data.slug) {
+      return data;
+    }
+
+    // wait then retry
+    await new Promise(r => setTimeout(r, 500));
+    attempts++;
   }
 
-  window.merchantSlug = data.slug;
+  // 🔥 FAIL HARD
+  alert("Session failed. Please login again.");
+  localStorage.clear();
+  window.location.href = "/login.html";
 }
 
+// 🔥 INIT (BLOCKING)
+async function init() {
+  const merchant = await waitForValidSession();
+
+  document.getElementById("status").innerText =
+    "Logged in as: " + merchant.name;
+
+  window.merchantSlug = merchant.slug;
+}
+
+// 🔥 QR
 function generateQR() {
   if (!window.merchantSlug) {
-    alert("Merchant not loaded");
+    alert("Merchant not ready");
     return;
   }
 
@@ -66,8 +78,7 @@ function generateQR() {
   document.getElementById("link").innerText = url;
 }
 
-// 🔥 INIT
-verify();
+init();
 </script>
 
 </body>
