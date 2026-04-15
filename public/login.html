@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Merchant Login</title>
+  <title>Login</title>
 </head>
 <body>
 
   <h2>Merchant Login</h2>
 
   <input id="email" placeholder="Email"><br><br>
-  <input id="password" type="password" placeholder="Password"><br><br>
+  <input id="password" placeholder="Password"><br><br>
 
   <button onclick="login()">Login</button>
 
@@ -20,7 +20,6 @@
     async function login() {
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
-      const status = document.getElementById("status");
 
       const res = await fetch(`${API}/merchant/login`, {
         method: "POST",
@@ -33,11 +32,15 @@
       const data = await res.json();
 
       if (data.error) {
-        status.innerText = data.error;
+        document.getElementById("status").innerText = data.error;
         return;
       }
 
+      // 🔥 CRITICAL FIX
       localStorage.setItem("token", data.token);
+
+      // DEBUG
+      console.log("TOKEN SAVED:", data.token);
 
       window.location.href = "/dashboard.html";
     }
