@@ -22,15 +22,28 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
-// ---------- AUTH FIX (CRITICAL) ----------
+// 🔥 HARD AUTH FIX (NO MORE GUESSING)
+function extractToken(req) {
+  const auth = req.headers['authorization'];
+
+  if (!auth) return null;
+
+  // supports BOTH:
+  // "Bearer xxx"
+  // "xxx"
+  if (auth.startsWith('Bearer ')) {
+    return auth.split(' ')[1];
+  }
+
+  return auth;
+}
 
 const verifySession = async (req, res, next) => {
-  let token = req.headers['authorization'];
+  const token = extractToken(req);
 
-  if (!token) return res.json({ error: 'No session' });
-
-  if (token.startsWith("Bearer ")) {
-    token = token.split(" ")[1];
+  if (!token) {
+    console.log("NO TOKEN");
+    return res.json({ error: 'No session' });
   }
 
   try {
@@ -42,13 +55,17 @@ const verifySession = async (req, res, next) => {
       .eq('id', decoded.merchant_id)
       .single();
 
-    if (!merchant) return res.json({ error: 'Invalid session' });
+    if (!merchant) {
+      console.log("MERCHANT NOT FOUND FROM TOKEN");
+      return res.json({ error: 'Invalid session' });
+    }
 
     req.merchant = merchant;
     next();
 
-  } catch {
-    res.json({ error: 'Invalid session' });
+  } catch (err) {
+    console.log("JWT ERROR:", err.message);
+    return res.json({ error: 'Invalid session' });
   }
 };
 
@@ -59,7 +76,7 @@ app.get('/join/:slug', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'join.html'));
 });
 
-// PUBLIC MERCHANT LOOKUP (SAFE)
+// PUBLIC MERCHANT LOOKUP
 app.get('/merchant/:slug', async (req, res) => {
   const slug = req.params.slug;
 
@@ -78,7 +95,7 @@ app.get('/merchant/:slug', async (req, res) => {
   res.json(data);
 });
 
-// AUTH MERCHANT (SOURCE OF TRUTH)
+// 🔥 SOURCE OF TRUTH
 app.get('/merchant/me', verifySession, (req, res) => {
   res.json({
     name: req.merchant.name,
