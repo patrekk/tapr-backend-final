@@ -31,7 +31,7 @@ const CLASS_ID = `${ISSUER_ID}.tapr_class_v2`;
 
 const LOOP = [10, 10, 20, 0, 50];
 
-// 🔥 VERIFY MERCHANT BY SLUG
+// 🔥 GET MERCHANT BY SLUG
 const getMerchantBySlug = async (slug) => {
   const { data } = await supabase
     .from('merchants')
@@ -42,23 +42,7 @@ const getMerchantBySlug = async (slug) => {
   return data;
 };
 
-// 🔥 VERIFY MERCHANT BY API KEY (internal)
-const verifyMerchant = async (req, res, next) => {
-  const apiKey = req.headers['x-api-key'];
-
-  const { data: merchant } = await supabase
-    .from('merchants')
-    .select('*')
-    .eq('api_key', apiKey)
-    .single();
-
-  if (!merchant) return res.json({ error: 'Invalid merchant' });
-
-  req.merchant = merchant;
-  next();
-};
-
-// 🔥 VERIFY SESSION
+// 🔥 VERIFY SESSION (LOGIN)
 const verifySession = async (req, res, next) => {
   const token = req.headers['authorization'];
 
@@ -83,7 +67,7 @@ const verifySession = async (req, res, next) => {
   }
 };
 
-// 🔥 GOOGLE TOKEN
+// 🔥 GOOGLE ACCESS TOKEN
 async function getAccessToken() {
   const token = jwt.sign({
     iss: SERVICE_ACCOUNT_EMAIL,
@@ -103,6 +87,7 @@ async function getAccessToken() {
   return data.access_token;
 }
 
+// 🔥 CREATE WALLET OBJECT
 async function createWalletObject(customer, merchant) {
   const accessToken = await getAccessToken();
   const objectId = `${ISSUER_ID}.${customer.wallet_id}`;
@@ -140,6 +125,7 @@ async function createWalletObject(customer, merchant) {
   return objectId;
 }
 
+// 🔥 GENERATE JWT FOR WALLET
 function generateSaveJWT(objectId) {
   return jwt.sign({
     iss: SERVICE_ACCOUNT_EMAIL,
@@ -151,7 +137,7 @@ function generateSaveJWT(objectId) {
   }, PRIVATE_KEY, { algorithm: "RS256" });
 }
 
-// 🔥 WALLET USING SLUG
+// 🔥 WALLET (SLUG BASED)
 app.get('/wallet/:slug/:phone', async (req, res) => {
   const { slug, phone } = req.params;
 
@@ -193,7 +179,7 @@ app.get('/wallet/:slug/:phone', async (req, res) => {
   }
 });
 
-// 🔥 CUSTOMER SETUP (SLUG)
+// 🔥 CUSTOMER SETUP
 app.post('/customer/setup/:slug', async (req, res) => {
   const { slug } = req.params;
   const { phone, name, email } = req.body;
@@ -209,7 +195,7 @@ app.post('/customer/setup/:slug', async (req, res) => {
     .maybeSingle();
 
   if (existing.name && existing.email) {
-    return res.json({ success: true, message: "Customer already exists" });
+    return res.json({ success: true });
   }
 
   await supabase
@@ -220,7 +206,64 @@ app.post('/customer/setup/:slug', async (req, res) => {
   res.json({ success: true });
 });
 
-// 🔥 LOGIN + DASHBOARD (unchanged)
+// 🔥 SECURE SCAN (LOGIN REQUIRED)
+app.post('/scan', verifySession, async (req, res) => {
+  try {
+    const { token } = req.body;
+    const merchant = req.merchant;
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    if (decoded.merchant_id !== merchant.id) {
+      return res.json({ error: 'Invalid customer for this merchant' });
+    }
+
+    const phone = decoded.phone;
+
+    const { data: customer } = await supabase
+      .from('customers')
+      .select('*')
+      .eq('phone', phone)
+      .eq('merchant_id', merchant.id)
+      .single();
+
+    if (!customer.name || !customer.email) {
+      return res.json({ error: 'missing_details' });
+    }
+
+    const today = new Date().toDateString();
+
+    if (customer.last_reward_day === today) {
+      return res.json({ error: 'Already claimed today' });
+    }
+
+    let visit = customer.visit_count + 1;
+    if (visit > 5) visit = 1;
+
+    const applied_discount = LOOP[visit - 1];
+
+    await supabase
+      .from('customers')
+      .update({
+        visit_count: visit,
+        last_reward_day: today
+      })
+      .eq('id', customer.id);
+
+    await supabase.from('scan_logs').insert([{
+      merchant_id: merchant.id,
+      phone,
+      result: `Visit ${visit} → ${applied_discount}%`
+    }]);
+
+    res.json({ success: true, visit, applied_discount });
+
+  } catch (err) {
+    res.json({ error: err.message });
+  }
+});
+
+// 🔥 LOGIN
 app.post('/merchant/login', async (req, res) => {
   const { email, password } = req.body;
 
@@ -240,6 +283,65 @@ app.post('/merchant/login', async (req, res) => {
   );
 
   res.json({ token });
+});
+
+// 🔥 DASHBOARD STATS
+app.get('/merchant/stats', verifySession, async (req, res) => {
+  const merchant = req.merchant;
+
+  const { data: customers } = await supabase
+    .from('customers')
+    .select('*')
+    .eq('merchant_id', merchant.id);
+
+  const { data: logs } = await supabase
+    .from('scan_logs')
+    .select('*')
+    .eq('merchant_id', merchant.id);
+
+  const today = new Date().toDateString();
+
+  const todayScans = logs.filter(l =>
+    new Date(l.scanned_at).toDateString() === today
+  );
+
+  res.json({
+    total_customers: customers.length,
+    total_scans: logs.length,
+    today_scans: todayScans.length
+  });
+});
+
+// 🔥 CUSTOMERS
+app.get('/merchant/customers', verifySession, async (req, res) => {
+  const merchant = req.merchant;
+
+  const { data } = await supabase
+    .from('customers')
+    .select('*')
+    .eq('merchant_id', merchant.id)
+    .order('id', { ascending: false });
+
+  res.json(data);
+});
+
+// 🔥 SCAN LOGS
+app.get('/merchant/scan-logs', verifySession, async (req, res) => {
+  const merchant = req.merchant;
+
+  const { data } = await supabase
+    .from('scan_logs')
+    .select('*')
+    .eq('merchant_id', merchant.id)
+    .order('scanned_at', { ascending: false })
+    .limit(50);
+
+  res.json(data);
+});
+
+// 🔥 CLEAN JOIN ROUTE
+app.get('/join/:slug', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'join.html'));
 });
 
 // 🔥 STATIC LAST
