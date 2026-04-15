@@ -79,80 +79,8 @@ function generateCustomerToken(customer, merchant) {
   });
 }
 
-// ---------- GOOGLE ----------
+// ---------- MERCHANT INFO ----------
 
-async function getAccessToken() {
-  const token = jwt.sign({
-    iss: SERVICE_ACCOUNT_EMAIL,
-    scope: 'https://www.googleapis.com/auth/wallet_object.issuer',
-    aud: 'https://oauth2.googleapis.com/token',
-    exp: Math.floor(Date.now() / 1000) + 3600,
-    iat: Math.floor(Date.now() / 1000)
-  }, PRIVATE_KEY, { algorithm: 'RS256' });
-
-  const res = await fetch('https://oauth2.googleapis.com/token', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${token}`
-  });
-
-  const data = await res.json();
-  return data.access_token;
-}
-
-async function createWalletObject(customer, merchant) {
-  const accessToken = await getAccessToken();
-  const objectId = `${ISSUER_ID}.${customer.wallet_id}`;
-
-  const customerToken = generateCustomerToken(customer, merchant);
-
-  const res = await fetch(`https://walletobjects.googleapis.com/walletobjects/v1/genericObject`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      id: objectId,
-      classId: CLASS_ID,
-      state: "ACTIVE",
-      cardTitle: {
-        defaultValue: { language: "en", value: merchant.name }
-      },
-      header: {
-        defaultValue: { language: "en", value: customer.phone }
-      },
-      barcode: {
-        type: "QR_CODE",
-        value: customerToken
-      }
-    })
-  });
-
-  const data = await res.json();
-
-  if (!res.ok) {
-    if (data?.error?.code === 409) return objectId;
-    throw new Error(JSON.stringify(data));
-  }
-
-  return objectId;
-}
-
-function generateSaveJWT(objectId) {
-  return jwt.sign({
-    iss: SERVICE_ACCOUNT_EMAIL,
-    aud: "google",
-    typ: "savetowallet",
-    payload: {
-      genericObjects: [{ id: objectId }]
-    }
-  }, PRIVATE_KEY, { algorithm: "RS256" });
-}
-
-// ---------- ROUTES ----------
-
-// 🔥 MERCHANT ME (FIXED)
 app.get('/merchant/me', verifySession, (req, res) => {
   res.json({
     name: req.merchant.name,
@@ -160,7 +88,35 @@ app.get('/merchant/me', verifySession, (req, res) => {
   });
 });
 
-// 🔥 SIGNUP
+// 🔥 FIXED STATS ROUTE
+app.get('/merchant/stats', verifySession, async (req, res) => {
+  const merchantId = req.merchant.id;
+
+  const { data: customers } = await supabase
+    .from('customers')
+    .select('*')
+    .eq('merchant_id', merchantId);
+
+  const { data: logs } = await supabase
+    .from('scan_logs')
+    .select('*')
+    .eq('merchant_id', merchantId);
+
+  const today = new Date().toDateString();
+
+  const todayScans = logs.filter(l =>
+    new Date(l.scanned_at).toDateString() === today
+  );
+
+  res.json({
+    total_customers: customers.length,
+    total_scans: logs.length,
+    today_scans: todayScans.length
+  });
+});
+
+// ---------- SIGNUP ----------
+
 app.post('/merchant/signup', async (req, res) => {
   const { name, email, password } = req.body;
 
@@ -176,16 +132,15 @@ app.post('/merchant/signup', async (req, res) => {
     return res.json({ error: 'Email already used' });
   }
 
-  const { data: merchant } = await supabase
+  await supabase
     .from('merchants')
-    .insert([{ name, email, password, slug }])
-    .select()
-    .single();
+    .insert([{ name, email, password, slug }]);
 
   res.json({ success: true });
 });
 
-// 🔥 LOGIN
+// ---------- LOGIN ----------
+
 app.post('/merchant/login', async (req, res) => {
   const { email, password } = req.body;
 
@@ -207,7 +162,8 @@ app.post('/merchant/login', async (req, res) => {
   res.json({ token });
 });
 
-// 🔥 DASHBOARD DATA (THIS FIXES EMPTY DASHBOARD)
+// ---------- DATA ----------
+
 app.get('/merchant/customers', verifySession, async (req, res) => {
   const { data } = await supabase
     .from('customers')
@@ -227,103 +183,8 @@ app.get('/merchant/scan-logs', verifySession, async (req, res) => {
   res.json(data);
 });
 
-// 🔥 WALLET
-app.get('/wallet/:slug/:phone', async (req, res) => {
-  const { slug, phone } = req.params;
-
-  const merchant = await getMerchantBySlug(slug);
-  if (!merchant) return res.json({ error: 'Invalid merchant' });
-
-  let { data: customer } = await supabase
-    .from('customers')
-    .select('*')
-    .eq('phone', phone)
-    .eq('merchant_id', merchant.id)
-    .maybeSingle();
-
-  if (!customer) {
-    const wallet_id = `tapr_${phone}_${Date.now()}`;
-
-    const { data: newCustomer } = await supabase
-      .from('customers')
-      .insert([{
-        phone,
-        merchant_id: merchant.id,
-        wallet_id,
-        visit_count: 0,
-        pending_discount: 0
-      }])
-      .select()
-      .single();
-
-    customer = newCustomer;
-  }
-
-  try {
-    const objectId = await createWalletObject(customer, merchant);
-    const saveJWT = generateSaveJWT(objectId);
-
-    res.json({ saveJWT });
-
-  } catch (err) {
-    res.json({ error: 'wallet_failed', details: err.message });
-  }
-});
-
-// 🔥 SCAN
-app.post('/scan', verifySession, async (req, res) => {
-  try {
-    const { token } = req.body;
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    if (decoded.merchant_id !== req.merchant.id) {
-      return res.json({ error: 'Invalid customer for this merchant' });
-    }
-
-    const phone = decoded.phone;
-
-    const { data: customer } = await supabase
-      .from('customers')
-      .select('*')
-      .eq('phone', phone)
-      .eq('merchant_id', req.merchant.id)
-      .single();
-
-    const today = new Date().toDateString();
-
-    if (customer.last_reward_day === today) {
-      return res.json({ error: 'Already claimed today' });
-    }
-
-    let visit = customer.visit_count + 1;
-    if (visit > 5) visit = 1;
-
-    const applied_discount = LOOP[visit - 1];
-
-    await supabase
-      .from('customers')
-      .update({
-        visit_count: visit,
-        last_reward_day: today,
-        pending_discount: applied_discount
-      })
-      .eq('id', customer.id);
-
-    await supabase.from('scan_logs').insert([{
-      merchant_id: req.merchant.id,
-      phone,
-      result: `Visit ${visit} → ${applied_discount}`
-    }]);
-
-    res.json({ success: true, visit, applied_discount });
-
-  } catch (err) {
-    res.json({ error: err.message });
-  }
-});
-
 // ---------- STATIC ----------
+
 app.use(express.static(path.join(__dirname, 'public'), { index: false }));
 
 app.listen(PORT, () => {
