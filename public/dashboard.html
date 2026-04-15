@@ -2,243 +2,73 @@
 <html>
 <head>
   <title>Dashboard</title>
-  <style>
-    body {
-      font-family: Arial;
-      margin: 20px;
-      background: #f5f5f5;
-    }
-
-    h2 {
-      margin-bottom: 10px;
-    }
-
-    .cards {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-
-    .card {
-      flex: 1;
-      background: black;
-      color: white;
-      padding: 20px;
-      text-align: center;
-      border-radius: 10px;
-    }
-
-    .section {
-      background: #eee;
-      padding: 15px;
-      border-radius: 10px;
-      margin-bottom: 20px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    th {
-      text-align: left;
-      padding: 8px;
-      background: #ddd;
-    }
-
-    td {
-      padding: 8px;
-      border-bottom: 1px solid #ccc;
-    }
-
-    button {
-      padding: 10px;
-      margin-bottom: 10px;
-      background: black;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-
-    #qrBox {
-      text-align: center;
-      margin-top: 10px;
-    }
-
-    #qrBox img {
-      width: 200px;
-    }
-
-    #link {
-      font-size: 12px;
-      word-break: break-all;
-    }
-  </style>
 </head>
 <body>
 
-  <h2>Dashboard</h2>
+<h2>Dashboard</h2>
 
-  <button onclick="goScanner()">Open Scanner</button>
+<button onclick="generateQR()">Generate QR</button>
 
-  <div class="section">
-    <h3>Your QR</h3>
-    <button onclick="generateQR()">Generate QR</button>
+<p id="debug"></p>
+<p id="link"></p>
 
-    <div id="qrBox"></div>
-    <p id="link"></p>
-  </div>
+<script>
+const API = "https://tapr-backend-final-production.up.railway.app";
 
-  <div class="cards">
-    <div class="card">
-      <h3 id="customers">0</h3>
-      <p>Customers</p>
-    </div>
-    <div class="card">
-      <h3 id="scans">0</h3>
-      <p>Total Scans</p>
-    </div>
-    <div class="card">
-      <h3 id="today">0</h3>
-      <p>Today</p>
-    </div>
-  </div>
+// 🔥 HARD TOKEN CHECK
+function getToken() {
+  const token = localStorage.getItem("token");
 
-  <div class="section">
-    <h3>Customers</h3>
-    <table>
-      <thead>
-        <tr>
-          <th>Phone</th>
-          <th>Name</th>
-          <th>Visits</th>
-        </tr>
-      </thead>
-      <tbody id="customersTable"></tbody>
-    </table>
-  </div>
+  console.log("TOKEN FROM STORAGE:", token);
 
-  <div class="section">
-    <h3>Recent Scans</h3>
-    <table>
-      <thead>
-        <tr>
-          <th>Phone</th>
-          <th>Result</th>
-        </tr>
-      </thead>
-      <tbody id="logsTable"></tbody>
-    </table>
-  </div>
+  document.getElementById("debug").innerText =
+    "TOKEN: " + (token ? "FOUND" : "MISSING");
 
-  <script>
-    const API = "https://tapr-backend-final-production.up.railway.app";
+  if (!token) {
+    alert("No token. Login again.");
+    window.location.href = "/login.html";
+    throw new Error("NO TOKEN");
+  }
 
-    function getToken() {
-      return localStorage.getItem("token");
-    }
+  return token;
+}
 
-    if (!getToken()) {
-      window.location.href = "/login.html";
-    }
+// 🔥 FORCE SAME TOKEN EVERYWHERE
+const TOKEN = getToken();
 
-    function goScanner() {
-      window.location.href = "/scanner.html";
-    }
+// 🔥 VERIFY SESSION IMMEDIATELY
+async function verify() {
+  const res = await fetch(`${API}/merchant/me`, {
+    headers: { authorization: TOKEN }
+  });
 
-    let merchantSlug = null;
+  const data = await res.json();
 
-    // 🔥 CRITICAL: load merchant FIRST
-    async function loadMerchant() {
-      const res = await fetch(`${API}/merchant/me`, {
-        headers: { authorization: getToken() }
-      });
+  console.log("ME RESPONSE:", data);
 
-      const data = await res.json();
+  if (!data.slug) {
+    alert("Session broken → token invalid");
+    localStorage.clear();
+    window.location.href = "/login.html";
+    return;
+  }
 
-      if (!data.slug) {
-        alert("Session broken. Please login again.");
-        window.location.href = "/login.html";
-        return;
-      }
+  window.merchantSlug = data.slug;
+}
 
-      merchantSlug = data.slug;
-    }
+function generateQR() {
+  if (!window.merchantSlug) {
+    alert("Merchant not loaded");
+    return;
+  }
 
-    async function loadStats() {
-      const res = await fetch(`${API}/merchant/stats`, {
-        headers: { authorization: getToken() }
-      });
-      const data = await res.json();
+  const url = `${window.location.origin}/join/${window.merchantSlug}`;
+  document.getElementById("link").innerText = url;
+}
 
-      document.getElementById("customers").innerText = data.total_customers;
-      document.getElementById("scans").innerText = data.total_scans;
-      document.getElementById("today").innerText = data.today_scans;
-    }
-
-    async function loadCustomers() {
-      const res = await fetch(`${API}/merchant/customers`, {
-        headers: { authorization: getToken() }
-      });
-      const data = await res.json();
-
-      const table = document.getElementById("customersTable");
-      table.innerHTML = "";
-
-      data.forEach(c => {
-        table.innerHTML += `
-          <tr>
-            <td>${c.phone}</td>
-            <td>${c.name || "-"}</td>
-            <td>${c.visit_count}</td>
-          </tr>
-        `;
-      });
-    }
-
-    async function loadLogs() {
-      const res = await fetch(`${API}/merchant/scan-logs`, {
-        headers: { authorization: getToken() }
-      });
-      const data = await res.json();
-
-      const table = document.getElementById("logsTable");
-      table.innerHTML = "";
-
-      data.forEach(l => {
-        table.innerHTML += `
-          <tr>
-            <td>${l.phone}</td>
-            <td>${l.result}</td>
-          </tr>
-        `;
-      });
-    }
-
-    function generateQR() {
-      if (!merchantSlug) {
-        alert("Still loading merchant...");
-        return;
-      }
-
-      const url = `${window.location.origin}/join/${merchantSlug}`;
-
-      document.getElementById("link").innerText = url;
-
-      document.getElementById("qrBox").innerHTML =
-        `<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${url}" />`;
-    }
-
-    // 🔥 INIT FLOW (ORDER MATTERS)
-    async function init() {
-      await loadMerchant();   // MUST BE FIRST
-      await loadStats();
-      await loadCustomers();
-      await loadLogs();
-    }
-
-    init();
-  </script>
+// 🔥 INIT
+verify();
+</script>
 
 </body>
 </html>
