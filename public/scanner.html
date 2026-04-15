@@ -22,12 +22,6 @@
       width: 320px;
     }
 
-    h3 {
-      margin-top: 0;
-      font-size: 16px;
-      color: #666;
-    }
-
     button {
       padding: 10px;
       width: 100%;
@@ -35,7 +29,6 @@
       background: black;
       color: white;
       border: none;
-      cursor: pointer;
     }
 
     #status {
@@ -52,7 +45,7 @@
 
   <div class="container">
     <h2>Tapr Scanner</h2>
-    <h3 id="merchantName">Loading...</h3>
+    <p id="merchantName">Loading...</p>
 
     <button onclick="startScanner()">Start Scanner</button>
 
@@ -70,10 +63,6 @@
       return localStorage.getItem("token");
     }
 
-    if (!getToken()) {
-      window.location.href = "/login.html";
-    }
-
     async function loadMerchant() {
       const res = await fetch(`${API}/merchant/me`, {
         headers: {
@@ -82,54 +71,41 @@
       });
 
       const data = await res.json();
-
       document.getElementById("merchantName").innerText =
-        "Merchant: " + data.name;
+        data.name || "Error loading";
     }
 
     loadMerchant();
 
-    let scanner = null;
-
     async function startScanner() {
       const status = document.getElementById("status");
 
-      try {
-        status.innerText = "Starting camera...";
+      const scanner = new Html5Qrcode("reader");
 
-        scanner = new Html5Qrcode("reader");
+      await scanner.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: 250 },
+        async (decodedText) => {
+          status.innerText = "Processing...";
 
-        await scanner.start(
-          { facingMode: "environment" },
-          { fps: 10, qrbox: 250 },
-          async (decodedText) => {
-            status.innerText = "Processing...";
+          const res = await fetch(`${API}/scan`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "authorization": getToken()
+            },
+            body: JSON.stringify({ token: decodedText })
+          });
 
-            const token = getToken();
+          const data = await res.json();
 
-            const res = await fetch(`${API}/scan`, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                "authorization": token
-              },
-              body: JSON.stringify({ token: decodedText })
-            });
+          status.innerText = data.error
+            ? data.error
+            : `Visit: ${data.visit} | Discount: ${data.applied_discount}`;
+        }
+      );
 
-            const data = await res.json();
-
-            if (data.error) {
-              status.innerText = data.error;
-            } else {
-              status.innerText =
-                `Visit: ${data.visit} | Discount: ${data.applied_discount}`;
-            }
-          }
-        );
-
-      } catch {
-        status.innerText = "Camera error";
-      }
+      status.innerText = "Camera ready";
     }
   </script>
 
