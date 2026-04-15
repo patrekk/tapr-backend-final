@@ -3,7 +3,6 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import jwt from 'jsonwebtoken';
 import { createClient } from '@supabase/supabase-js';
-import fetch from 'node-fetch';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -23,28 +22,11 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
-const PRIVATE_KEY = process.env.PRIVATE_KEY.replace(/\\n/g, '\n');
-const SERVICE_ACCOUNT_EMAIL = process.env.SERVICE_ACCOUNT_EMAIL;
-
-const ISSUER_ID = "3388000000023096184";
-const CLASS_ID = `${ISSUER_ID}.tapr_class_v2`;
-
-const LOOP = [10, 10, 20, 0, 50];
-
 // ---------- HELPERS ----------
 
 function generateSlug(name) {
   return name.toLowerCase().replace(/[^a-z0-9]/g, '');
 }
-
-const getMerchantBySlug = async (slug) => {
-  const { data } = await supabase
-    .from('merchants')
-    .select('*')
-    .eq('slug', slug)
-    .single();
-  return data;
-};
 
 const verifySession = async (req, res, next) => {
   const token = req.headers['authorization'];
@@ -70,40 +52,27 @@ const verifySession = async (req, res, next) => {
   }
 };
 
-function generateCustomerToken(customer, merchant) {
-  return jwt.sign({
-    phone: customer.phone,
-    merchant_id: merchant.id
-  }, process.env.JWT_SECRET, {
-    expiresIn: "365d"
-  });
-}
-
 // ---------- ROUTES ----------
 
-// 🔥 JOIN PAGE ROUTE
+// 🔥 JOIN PAGE
 app.get('/join/:slug', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'join.html'));
 });
 
-// 🔥 PUBLIC MERCHANT LOOKUP (FOR JOIN PAGE)
+// 🔥 PUBLIC MERCHANT LOOKUP
 app.get('/merchant/:slug', async (req, res) => {
-  const { slug } = req.params;
-
   const { data } = await supabase
     .from('merchants')
     .select('name, slug')
-    .eq('slug', slug)
+    .eq('slug', req.params.slug)
     .single();
 
-  if (!data) {
-    return res.json({ error: 'Merchant not found' });
-  }
+  if (!data) return res.json({ error: 'Merchant not found' });
 
   res.json(data);
 });
 
-// 🔥 LOGGED-IN MERCHANT INFO
+// 🔥 AUTHENTICATED MERCHANT
 app.get('/merchant/me', verifySession, (req, res) => {
   res.json({
     name: req.merchant.name,
@@ -128,7 +97,7 @@ app.get('/merchant/stats', verifySession, async (req, res) => {
   const today = new Date().toDateString();
 
   const todayScans = logs.filter(l =>
-    new Date(l.scanned_at).toDateString() === today
+    new Date(l.created_at).toDateString() === today
   );
 
   res.json({
@@ -138,7 +107,7 @@ app.get('/merchant/stats', verifySession, async (req, res) => {
   });
 });
 
-// 🔥 DATA
+// 🔥 CUSTOMERS
 app.get('/merchant/customers', verifySession, async (req, res) => {
   const { data } = await supabase
     .from('customers')
@@ -148,12 +117,13 @@ app.get('/merchant/customers', verifySession, async (req, res) => {
   res.json(data);
 });
 
+// 🔥 LOGS
 app.get('/merchant/scan-logs', verifySession, async (req, res) => {
   const { data } = await supabase
     .from('scan_logs')
     .select('*')
     .eq('merchant_id', req.merchant.id)
-    .order('scanned_at', { ascending: false });
+    .order('created_at', { ascending: false });
 
   res.json(data);
 });
@@ -170,9 +140,7 @@ app.post('/merchant/signup', async (req, res) => {
     .eq('email', email)
     .maybeSingle();
 
-  if (existing) {
-    return res.json({ error: 'Email already used' });
-  }
+  if (existing) return res.json({ error: 'Email already used' });
 
   await supabase
     .from('merchants')
