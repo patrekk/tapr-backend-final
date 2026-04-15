@@ -14,7 +14,6 @@
     }
 
     .container {
-      text-align: center;
       background: white;
       padding: 30px;
       border-radius: 12px;
@@ -22,24 +21,44 @@
       width: 320px;
     }
 
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      margin-top: 10px;
+      margin-bottom: 4px;
+      color: #555;
+    }
+
     input {
-      padding: 12px;
-      margin: 8px 0;
       width: 100%;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
       font-size: 16px;
+      box-sizing: border-box;
     }
 
     button {
-      padding: 12px;
       width: 100%;
+      padding: 12px;
+      margin-top: 20px;
       background: black;
       color: white;
       border: none;
+      border-radius: 6px;
       cursor: pointer;
+      font-size: 16px;
     }
 
     #status {
       margin-top: 15px;
+      text-align: center;
+      font-size: 14px;
     }
   </style>
 </head>
@@ -48,9 +67,14 @@
   <div class="container">
     <h2>Join Tapr</h2>
 
-    <input id="phone" placeholder="Phone Number">
-    <input id="name" placeholder="Name">
-    <input id="email" placeholder="Email">
+    <label>Phone Number</label>
+    <input id="phone" type="tel" placeholder="09123456789">
+
+    <label>Name</label>
+    <input id="name" type="text" placeholder="Juan Dela Cruz">
+
+    <label>Email</label>
+    <input id="email" type="email" placeholder="you@email.com">
 
     <button onclick="submitForm()">Join</button>
 
@@ -60,16 +84,13 @@
   <script>
     const API = "https://tapr-backend-final-production.up.railway.app";
 
-    // 🔥 SAFE SLUG EXTRACTION
     function getSlug() {
       const path = window.location.pathname;
 
-      // /join/feralstudios
       if (path.startsWith("/join/")) {
         return path.split("/")[2];
       }
 
-      // fallback: ?slug=
       const params = new URLSearchParams(window.location.search);
       return params.get("slug");
     }
@@ -88,7 +109,7 @@
       }
 
       if (!phone || !name || !email) {
-        status.innerText = "Fill all fields";
+        status.innerText = "Please complete all fields";
         return;
       }
 
@@ -105,7 +126,9 @@
 
         await fetch(`${API}/customer/setup/${slug}`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json"
+          },
           body: JSON.stringify({ phone, name, email })
         });
 
@@ -114,7 +137,7 @@
         window.location.href =
           `https://pay.google.com/gp/v/save/${walletData.saveJWT}`;
 
-      } catch (err) {
+      } catch {
         status.innerText = "Something went wrong";
       }
     }

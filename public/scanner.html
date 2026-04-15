@@ -1,17 +1,58 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Scanner</title>
+  <title>Tapr Scanner</title>
+  <style>
+    body {
+      font-family: Arial;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background: #f5f5f5;
+    }
+
+    .container {
+      text-align: center;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+      width: 320px;
+    }
+
+    button {
+      padding: 10px;
+      width: 100%;
+      margin-bottom: 10px;
+      background: black;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    #status {
+      margin: 10px 0;
+      font-weight: bold;
+    }
+
+    #camera {
+      width: 100%;
+    }
+  </style>
 </head>
 <body>
 
-  <h2>Tapr Scanner</h2>
+  <div class="container">
+    <h2>Tapr Scanner</h2>
 
-  <button onclick="startScanner()">Start Scanner</button>
+    <button onclick="startScanner()">Start Scanner</button>
 
-  <p id="status">Idle</p>
+    <p id="status">Idle</p>
 
-  <div id="camera" style="width:300px;"></div>
+    <div id="camera"></div>
+  </div>
 
   <script src="https://unpkg.com/html5-qrcode"></script>
 
@@ -41,7 +82,7 @@
         async (decodedText) => {
           status.innerText = "Processing...";
 
-          const token = getToken(); // 🔥 ALWAYS GET FRESH TOKEN
+          const token = getToken();
 
           try {
             const res = await fetch(`${API}/scan`, {
@@ -55,17 +96,14 @@
 
             const data = await res.json();
 
-            console.log("SCAN RESPONSE:", data);
-
             if (data.error) {
               status.innerText = data.error;
             } else {
               status.innerText =
-                `Visit: ${data.visit} | Discount: ${data.applied_discount}%`;
+                `Visit: ${data.visit} | Discount: ${data.applied_discount}`;
             }
 
-          } catch (err) {
-            console.log(err);
+          } catch {
             status.innerText = "Scan failed";
           }
         }
