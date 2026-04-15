@@ -2,50 +2,112 @@
 <html>
 <head>
   <title>Join Tapr</title>
+  <style>
+    body {
+      font-family: Arial;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background: #f5f5f5;
+    }
+
+    .container {
+      text-align: center;
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+      width: 320px;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+    }
+
+    input {
+      padding: 12px;
+      margin: 8px 0;
+      width: 100%;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    button {
+      padding: 12px;
+      width: 100%;
+      font-size: 16px;
+      margin-top: 10px;
+      cursor: pointer;
+      background: black;
+      color: white;
+      border: none;
+      border-radius: 6px;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    #status {
+      margin-top: 15px;
+      font-size: 14px;
+    }
+  </style>
 </head>
 <body>
 
-  <h2>Join Tapr</h2>
+  <div class="container">
+    <h2>Join Tapr</h2>
 
-  <input id="phone" placeholder="Phone Number"><br><br>
-  <input id="name" placeholder="Name"><br><br>
-  <input id="email" placeholder="Email"><br><br>
+    <input id="phone" placeholder="Phone Number">
+    <input id="name" placeholder="Name">
+    <input id="email" placeholder="Email">
 
-  <button onclick="submitForm()">Join</button>
+    <button onclick="submitForm()">Join</button>
 
-  <pre id="status"></pre>
+    <p id="status"></p>
+  </div>
 
   <script>
     const API = "https://tapr-backend-final-production.up.railway.app";
 
-    const params = new URLSearchParams(window.location.search);
-    const slug = params.get("slug");
+    // 🔥 GET SLUG FROM CLEAN URL
+    const slug = window.location.pathname.split("/")[2];
 
     async function submitForm() {
       const phone = document.getElementById("phone").value.trim();
       const name = document.getElementById("name").value.trim();
       const email = document.getElementById("email").value.trim();
-
       const status = document.getElementById("status");
 
-      status.innerText = "START\n";
-      status.innerText += "SLUG: " + slug + "\n\n";
+      if (!slug) {
+        status.innerText = "Invalid link";
+        return;
+      }
+
+      if (!phone || !name || !email) {
+        status.innerText = "Please fill all fields";
+        return;
+      }
+
+      status.innerText = "Processing...";
 
       try {
         // 🔥 WALLET
         const walletRes = await fetch(`${API}/wallet/${slug}/${phone}`);
         const walletData = await walletRes.json();
 
-        status.innerText += "WALLET RESPONSE:\n";
-        status.innerText += JSON.stringify(walletData, null, 2) + "\n\n";
-
         if (!walletData.saveJWT) {
-          status.innerText += "STOP: NO JWT\n";
+          status.innerText = "Wallet error";
+          console.log(walletData);
           return;
         }
 
         // 🔥 SETUP
-        const setupRes = await fetch(`${API}/customer/setup/${slug}`, {
+        await fetch(`${API}/customer/setup/${slug}`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
@@ -53,18 +115,15 @@
           body: JSON.stringify({ phone, name, email })
         });
 
-        const setupData = await setupRes.json();
+        status.innerText = "Opening wallet...";
 
-        status.innerText += "SETUP RESPONSE:\n";
-        status.innerText += JSON.stringify(setupData, null, 2) + "\n\n";
-
-        status.innerText += "SUCCESS → REDIRECTING\n";
-
+        // 🔥 REDIRECT
         window.location.href =
           `https://pay.google.com/gp/v/save/${walletData.saveJWT}`;
 
       } catch (err) {
-        status.innerText += "ERROR:\n" + err.message;
+        status.innerText = "Something went wrong";
+        console.error(err);
       }
     }
   </script>
