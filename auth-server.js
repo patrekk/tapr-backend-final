@@ -22,7 +22,7 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
-// ---------- AUTH ----------
+// ---------- AUTH (FINAL) ----------
 
 function extractToken(req) {
   const auth = req.headers['authorization'];
@@ -43,6 +43,11 @@ const verifySession = async (req, res, next) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
+    // 🔥 STRICT FORMAT (FINAL RULE)
+    if (!decoded.merchant_id) {
+      return res.json({ error: 'Invalid token format' });
+    }
+
     const { data: merchant } = await supabase
       .from('merchants')
       .select('*')
@@ -55,18 +60,18 @@ const verifySession = async (req, res, next) => {
     next();
 
   } catch {
-    res.json({ error: 'Invalid session' });
+    return res.json({ error: 'Invalid session' });
   }
 };
 
 // ---------- ROUTES ----------
 
-// 🔥 JOIN PAGE FIX (YOU LOST THIS)
+// JOIN PAGE
 app.get('/join/:slug', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'join.html'));
 });
 
-// 🔥 PUBLIC MERCHANT LOOKUP
+// PUBLIC MERCHANT LOOKUP
 app.get('/merchant/:slug', async (req, res) => {
   const { data } = await supabase
     .from('merchants')
@@ -79,7 +84,7 @@ app.get('/merchant/:slug', async (req, res) => {
   res.json(data);
 });
 
-// 🔥 AUTH MERCHANT
+// AUTH MERCHANT
 app.get('/merchant/me', verifySession, (req, res) => {
   res.json({
     name: req.merchant.name,
@@ -87,7 +92,7 @@ app.get('/merchant/me', verifySession, (req, res) => {
   });
 });
 
-// 🔥 STATS
+// STATS
 app.get('/merchant/stats', verifySession, async (req, res) => {
   const id = req.merchant.id;
 
@@ -108,7 +113,7 @@ app.get('/merchant/stats', verifySession, async (req, res) => {
   });
 });
 
-// 🔥 CUSTOMERS
+// CUSTOMERS
 app.get('/merchant/customers', verifySession, async (req, res) => {
   const { data } = await supabase
     .from('customers')
@@ -118,7 +123,7 @@ app.get('/merchant/customers', verifySession, async (req, res) => {
   res.json(data);
 });
 
-// 🔥 LOGS
+// LOGS
 app.get('/merchant/scan-logs', verifySession, async (req, res) => {
   const { data } = await supabase
     .from('scan_logs')
@@ -128,7 +133,7 @@ app.get('/merchant/scan-logs', verifySession, async (req, res) => {
   res.json(data);
 });
 
-// 🔥 LOGIN
+// LOGIN (LOCKED FORMAT)
 app.post('/merchant/login', async (req, res) => {
   const { email, password } = req.body;
 
@@ -142,15 +147,17 @@ app.post('/merchant/login', async (req, res) => {
     return res.json({ error: 'Invalid credentials' });
   }
 
+  // 🔥 ONLY FORMAT ALLOWED
   const token = jwt.sign(
     { merchant_id: merchant.id },
-    process.env.JWT_SECRET
+    process.env.JWT_SECRET,
+    { expiresIn: "7d" }
   );
 
   res.json({ token });
 });
 
-// ---------- STATIC ----------
+// STATIC
 app.use(express.static(path.join(__dirname, 'public'), { index: false }));
 
 app.listen(PORT, () => {
