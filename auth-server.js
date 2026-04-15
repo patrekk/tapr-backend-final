@@ -42,7 +42,7 @@ const getMerchantBySlug = async (slug) => {
   return data;
 };
 
-// 🔥 VERIFY SESSION (LOGIN)
+// 🔥 VERIFY SESSION
 const verifySession = async (req, res, next) => {
   const token = req.headers['authorization'];
 
@@ -67,6 +67,16 @@ const verifySession = async (req, res, next) => {
   }
 };
 
+// 🔥 GENERATE CUSTOMER TOKEN (THIS FIXES EVERYTHING)
+function generateCustomerToken(customer, merchant) {
+  return jwt.sign({
+    phone: customer.phone,
+    merchant_id: merchant.id
+  }, process.env.JWT_SECRET, {
+    expiresIn: "365d"
+  });
+}
+
 // 🔥 GOOGLE ACCESS TOKEN
 async function getAccessToken() {
   const token = jwt.sign({
@@ -87,10 +97,12 @@ async function getAccessToken() {
   return data.access_token;
 }
 
-// 🔥 CREATE WALLET OBJECT
+// 🔥 CREATE WALLET OBJECT (FIXED QR)
 async function createWalletObject(customer, merchant) {
   const accessToken = await getAccessToken();
   const objectId = `${ISSUER_ID}.${customer.wallet_id}`;
+
+  const customerToken = generateCustomerToken(customer, merchant);
 
   const res = await fetch(`https://walletobjects.googleapis.com/walletobjects/v1/genericObject`, {
     method: 'POST',
@@ -110,7 +122,7 @@ async function createWalletObject(customer, merchant) {
       },
       barcode: {
         type: "QR_CODE",
-        value: "init"
+        value: customerToken   // 🔥 REAL TOKEN (NO MORE "init")
       }
     })
   });
@@ -125,7 +137,7 @@ async function createWalletObject(customer, merchant) {
   return objectId;
 }
 
-// 🔥 GENERATE JWT FOR WALLET
+// 🔥 SAVE JWT
 function generateSaveJWT(objectId) {
   return jwt.sign({
     iss: SERVICE_ACCOUNT_EMAIL,
@@ -137,7 +149,7 @@ function generateSaveJWT(objectId) {
   }, PRIVATE_KEY, { algorithm: "RS256" });
 }
 
-// 🔥 WALLET (SLUG BASED)
+// 🔥 WALLET
 app.get('/wallet/:slug/:phone', async (req, res) => {
   const { slug, phone } = req.params;
 
@@ -206,7 +218,7 @@ app.post('/customer/setup/:slug', async (req, res) => {
   res.json({ success: true });
 });
 
-// 🔥 SECURE SCAN (LOGIN REQUIRED)
+// 🔥 SCAN (JWT WORKS AGAIN)
 app.post('/scan', verifySession, async (req, res) => {
   try {
     const { token } = req.body;
@@ -285,66 +297,7 @@ app.post('/merchant/login', async (req, res) => {
   res.json({ token });
 });
 
-// 🔥 DASHBOARD STATS
-app.get('/merchant/stats', verifySession, async (req, res) => {
-  const merchant = req.merchant;
-
-  const { data: customers } = await supabase
-    .from('customers')
-    .select('*')
-    .eq('merchant_id', merchant.id);
-
-  const { data: logs } = await supabase
-    .from('scan_logs')
-    .select('*')
-    .eq('merchant_id', merchant.id);
-
-  const today = new Date().toDateString();
-
-  const todayScans = logs.filter(l =>
-    new Date(l.scanned_at).toDateString() === today
-  );
-
-  res.json({
-    total_customers: customers.length,
-    total_scans: logs.length,
-    today_scans: todayScans.length
-  });
-});
-
-// 🔥 CUSTOMERS
-app.get('/merchant/customers', verifySession, async (req, res) => {
-  const merchant = req.merchant;
-
-  const { data } = await supabase
-    .from('customers')
-    .select('*')
-    .eq('merchant_id', merchant.id)
-    .order('id', { ascending: false });
-
-  res.json(data);
-});
-
-// 🔥 SCAN LOGS
-app.get('/merchant/scan-logs', verifySession, async (req, res) => {
-  const merchant = req.merchant;
-
-  const { data } = await supabase
-    .from('scan_logs')
-    .select('*')
-    .eq('merchant_id', merchant.id)
-    .order('scanned_at', { ascending: false })
-    .limit(50);
-
-  res.json(data);
-});
-
-// 🔥 CLEAN JOIN ROUTE
-app.get('/join/:slug', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'join.html'));
-});
-
-// 🔥 STATIC LAST
+// 🔥 STATIC
 app.use(express.static(path.join(__dirname, 'public'), { index: false }));
 
 app.listen(PORT, () => {
