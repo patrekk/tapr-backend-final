@@ -3,10 +3,37 @@
 <head>
   <title>Join Tapr</title>
   <style>
-    body { font-family: Arial; text-align: center; padding: 30px; }
-    input { padding: 12px; margin: 8px; width: 250px; font-size: 16px; }
-    button { padding: 12px 20px; font-size: 16px; margin-top: 10px; cursor: pointer; }
-    #status { margin-top: 20px; font-weight: bold; white-space: pre-wrap; }
+    body {
+      font-family: Arial;
+      text-align: center;
+      padding: 30px;
+    }
+
+    input {
+      padding: 12px;
+      margin: 8px;
+      width: 250px;
+      font-size: 16px;
+    }
+
+    button {
+      padding: 12px 20px;
+      font-size: 16px;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+
+    #status {
+      margin-top: 20px;
+      font-weight: bold;
+    }
+
+    #walletBtn {
+      display: none;
+      margin-top: 20px;
+      background: black;
+      color: white;
+    }
   </style>
 </head>
 <body>
@@ -19,13 +46,17 @@
 
   <button onclick="submitForm()">Join</button>
 
-  <pre id="status"></pre>
+  <p id="status"></p>
+
+  <button id="walletBtn">Add to Wallet</button>
 
   <script>
     const API = "https://tapr-backend-final-production.up.railway.app";
 
+    let saveJWT = null;
+
     const params = new URLSearchParams(window.location.search);
-    const merchantKey = params.get("m");
+    const slug = params.get("slug");
 
     async function submitForm() {
       const phone = document.getElementById("phone").value.trim();
@@ -33,45 +64,49 @@
       const email = document.getElementById("email").value.trim();
 
       const status = document.getElementById("status");
+      const walletBtn = document.getElementById("walletBtn");
 
-      status.innerText = "START...\n";
+      if (!slug) {
+        status.innerText = "Invalid link";
+        return;
+      }
+
+      status.innerText = "Processing...";
+      walletBtn.style.display = "none";
 
       try {
-        status.innerText += "MERCHANT KEY: " + merchantKey + "\n\n";
-
-        const walletRes = await fetch(`${API}/wallet/${phone}`, {
-          headers: { "x-api-key": merchantKey }
-        });
-
+        // 🔥 GET WALLET
+        const walletRes = await fetch(`${API}/wallet/${slug}/${phone}`);
         const walletData = await walletRes.json();
 
-        status.innerText += "WALLET RESPONSE:\n";
-        status.innerText += JSON.stringify(walletData, null, 2) + "\n\n";
+        if (!walletData.saveJWT) {
+          status.innerText = "Wallet error";
+          console.log(walletData);
+          return;
+        }
 
-        const setupRes = await fetch(`${API}/customer/setup`, {
+        saveJWT = walletData.saveJWT;
+
+        // 🔥 SETUP CUSTOMER
+        await fetch(`${API}/customer/setup/${slug}`, {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
-            "x-api-key": merchantKey
+            "Content-Type": "application/json"
           },
           body: JSON.stringify({ phone, name, email })
         });
 
-        const setupData = await setupRes.json();
+        status.innerText = "Ready to add to wallet";
 
-        status.innerText += "SETUP RESPONSE:\n";
-        status.innerText += JSON.stringify(setupData, null, 2) + "\n\n";
+        walletBtn.style.display = "inline-block";
 
-        if (walletData.saveJWT) {
-          status.innerText += "JWT FOUND ✅\n";
-
-          window.location.href = `https://pay.google.com/gp/v/save/${walletData.saveJWT}`;
-        } else {
-          status.innerText += "JWT MISSING ❌\n";
-        }
+        walletBtn.onclick = function () {
+          window.location.href = `https://pay.google.com/gp/v/save/${saveJWT}`;
+        };
 
       } catch (err) {
-        status.innerText += "ERROR:\n" + err.message;
+        status.innerText = "Something went wrong";
+        console.error(err);
       }
     }
   </script>
