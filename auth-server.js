@@ -81,13 +81,29 @@ function generateCustomerToken(customer, merchant) {
 
 // ---------- ROUTES ----------
 
-// 🔥 CRITICAL FIX: JOIN SLUG ROUTE
+// 🔥 JOIN PAGE ROUTE
 app.get('/join/:slug', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'join.html'));
 });
 
-// ---------- MERCHANT ----------
+// 🔥 PUBLIC MERCHANT LOOKUP (FOR JOIN PAGE)
+app.get('/merchant/:slug', async (req, res) => {
+  const { slug } = req.params;
 
+  const { data } = await supabase
+    .from('merchants')
+    .select('name, slug')
+    .eq('slug', slug)
+    .single();
+
+  if (!data) {
+    return res.json({ error: 'Merchant not found' });
+  }
+
+  res.json(data);
+});
+
+// 🔥 LOGGED-IN MERCHANT INFO
 app.get('/merchant/me', verifySession, (req, res) => {
   res.json({
     name: req.merchant.name,
@@ -95,6 +111,7 @@ app.get('/merchant/me', verifySession, (req, res) => {
   });
 });
 
+// 🔥 STATS
 app.get('/merchant/stats', verifySession, async (req, res) => {
   const merchantId = req.merchant.id;
 
@@ -121,6 +138,7 @@ app.get('/merchant/stats', verifySession, async (req, res) => {
   });
 });
 
+// 🔥 DATA
 app.get('/merchant/customers', verifySession, async (req, res) => {
   const { data } = await supabase
     .from('customers')
@@ -140,8 +158,7 @@ app.get('/merchant/scan-logs', verifySession, async (req, res) => {
   res.json(data);
 });
 
-// ---------- SIGNUP ----------
-
+// 🔥 SIGNUP
 app.post('/merchant/signup', async (req, res) => {
   const { name, email, password } = req.body;
 
@@ -164,8 +181,7 @@ app.post('/merchant/signup', async (req, res) => {
   res.json({ success: true });
 });
 
-// ---------- LOGIN ----------
-
+// 🔥 LOGIN
 app.post('/merchant/login', async (req, res) => {
   const { email, password } = req.body;
 
@@ -187,105 +203,7 @@ app.post('/merchant/login', async (req, res) => {
   res.json({ token });
 });
 
-// ---------- WALLET ----------
-
-app.get('/wallet/:slug/:phone', async (req, res) => {
-  const { slug, phone } = req.params;
-
-  const merchant = await getMerchantBySlug(slug);
-  if (!merchant) return res.json({ error: 'Invalid merchant' });
-
-  let { data: customer } = await supabase
-    .from('customers')
-    .select('*')
-    .eq('phone', phone)
-    .eq('merchant_id', merchant.id)
-    .maybeSingle();
-
-  if (!customer) {
-    const wallet_id = `tapr_${phone}_${Date.now()}`;
-
-    const { data: newCustomer } = await supabase
-      .from('customers')
-      .insert([{
-        phone,
-        merchant_id: merchant.id,
-        wallet_id,
-        visit_count: 0,
-        pending_discount: 0
-      }])
-      .select()
-      .single();
-
-    customer = newCustomer;
-  }
-
-  try {
-    const objectId = await createWalletObject(customer, merchant);
-    const saveJWT = generateSaveJWT(objectId);
-
-    res.json({ saveJWT });
-
-  } catch (err) {
-    res.json({ error: 'wallet_failed', details: err.message });
-  }
-});
-
-// ---------- SCAN ----------
-
-app.post('/scan', verifySession, async (req, res) => {
-  try {
-    const { token } = req.body;
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    if (decoded.merchant_id !== req.merchant.id) {
-      return res.json({ error: 'Invalid customer for this merchant' });
-    }
-
-    const phone = decoded.phone;
-
-    const { data: customer } = await supabase
-      .from('customers')
-      .select('*')
-      .eq('phone', phone)
-      .eq('merchant_id', req.merchant.id)
-      .single();
-
-    const today = new Date().toDateString();
-
-    if (customer.last_reward_day === today) {
-      return res.json({ error: 'Already claimed today' });
-    }
-
-    let visit = customer.visit_count + 1;
-    if (visit > 5) visit = 1;
-
-    const applied_discount = LOOP[visit - 1];
-
-    await supabase
-      .from('customers')
-      .update({
-        visit_count: visit,
-        last_reward_day: today,
-        pending_discount: applied_discount
-      })
-      .eq('id', customer.id);
-
-    await supabase.from('scan_logs').insert([{
-      merchant_id: req.merchant.id,
-      phone,
-      result: `Visit ${visit} → ${applied_discount}`
-    }]);
-
-    res.json({ success: true, visit, applied_discount });
-
-  } catch (err) {
-    res.json({ error: err.message });
-  }
-});
-
-// ---------- STATIC LAST ----------
+// ---------- STATIC ----------
 app.use(express.static(path.join(__dirname, 'public'), { index: false }));
 
 app.listen(PORT, () => {

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Join Tapr</title>
+  <title>Join</title>
   <style>
     body {
       font-family: Arial;
@@ -65,7 +65,7 @@
 <body>
 
   <div class="container">
-    <h2>Join Tapr</h2>
+    <h2 id="title">Loading...</h2>
 
     <label>Phone Number</label>
     <input id="phone" type="tel" placeholder="09123456789">
@@ -85,17 +85,24 @@
     const API = "https://tapr-backend-final-production.up.railway.app";
 
     function getSlug() {
-      const path = window.location.pathname;
-
-      if (path.startsWith("/join/")) {
-        return path.split("/")[2];
-      }
-
-      const params = new URLSearchParams(window.location.search);
-      return params.get("slug");
+      const parts = window.location.pathname.split("/");
+      return parts[2];
     }
 
     const slug = getSlug();
+
+    async function loadMerchant() {
+      const res = await fetch(`${API}/merchant/${slug}`);
+      const data = await res.json();
+
+      if (data.name) {
+        document.getElementById("title").innerText = `Join ${data.name}`;
+      } else {
+        document.getElementById("title").innerText = "Invalid Merchant";
+      }
+    }
+
+    loadMerchant();
 
     async function submitForm() {
       const phone = document.getElementById("phone").value.trim();
@@ -103,13 +110,8 @@
       const email = document.getElementById("email").value.trim();
       const status = document.getElementById("status");
 
-      if (!slug) {
-        status.innerText = "Invalid link";
-        return;
-      }
-
       if (!phone || !name || !email) {
-        status.innerText = "Please complete all fields";
+        status.innerText = "Complete all fields";
         return;
       }
 
@@ -126,13 +128,9 @@
 
         await fetch(`${API}/customer/setup/${slug}`, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ phone, name, email })
         });
-
-        status.innerText = "Opening wallet...";
 
         window.location.href =
           `https://pay.google.com/gp/v/save/${walletData.saveJWT}`;
