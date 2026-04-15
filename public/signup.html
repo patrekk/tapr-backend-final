@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Merchant Signup</title>
+</head>
+<body>
+
+  <h2>Create Your Tapr Account</h2>
+
+  <input id="name" placeholder="Business Name"><br><br>
+  <input id="email" placeholder="Email"><br><br>
+  <input id="password" placeholder="Password"><br><br>
+
+  <button onclick="signup()">Sign Up</button>
+
+  <p id="status"></p>
+
+  <script>
+    const API = "https://tapr-backend-final-production.up.railway.app";
+
+    async function signup() {
+      const name = document.getElementById("name").value;
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      const res = await fetch(`${API}/merchant/signup`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ name, email, password })
+      });
+
+      const data = await res.json();
+
+      if (data.error) {
+        document.getElementById("status").innerText = data.error;
+      } else {
+        document.getElementById("status").innerText = "Account created. Login now.";
+      }
+    }
+  </script>
+
+</body>
+</html>

@@ -33,6 +33,12 @@ const LOOP = [10, 10, 20, 0, 50];
 
 // ---------- HELPERS ----------
 
+function generateSlug(name) {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '');
+}
+
 const getMerchantBySlug = async (slug) => {
   const { data } = await supabase
     .from('merchants')
@@ -146,7 +152,61 @@ function generateSaveJWT(objectId) {
   }, PRIVATE_KEY, { algorithm: "RS256" });
 }
 
-// ---------- ROUTES ----------
+// ---------- SIGNUP ----------
+
+app.post('/merchant/signup', async (req, res) => {
+  const { name, email, password } = req.body;
+
+  const slug = generateSlug(name);
+
+  const { data: existing } = await supabase
+    .from('merchants')
+    .select('*')
+    .eq('email', email)
+    .maybeSingle();
+
+  if (existing) {
+    return res.json({ error: 'Email already used' });
+  }
+
+  const { data: merchant } = await supabase
+    .from('merchants')
+    .insert([{
+      name,
+      email,
+      password,
+      slug
+    }])
+    .select()
+    .single();
+
+  res.json({ success: true });
+});
+
+// ---------- LOGIN ----------
+
+app.post('/merchant/login', async (req, res) => {
+  const { email, password } = req.body;
+
+  const { data: merchant } = await supabase
+    .from('merchants')
+    .select('*')
+    .eq('email', email)
+    .single();
+
+  if (!merchant || merchant.password !== password) {
+    return res.json({ error: 'Invalid credentials' });
+  }
+
+  const token = jwt.sign(
+    { merchant_id: merchant.id },
+    process.env.JWT_SECRET
+  );
+
+  res.json({ token });
+});
+
+// ---------- WALLET ----------
 
 app.get('/wallet/:slug/:phone', async (req, res) => {
   const { slug, phone } = req.params;
@@ -190,12 +250,13 @@ app.get('/wallet/:slug/:phone', async (req, res) => {
   }
 });
 
+// ---------- CUSTOMER SETUP ----------
+
 app.post('/customer/setup/:slug', async (req, res) => {
   const { slug } = req.params;
   const { phone, name, email } = req.body;
 
   const merchant = await getMerchantBySlug(slug);
-  if (!merchant) return res.json({ error: 'Invalid merchant' });
 
   const { data: existing } = await supabase
     .from('customers')
@@ -204,10 +265,6 @@ app.post('/customer/setup/:slug', async (req, res) => {
     .eq('merchant_id', merchant.id)
     .maybeSingle();
 
-  if (existing.name && existing.email) {
-    return res.json({ success: true });
-  }
-
   await supabase
     .from('customers')
     .update({ name, email })
@@ -215,6 +272,8 @@ app.post('/customer/setup/:slug', async (req, res) => {
 
   res.json({ success: true });
 });
+
+// ---------- SCAN ----------
 
 app.post('/scan', verifySession, async (req, res) => {
   try {
@@ -235,10 +294,6 @@ app.post('/scan', verifySession, async (req, res) => {
       .eq('phone', phone)
       .eq('merchant_id', merchant.id)
       .single();
-
-    if (!customer.name || !customer.email) {
-      return res.json({ error: 'missing_details' });
-    }
 
     const today = new Date().toDateString();
 
@@ -271,27 +326,6 @@ app.post('/scan', verifySession, async (req, res) => {
   } catch (err) {
     res.json({ error: err.message });
   }
-});
-
-app.post('/merchant/login', async (req, res) => {
-  const { email, password } = req.body;
-
-  const { data: merchant } = await supabase
-    .from('merchants')
-    .select('*')
-    .eq('email', email)
-    .single();
-
-  if (!merchant || merchant.password !== password) {
-    return res.json({ error: 'Invalid credentials' });
-  }
-
-  const token = jwt.sign(
-    { merchant_id: merchant.id },
-    process.env.JWT_SECRET
-  );
-
-  res.json({ token });
 });
 
 // ---------- STATIC ----------
