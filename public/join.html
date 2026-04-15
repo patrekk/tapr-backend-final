@@ -22,38 +22,24 @@
       width: 320px;
     }
 
-    h2 {
-      margin-bottom: 20px;
-    }
-
     input {
       padding: 12px;
       margin: 8px 0;
       width: 100%;
       font-size: 16px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
     }
 
     button {
       padding: 12px;
       width: 100%;
-      font-size: 16px;
-      margin-top: 10px;
-      cursor: pointer;
       background: black;
       color: white;
       border: none;
-      border-radius: 6px;
-    }
-
-    button:hover {
-      opacity: 0.9;
+      cursor: pointer;
     }
 
     #status {
       margin-top: 15px;
-      font-size: 14px;
     }
   </style>
 </head>
@@ -74,8 +60,21 @@
   <script>
     const API = "https://tapr-backend-final-production.up.railway.app";
 
-    // 🔥 GET SLUG FROM CLEAN URL
-    const slug = window.location.pathname.split("/")[2];
+    // 🔥 SAFE SLUG EXTRACTION
+    function getSlug() {
+      const path = window.location.pathname;
+
+      // /join/feralstudios
+      if (path.startsWith("/join/")) {
+        return path.split("/")[2];
+      }
+
+      // fallback: ?slug=
+      const params = new URLSearchParams(window.location.search);
+      return params.get("slug");
+    }
+
+    const slug = getSlug();
 
     async function submitForm() {
       const phone = document.getElementById("phone").value.trim();
@@ -89,41 +88,34 @@
       }
 
       if (!phone || !name || !email) {
-        status.innerText = "Please fill all fields";
+        status.innerText = "Fill all fields";
         return;
       }
 
       status.innerText = "Processing...";
 
       try {
-        // 🔥 WALLET
         const walletRes = await fetch(`${API}/wallet/${slug}/${phone}`);
         const walletData = await walletRes.json();
 
         if (!walletData.saveJWT) {
           status.innerText = "Wallet error";
-          console.log(walletData);
           return;
         }
 
-        // 🔥 SETUP
         await fetch(`${API}/customer/setup/${slug}`, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ phone, name, email })
         });
 
         status.innerText = "Opening wallet...";
 
-        // 🔥 REDIRECT
         window.location.href =
           `https://pay.google.com/gp/v/save/${walletData.saveJWT}`;
 
       } catch (err) {
         status.innerText = "Something went wrong";
-        console.error(err);
       }
     }
   </script>
