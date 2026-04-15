@@ -5,7 +5,7 @@
   <style>
     body {
       font-family: Arial;
-      padding: 20px;
+      margin: 20px;
       background: #f5f5f5;
     }
 
@@ -13,26 +13,26 @@
       margin-bottom: 10px;
     }
 
-    .card {
-      background: white;
-      padding: 15px;
-      margin-bottom: 20px;
-      border-radius: 10px;
-    }
-
-    .stats {
+    .cards {
       display: flex;
-      gap: 20px;
+      gap: 10px;
+      margin-bottom: 20px;
     }
 
-    .stat {
+    .card {
       flex: 1;
       background: black;
       color: white;
       padding: 20px;
-      border-radius: 10px;
       text-align: center;
-      font-size: 18px;
+      border-radius: 10px;
+    }
+
+    .section {
+      background: #eee;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
     }
 
     table {
@@ -40,14 +40,38 @@
       border-collapse: collapse;
     }
 
-    th, td {
-      padding: 10px;
-      border-bottom: 1px solid #ddd;
+    th {
       text-align: left;
+      padding: 8px;
+      background: #ddd;
     }
 
-    th {
-      background: #eee;
+    td {
+      padding: 8px;
+      border-bottom: 1px solid #ccc;
+    }
+
+    button {
+      padding: 10px;
+      margin-bottom: 10px;
+      background: black;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    #qrBox {
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    #qrBox img {
+      width: 200px;
+    }
+
+    #link {
+      font-size: 12px;
+      word-break: break-all;
     }
   </style>
 </head>
@@ -55,13 +79,32 @@
 
   <h2>Dashboard</h2>
 
-  <div class="card stats">
-    <div class="stat" id="totalCustomers">0<br>Customers</div>
-    <div class="stat" id="totalScans">0<br>Total Scans</div>
-    <div class="stat" id="todayScans">0<br>Today</div>
+  <button onclick="goScanner()">Open Scanner</button>
+
+  <div class="section">
+    <h3>Your QR</h3>
+    <button onclick="generateQR()">Generate QR</button>
+
+    <div id="qrBox"></div>
+    <p id="link"></p>
   </div>
 
-  <div class="card">
+  <div class="cards">
+    <div class="card">
+      <h3 id="customers">0</h3>
+      <p>Customers</p>
+    </div>
+    <div class="card">
+      <h3 id="scans">0</h3>
+      <p>Total Scans</p>
+    </div>
+    <div class="card">
+      <h3 id="today">0</h3>
+      <p>Today</p>
+    </div>
+  </div>
+
+  <div class="section">
     <h3>Customers</h3>
     <table>
       <thead>
@@ -71,111 +114,101 @@
           <th>Visits</th>
         </tr>
       </thead>
-      <tbody id="customersBody"></tbody>
+      <tbody id="customersTable"></tbody>
     </table>
   </div>
 
-  <div class="card">
+  <div class="section">
     <h3>Recent Scans</h3>
     <table>
       <thead>
         <tr>
           <th>Phone</th>
-          <th>Time</th>
           <th>Result</th>
         </tr>
       </thead>
-      <tbody id="logsBody"></tbody>
+      <tbody id="logsTable"></tbody>
     </table>
   </div>
 
   <script>
     const API = "https://tapr-backend-final-production.up.railway.app";
-    const token = localStorage.getItem("token");
 
-    if (!token) {
+    function getToken() {
+      return localStorage.getItem("token");
+    }
+
+    if (!getToken()) {
       window.location.href = "/login.html";
     }
 
+    function goScanner() {
+      window.location.href = "/scanner.html";
+    }
+
     async function loadStats() {
-      try {
-        const res = await fetch(`${API}/merchant/stats`, {
-          headers: { authorization: token }
-        });
+      const res = await fetch(`${API}/merchant/stats`, {
+        headers: { authorization: getToken() }
+      });
+      const data = await res.json();
 
-        const data = await res.json();
-        console.log("STATS:", data);
-
-        document.getElementById("totalCustomers").innerHTML =
-          (data.total_customers || 0) + "<br>Customers";
-
-        document.getElementById("totalScans").innerHTML =
-          (data.total_scans || 0) + "<br>Total Scans";
-
-        document.getElementById("todayScans").innerHTML =
-          (data.today_scans || 0) + "<br>Today";
-
-      } catch (err) {
-        console.error("Stats error:", err);
-      }
+      document.getElementById("customers").innerText = data.total_customers;
+      document.getElementById("scans").innerText = data.total_scans;
+      document.getElementById("today").innerText = data.today_scans;
     }
 
     async function loadCustomers() {
-      try {
-        const res = await fetch(`${API}/merchant/customers`, {
-          headers: { authorization: token }
-        });
+      const res = await fetch(`${API}/merchant/customers`, {
+        headers: { authorization: getToken() }
+      });
+      const data = await res.json();
 
-        const data = await res.json();
-        console.log("CUSTOMERS:", data);
+      const table = document.getElementById("customersTable");
+      table.innerHTML = "";
 
-        const tbody = document.getElementById("customersBody");
-        tbody.innerHTML = "";
-
-        data.forEach(c => {
-          const row = `
-            <tr>
-              <td>${c.phone}</td>
-              <td>${c.name || "-"}</td>
-              <td>${c.visit_count || 0}</td>
-            </tr>
-          `;
-          tbody.innerHTML += row;
-        });
-
-      } catch (err) {
-        console.error("Customers error:", err);
-      }
+      data.forEach(c => {
+        table.innerHTML += `
+          <tr>
+            <td>${c.phone}</td>
+            <td>${c.name || "-"}</td>
+            <td>${c.visit_count}</td>
+          </tr>
+        `;
+      });
     }
 
     async function loadLogs() {
-      try {
-        const res = await fetch(`${API}/merchant/scan-logs`, {
-          headers: { authorization: token }
-        });
+      const res = await fetch(`${API}/merchant/scan-logs`, {
+        headers: { authorization: getToken() }
+      });
+      const data = await res.json();
 
-        const data = await res.json();
-        console.log("LOGS:", data);
+      const table = document.getElementById("logsTable");
+      table.innerHTML = "";
 
-        const tbody = document.getElementById("logsBody");
-        tbody.innerHTML = "";
+      data.forEach(l => {
+        table.innerHTML += `
+          <tr>
+            <td>${l.phone}</td>
+            <td>${l.result}</td>
+          </tr>
+        `;
+      });
+    }
 
-        data.forEach(l => {
-          const time = new Date(l.scanned_at).toLocaleString();
+    async function generateQR() {
+      const res = await fetch(`${API}/merchant/me`, {
+        headers: { authorization: getToken() }
+      });
 
-          const row = `
-            <tr>
-              <td>${l.phone}</td>
-              <td>${time}</td>
-              <td>${l.result || "-"}</td>
-            </tr>
-          `;
-          tbody.innerHTML += row;
-        });
+      const data = await res.json();
 
-      } catch (err) {
-        console.error("Logs error:", err);
-      }
+      const url = `${window.location.origin}/join/${data.slug}`;
+
+      document.getElementById("link").innerText = url;
+
+      document.getElementById("qrBox").innerHTML =
+        `<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${url}" />`;
     }
 
     loadStats();
