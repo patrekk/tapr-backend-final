@@ -2,58 +2,21 @@
 <html>
 <head>
   <title>Join Tapr</title>
-  <style>
-    body {
-      font-family: Arial;
-      text-align: center;
-      padding: 30px;
-    }
-
-    input {
-      padding: 12px;
-      margin: 8px;
-      width: 250px;
-      font-size: 16px;
-    }
-
-    button {
-      padding: 12px 20px;
-      font-size: 16px;
-      margin-top: 10px;
-      cursor: pointer;
-    }
-
-    #status {
-      margin-top: 20px;
-      font-weight: bold;
-    }
-
-    #walletBtn {
-      display: none;
-      margin-top: 20px;
-      background: black;
-      color: white;
-    }
-  </style>
 </head>
 <body>
 
   <h2>Join Tapr</h2>
 
-  <input id="phone" placeholder="Phone Number"><br>
-  <input id="name" placeholder="Name"><br>
-  <input id="email" placeholder="Email"><br>
+  <input id="phone" placeholder="Phone Number"><br><br>
+  <input id="name" placeholder="Name"><br><br>
+  <input id="email" placeholder="Email"><br><br>
 
   <button onclick="submitForm()">Join</button>
 
-  <p id="status"></p>
-
-  <button id="walletBtn">Add to Wallet</button>
+  <pre id="status"></pre>
 
   <script>
     const API = "https://tapr-backend-final-production.up.railway.app";
-
-    let saveJWT = null;
 
     const params = new URLSearchParams(window.location.search);
     const slug = params.get("slug");
@@ -64,31 +27,25 @@
       const email = document.getElementById("email").value.trim();
 
       const status = document.getElementById("status");
-      const walletBtn = document.getElementById("walletBtn");
 
-      if (!slug) {
-        status.innerText = "Invalid link";
-        return;
-      }
-
-      status.innerText = "Processing...";
-      walletBtn.style.display = "none";
+      status.innerText = "START\n";
+      status.innerText += "SLUG: " + slug + "\n\n";
 
       try {
-        // 🔥 GET WALLET
+        // 🔥 WALLET
         const walletRes = await fetch(`${API}/wallet/${slug}/${phone}`);
         const walletData = await walletRes.json();
 
+        status.innerText += "WALLET RESPONSE:\n";
+        status.innerText += JSON.stringify(walletData, null, 2) + "\n\n";
+
         if (!walletData.saveJWT) {
-          status.innerText = "Wallet error";
-          console.log(walletData);
+          status.innerText += "STOP: NO JWT\n";
           return;
         }
 
-        saveJWT = walletData.saveJWT;
-
-        // 🔥 SETUP CUSTOMER
-        await fetch(`${API}/customer/setup/${slug}`, {
+        // 🔥 SETUP
+        const setupRes = await fetch(`${API}/customer/setup/${slug}`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
@@ -96,17 +53,18 @@
           body: JSON.stringify({ phone, name, email })
         });
 
-        status.innerText = "Ready to add to wallet";
+        const setupData = await setupRes.json();
 
-        walletBtn.style.display = "inline-block";
+        status.innerText += "SETUP RESPONSE:\n";
+        status.innerText += JSON.stringify(setupData, null, 2) + "\n\n";
 
-        walletBtn.onclick = function () {
-          window.location.href = `https://pay.google.com/gp/v/save/${saveJWT}`;
-        };
+        status.innerText += "SUCCESS → REDIRECTING\n";
+
+        window.location.href =
+          `https://pay.google.com/gp/v/save/${walletData.saveJWT}`;
 
       } catch (err) {
-        status.innerText = "Something went wrong";
-        console.error(err);
+        status.innerText += "ERROR:\n" + err.message;
       }
     }
   </script>
