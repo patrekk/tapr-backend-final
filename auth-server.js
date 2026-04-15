@@ -22,15 +22,13 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
-// 🔥 HARD AUTH FIX (NO MORE GUESSING)
+// 🔥 DEBUG AUTH
 function extractToken(req) {
   const auth = req.headers['authorization'];
+  console.log("RAW AUTH HEADER:", auth);
 
   if (!auth) return null;
 
-  // supports BOTH:
-  // "Bearer xxx"
-  // "xxx"
   if (auth.startsWith('Bearer ')) {
     return auth.split(' ')[1];
   }
@@ -41,13 +39,16 @@ function extractToken(req) {
 const verifySession = async (req, res, next) => {
   const token = extractToken(req);
 
+  console.log("EXTRACTED TOKEN:", token);
+
   if (!token) {
-    console.log("NO TOKEN");
+    console.log("❌ NO TOKEN");
     return res.json({ error: 'No session' });
   }
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log("✅ DECODED:", decoded);
 
     const { data: merchant } = await supabase
       .from('merchants')
@@ -55,8 +56,10 @@ const verifySession = async (req, res, next) => {
       .eq('id', decoded.merchant_id)
       .single();
 
+    console.log("🔎 MERCHANT LOOKUP:", merchant);
+
     if (!merchant) {
-      console.log("MERCHANT NOT FOUND FROM TOKEN");
+      console.log("❌ MERCHANT NOT FOUND");
       return res.json({ error: 'Invalid session' });
     }
 
@@ -64,87 +67,21 @@ const verifySession = async (req, res, next) => {
     next();
 
   } catch (err) {
-    console.log("JWT ERROR:", err.message);
+    console.log("❌ JWT ERROR:", err.message);
     return res.json({ error: 'Invalid session' });
   }
 };
 
 // ---------- ROUTES ----------
 
-// JOIN PAGE
-app.get('/join/:slug', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'join.html'));
-});
-
-// PUBLIC MERCHANT LOOKUP
-app.get('/merchant/:slug', async (req, res) => {
-  const slug = req.params.slug;
-
-  if (!slug || slug === "undefined") {
-    return res.json({ error: 'Invalid slug' });
-  }
-
-  const { data } = await supabase
-    .from('merchants')
-    .select('name, slug')
-    .eq('slug', slug)
-    .single();
-
-  if (!data) return res.json({ error: 'Merchant not found' });
-
-  res.json(data);
-});
-
-// 🔥 SOURCE OF TRUTH
 app.get('/merchant/me', verifySession, (req, res) => {
+  console.log("🔥 RETURNING MERCHANT:", req.merchant);
   res.json({
     name: req.merchant.name,
     slug: req.merchant.slug
   });
 });
 
-// STATS
-app.get('/merchant/stats', verifySession, async (req, res) => {
-  const id = req.merchant.id;
-
-  const { data: customers } = await supabase
-    .from('customers')
-    .select('*')
-    .eq('merchant_id', id);
-
-  const { data: logs } = await supabase
-    .from('scan_logs')
-    .select('*')
-    .eq('merchant_id', id);
-
-  res.json({
-    total_customers: customers.length,
-    total_scans: logs.length,
-    today_scans: logs.length
-  });
-});
-
-// CUSTOMERS
-app.get('/merchant/customers', verifySession, async (req, res) => {
-  const { data } = await supabase
-    .from('customers')
-    .select('*')
-    .eq('merchant_id', req.merchant.id);
-
-  res.json(data);
-});
-
-// LOGS
-app.get('/merchant/scan-logs', verifySession, async (req, res) => {
-  const { data } = await supabase
-    .from('scan_logs')
-    .select('*')
-    .eq('merchant_id', req.merchant.id);
-
-  res.json(data);
-});
-
-// LOGIN
 app.post('/merchant/login', async (req, res) => {
   const { email, password } = req.body;
 
@@ -163,10 +100,11 @@ app.post('/merchant/login', async (req, res) => {
     process.env.JWT_SECRET
   );
 
+  console.log("🔥 NEW TOKEN:", token);
+
   res.json({ token });
 });
 
-// STATIC
 app.use(express.static(path.join(__dirname, 'public'), { index: false }));
 
 app.listen(PORT, () => {
