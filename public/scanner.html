@@ -22,6 +22,12 @@
       width: 320px;
     }
 
+    h3 {
+      margin-top: 0;
+      font-size: 16px;
+      color: #666;
+    }
+
     button {
       padding: 10px;
       width: 100%;
@@ -46,6 +52,7 @@
 
   <div class="container">
     <h2>Tapr Scanner</h2>
+    <h3 id="merchantName">Loading...</h3>
 
     <button onclick="startScanner()">Start Scanner</button>
 
@@ -67,6 +74,21 @@
       window.location.href = "/login.html";
     }
 
+    async function loadMerchant() {
+      const res = await fetch(`${API}/merchant/me`, {
+        headers: {
+          "authorization": getToken()
+        }
+      });
+
+      const data = await res.json();
+
+      document.getElementById("merchantName").innerText =
+        "Merchant: " + data.name;
+    }
+
+    loadMerchant();
+
     let scanner = null;
 
     async function startScanner() {
@@ -79,42 +101,33 @@
 
         await scanner.start(
           { facingMode: "environment" },
-          {
-            fps: 10,
-            qrbox: 250
-          },
+          { fps: 10, qrbox: 250 },
           async (decodedText) => {
             status.innerText = "Processing...";
 
             const token = getToken();
 
-            try {
-              const res = await fetch(`${API}/scan`, {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                  "authorization": token
-                },
-                body: JSON.stringify({ token: decodedText })
-              });
+            const res = await fetch(`${API}/scan`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "authorization": token
+              },
+              body: JSON.stringify({ token: decodedText })
+            });
 
-              const data = await res.json();
+            const data = await res.json();
 
-              if (data.error) {
-                status.innerText = data.error;
-              } else {
-                status.innerText =
-                  `Visit: ${data.visit} | Discount: ${data.applied_discount}`;
-              }
-
-            } catch {
-              status.innerText = "Scan failed";
+            if (data.error) {
+              status.innerText = data.error;
+            } else {
+              status.innerText =
+                `Visit: ${data.visit} | Discount: ${data.applied_discount}`;
             }
           }
         );
 
-      } catch (err) {
-        console.log(err);
+      } catch {
         status.innerText = "Camera error";
       }
     }
