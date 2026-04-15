@@ -37,7 +37,7 @@
       font-weight: bold;
     }
 
-    #camera {
+    #reader {
       width: 100%;
     }
   </style>
@@ -51,7 +51,7 @@
 
     <p id="status">Idle</p>
 
-    <div id="camera"></div>
+    <div id="reader"></div>
   </div>
 
   <script src="https://unpkg.com/html5-qrcode"></script>
@@ -67,47 +67,56 @@
       window.location.href = "/login.html";
     }
 
-    let scanner;
+    let scanner = null;
 
-    function startScanner() {
+    async function startScanner() {
       const status = document.getElementById("status");
 
-      scanner = new Html5Qrcode("camera");
+      try {
+        status.innerText = "Starting camera...";
 
-      status.innerText = "Starting camera...";
+        scanner = new Html5Qrcode("reader");
 
-      scanner.start(
-        { facingMode: "environment" },
-        { fps: 10 },
-        async (decodedText) => {
-          status.innerText = "Processing...";
+        await scanner.start(
+          { facingMode: "environment" },
+          {
+            fps: 10,
+            qrbox: 250
+          },
+          async (decodedText) => {
+            status.innerText = "Processing...";
 
-          const token = getToken();
+            const token = getToken();
 
-          try {
-            const res = await fetch(`${API}/scan`, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                "authorization": token
-              },
-              body: JSON.stringify({ token: decodedText })
-            });
+            try {
+              const res = await fetch(`${API}/scan`, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  "authorization": token
+                },
+                body: JSON.stringify({ token: decodedText })
+              });
 
-            const data = await res.json();
+              const data = await res.json();
 
-            if (data.error) {
-              status.innerText = data.error;
-            } else {
-              status.innerText =
-                `Visit: ${data.visit} | Discount: ${data.applied_discount}`;
+              if (data.error) {
+                status.innerText = data.error;
+              } else {
+                status.innerText =
+                  `Visit: ${data.visit} | Discount: ${data.applied_discount}`;
+              }
+
+            } catch {
+              status.innerText = "Scan failed";
             }
-
-          } catch {
-            status.innerText = "Scan failed";
           }
-        }
-      );
+        );
+
+      } catch (err) {
+        console.log(err);
+        status.innerText = "Camera error";
+      }
     }
   </script>
 
