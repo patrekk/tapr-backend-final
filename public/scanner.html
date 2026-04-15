@@ -1,32 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Tapr Scanner</title>
-  <style>
-    body { font-family: Arial; text-align: center; padding: 20px; }
-
-    #video { width: 300px; border-radius: 12px; margin-top: 20px; }
-
-    #status { margin-top: 20px; font-size: 18px; font-weight: bold; }
-
-    button {
-      padding: 12px 20px;
-      font-size: 16px;
-      margin-top: 20px;
-      cursor: pointer;
-    }
-
-    #form {
-      display: none;
-      margin-top: 20px;
-    }
-
-    input {
-      padding: 10px;
-      margin: 5px;
-      width: 200px;
-    }
-  </style>
+  <title>Scanner</title>
 </head>
 <body>
 
@@ -34,147 +9,67 @@
 
   <button onclick="startScanner()">Start Scanner</button>
 
-  <br>
-
-  <video id="video" autoplay playsinline></video>
-
   <p id="status">Idle</p>
 
-  <!-- 🔥 CUSTOMER FORM -->
-  <div id="form">
-    <h3>Enter Details</h3>
-    <input id="name" placeholder="Name"><br>
-    <input id="email" placeholder="Email"><br>
-    <button onclick="submitDetails()">Submit</button>
-  </div>
+  <div id="camera" style="width:300px;"></div>
 
-  <script src="https://cdn.jsdelivr.net/npm/jsqr"></script>
+  <script src="https://unpkg.com/html5-qrcode"></script>
 
   <script>
     const API = "https://tapr-backend-final-production.up.railway.app";
 
-    const video = document.getElementById("video");
-    const status = document.getElementById("status");
-    const form = document.getElementById("form");
+    function getToken() {
+      return localStorage.getItem("token");
+    }
 
-    let scanning = false;
-    let currentPhone = null;
+    if (!getToken()) {
+      window.location.href = "/login.html";
+    }
 
-    async function startScanner() {
+    let scanner;
+
+    function startScanner() {
+      const status = document.getElementById("status");
+
+      scanner = new Html5Qrcode("camera");
+
       status.innerText = "Starting camera...";
 
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "environment" }
-      });
+      scanner.start(
+        { facingMode: "environment" },
+        { fps: 10 },
+        async (decodedText) => {
+          status.innerText = "Processing...";
 
-      video.srcObject = stream;
+          const token = getToken(); // 🔥 ALWAYS GET FRESH TOKEN
 
-      video.onloadedmetadata = () => {
-        video.play();
-        scanning = true;
-        status.innerText = "Ready to scan";
-        requestAnimationFrame(scanFrame);
-      };
-    }
+          try {
+            const res = await fetch(`${API}/scan`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "authorization": token
+              },
+              body: JSON.stringify({ token: decodedText })
+            });
 
-    function scanFrame() {
-      if (!scanning) return;
+            const data = await res.json();
 
-      if (video.videoWidth === 0) {
-        requestAnimationFrame(scanFrame);
-        return;
-      }
+            console.log("SCAN RESPONSE:", data);
 
-      const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
+            if (data.error) {
+              status.innerText = data.error;
+            } else {
+              status.innerText =
+                `Visit: ${data.visit} | Discount: ${data.applied_discount}%`;
+            }
 
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-
-      ctx.drawImage(video, 0, 0);
-
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const code = jsQR(imageData.data, canvas.width, canvas.height);
-
-      if (code) {
-        handleScan(code.data.trim());
-        return;
-      }
-
-      requestAnimationFrame(scanFrame);
-    }
-
-    async function handleScan(token) {
-      scanning = false;
-      status.innerText = "Processing...";
-
-      try {
-        const res = await fetch(`${API}/scan`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-api-key": "test_merchant_key_123"
-          },
-          body: JSON.stringify({ token })
-        });
-
-        const data = await res.json();
-
-        if (data.error === "missing_details") {
-          status.innerText = "Enter customer details";
-          form.style.display = "block";
-
-          // 🔥 decode phone from JWT
-          const payload = JSON.parse(atob(token.split('.')[1]));
-          currentPhone = payload.phone;
-
-          return;
+          } catch (err) {
+            console.log(err);
+            status.innerText = "Scan failed";
+          }
         }
-
-        if (data.error) {
-          status.innerText = data.error;
-        } else {
-          status.innerText = `Visit: ${data.visit} | Reward: ₱${data.applied_discount}`;
-        }
-
-      } catch (err) {
-        status.innerText = "Scan failed";
-      }
-
-      resetScanner();
-    }
-
-    async function submitDetails() {
-      const name = document.getElementById("name").value;
-      const email = document.getElementById("email").value;
-
-      status.innerText = "Saving...";
-
-      await fetch(`${API}/customer/setup`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": "test_merchant_key_123"
-        },
-        body: JSON.stringify({
-          phone: currentPhone,
-          name,
-          email
-        })
-      });
-
-      form.style.display = "none";
-      status.innerText = "Saved. Scan again.";
-
-      resetScanner();
-    }
-
-    function resetScanner() {
-      setTimeout(() => {
-        scanning = true;
-        status.innerText = "Ready";
-        requestAnimationFrame(scanFrame);
-      }, 2000);
+      );
     }
   </script>
 
