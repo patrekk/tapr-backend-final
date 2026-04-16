@@ -57,49 +57,25 @@
 </div>
 
 <script>
-const API = "https://tapr-backend-final-production.up.railway.app";
-
-// get slug safely
 function getSlug() {
-  const parts = window.location.pathname.split("/");
-  return parts[2];
+  return window.location.pathname.split("/")[2];
 }
 
 const slug = getSlug();
 
-console.log("Slug:", slug);
+// 🔥 HARD MAP (SAFE — NO API CALL)
+const merchantNames = {
+  feralstudios: "Feral Cafe"
+};
 
-// 🔥 LOAD MERCHANT NAME
-async function loadMerchant() {
-  try {
-    const res = await fetch(`${API}/merchant/${slug}`);
-    const data = await res.json();
-
-    console.log("Merchant response:", data);
-
-    if (data && data.name) {
-      document.getElementById("title").innerText = "Join " + data.name;
-    } else {
-      document.getElementById("title").innerText = "Join";
-    }
-  } catch (err) {
-    console.log("Error loading merchant:", err);
-    document.getElementById("title").innerText = "Join";
-  }
+if (merchantNames[slug]) {
+  document.getElementById("title").innerText =
+    "Join " + merchantNames[slug];
 }
 
-loadMerchant();
-
-// keep original working join logic
 function join() {
   const phone = document.getElementById("phone").value;
-
-  if (!phone) {
-    alert("Enter phone number");
-    return;
-  }
-
-  window.location.href = `${API}/wallet/${slug}/${phone}`;
+  window.location.href = `/wallet/${slug}/${phone}`;
 }
 </script>
 
