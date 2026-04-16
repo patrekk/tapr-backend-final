@@ -15,15 +15,15 @@
 
     .box {
       background: white;
-      padding: 25px;
-      border-radius: 10px;
+      padding: 30px;
+      border-radius: 12px;
       width: 320px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      box-shadow: 0 5px 20px rgba(0,0,0,0.1);
     }
 
     h2 {
       text-align: center;
-      margin-bottom: 15px;
+      margin-bottom: 20px;
     }
 
     input {
@@ -36,10 +36,11 @@
     button {
       width: 100%;
       padding: 12px;
-      margin-top: 15px;
+      margin-top: 20px;
       background: black;
       color: white;
       border: none;
+      cursor: pointer;
     }
   </style>
 </head>
@@ -48,7 +49,7 @@
 <div class="box">
   <h2 id="title">Join</h2>
 
-  <input id="phone" placeholder="Phone">
+  <input id="phone" placeholder="Phone Number">
   <input id="name" placeholder="Name">
   <input id="email" placeholder="Email">
 
@@ -58,26 +59,46 @@
 <script>
 const API = "https://tapr-backend-final-production.up.railway.app";
 
+// get slug safely
 function getSlug() {
-  return window.location.pathname.split("/")[2];
+  const parts = window.location.pathname.split("/");
+  return parts[2];
 }
 
 const slug = getSlug();
 
-// 🔥 FIX TITLE
-async function loadMerchant() {
-  const res = await fetch(`${API}/merchant/${slug}`);
-  const data = await res.json();
+console.log("Slug:", slug);
 
-  if (data.name) {
-    document.getElementById("title").innerText = "Join " + data.name;
+// 🔥 LOAD MERCHANT NAME
+async function loadMerchant() {
+  try {
+    const res = await fetch(`${API}/merchant/${slug}`);
+    const data = await res.json();
+
+    console.log("Merchant response:", data);
+
+    if (data && data.name) {
+      document.getElementById("title").innerText = "Join " + data.name;
+    } else {
+      document.getElementById("title").innerText = "Join";
+    }
+  } catch (err) {
+    console.log("Error loading merchant:", err);
+    document.getElementById("title").innerText = "Join";
   }
 }
 
 loadMerchant();
 
+// keep original working join logic
 function join() {
   const phone = document.getElementById("phone").value;
+
+  if (!phone) {
+    alert("Enter phone number");
+    return;
+  }
+
   window.location.href = `${API}/wallet/${slug}/${phone}`;
 }
 </script>
