@@ -2,16 +2,53 @@
 <html>
 <head>
   <title>Join</title>
+  <style>
+    body {
+      font-family: Arial;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background: #f5f5f5;
+    }
+
+    .box {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      width: 300px;
+      text-align: center;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 15px;
+      background: black;
+      color: white;
+      border: none;
+    }
+  </style>
 </head>
 <body>
 
-<h2 id="title">Join</h2>
+<div class="box">
+  <h2 id="title">Loading...</h2>
 
-<input id="phone" placeholder="Phone"><br><br>
-<input id="name" placeholder="Name"><br><br>
-<input id="email" placeholder="Email"><br><br>
+  <input id="phone" placeholder="Phone">
+  <input id="name" placeholder="Name">
+  <input id="email" placeholder="Email">
 
-<button onclick="join()">Join</button>
+  <button onclick="join()">Join</button>
+</div>
 
 <script>
 const API = "https://tapr-backend-final-production.up.railway.app";
@@ -22,22 +59,27 @@ function getSlug() {
 
 const slug = getSlug();
 
-// 🔥 ONLY CHANGE
+// 🔥 FIX: ensure title ALWAYS updates
 async function loadMerchant() {
   try {
     const res = await fetch(`${API}/merchant/${slug}`);
     const data = await res.json();
 
+    console.log("MERCHANT:", data);
+
     if (data.name) {
       document.getElementById("title").innerText = "Join " + data.name;
+    } else {
+      document.getElementById("title").innerText = "Join";
     }
-  } catch {}
+  } catch {
+    document.getElementById("title").innerText = "Join";
+  }
 }
 
 loadMerchant();
 
-// original flow
-async function join() {
+function join() {
   const phone = document.getElementById("phone").value;
 
   window.location.href = `${API}/wallet/${slug}/${phone}`;

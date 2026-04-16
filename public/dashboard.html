@@ -7,7 +7,7 @@
 
 <h2>Dashboard</h2>
 
-<p id="status">Initializing...</p>
+<p id="status"></p>
 <p id="link"></p>
 
 <button onclick="generateQR()">Generate QR</button>
@@ -19,66 +19,34 @@ function getToken() {
   return localStorage.getItem("token");
 }
 
-// 🔥 HARD BLOCK UNTIL TOKEN IS VALID
-async function waitForValidSession() {
-  let attempts = 0;
+async function loadMerchant() {
+  const res = await fetch(`${API}/merchant/me`, {
+    headers: { authorization: getToken() }
+  });
 
-  while (attempts < 5) {
-    const token = getToken();
+  const data = await res.json();
 
-    console.log("Checking token:", token);
-
-    if (!token) {
-      await new Promise(r => setTimeout(r, 500));
-      attempts++;
-      continue;
-    }
-
-    const res = await fetch(`${API}/merchant/me`, {
-      headers: { authorization: token }
-    });
-
-    const data = await res.json();
-
-    console.log("Session check:", data);
-
-    if (data.slug) {
-      return data;
-    }
-
-    // wait then retry
-    await new Promise(r => setTimeout(r, 500));
-    attempts++;
-  }
-
-  // 🔥 FAIL HARD
-  alert("Session failed. Please login again.");
-  localStorage.clear();
-  window.location.href = "/login.html";
-}
-
-// 🔥 INIT (BLOCKING)
-async function init() {
-  const merchant = await waitForValidSession();
-
-  document.getElementById("status").innerText =
-    "Logged in as: " + merchant.name;
-
-  window.merchantSlug = merchant.slug;
-}
-
-// 🔥 QR
-function generateQR() {
-  if (!window.merchantSlug) {
-    alert("Merchant not ready");
+  if (!data.slug) {
+    document.getElementById("status").innerText = "Session invalid. Login again.";
     return;
   }
 
-  const url = `${window.location.origin}/join/${window.merchantSlug}`;
+  document.getElementById("status").innerText = "Logged in as: " + data.name;
+
+  window.slug = data.slug;
+}
+
+function generateQR() {
+  if (!window.slug) {
+    alert("Merchant not loaded");
+    return;
+  }
+
+  const url = `${window.location.origin}/join/${window.slug}`;
   document.getElementById("link").innerText = url;
 }
 
-init();
+loadMerchant();
 </script>
 
 </body>
