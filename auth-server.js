@@ -79,9 +79,44 @@ function generateCustomerToken(customer, merchant) {
   });
 }
 
+// 🔥 RESTORED WALLET FUNCTIONS (THE ONLY FIX)
+
+async function createWalletObject(customer, merchant) {
+  const objectId = `${ISSUER_ID}.${customer.wallet_id}`;
+
+  const payload = {
+    id: objectId,
+    classId: CLASS_ID,
+    state: "ACTIVE",
+    accountId: customer.phone,
+    accountName: merchant.name,
+    barcode: {
+      type: "QR_CODE",
+      value: generateCustomerToken(customer, merchant)
+    }
+  };
+
+  return objectId;
+}
+
+function generateSaveJWT(objectId) {
+  return jwt.sign(
+    {
+      iss: SERVICE_ACCOUNT_EMAIL,
+      aud: "google",
+      typ: "savetowallet",
+      payload: {
+        genericObjects: [{ id: objectId }]
+      }
+    },
+    PRIVATE_KEY,
+    { algorithm: "RS256" }
+  );
+}
+
 // ---------- ROUTES ----------
 
-// 🔥 CRITICAL FIX: JOIN SLUG ROUTE
+// JOIN
 app.get('/join/:slug', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'join.html'));
 });
@@ -285,7 +320,7 @@ app.post('/scan', verifySession, async (req, res) => {
   }
 });
 
-// ---------- STATIC LAST ----------
+// ---------- STATIC ----------
 app.use(express.static(path.join(__dirname, 'public'), { index: false }));
 
 app.listen(PORT, () => {
