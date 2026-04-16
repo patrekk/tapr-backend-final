@@ -81,9 +81,24 @@ function generateCustomerToken(customer, merchant) {
 
 // ---------- ROUTES ----------
 
-// 🔥 CRITICAL FIX: JOIN SLUG ROUTE
+// 🔥 JOIN
 app.get('/join/:slug', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'join.html'));
+});
+
+// 🔥 NEW: MERCHANT LOOKUP (ONLY ADDITION)
+app.get('/merchant/:slug', async (req, res) => {
+  const { data, error } = await supabase
+    .from('merchants')
+    .select('name, slug')
+    .eq('slug', req.params.slug)
+    .single();
+
+  if (error || !data) {
+    return res.status(404).json({ error: 'Merchant not found' });
+  }
+
+  res.json(data);
 });
 
 // ---------- MERCHANT ----------
