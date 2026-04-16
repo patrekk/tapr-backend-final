@@ -2,49 +2,82 @@
 <html>
 <head>
   <title>Login</title>
+  <style>
+    body {
+      font-family: Arial;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background: #f5f5f5;
+    }
+
+    .box {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      width: 300px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      box-sizing: border-box;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 15px;
+      background: black;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
 
+<div class="box">
   <h2>Merchant Login</h2>
 
-  <input id="email" placeholder="Email"><br><br>
-  <input id="password" placeholder="Password"><br><br>
+  <input id="email" placeholder="Email">
+  <input id="password" type="password" placeholder="Password">
 
   <button onclick="login()">Login</button>
+</div>
 
-  <p id="status"></p>
+<script>
+const API = "https://tapr-backend-final-production.up.railway.app";
 
-  <script>
-    const API = "https://tapr-backend-final-production.up.railway.app";
+async function login() {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
 
-    async function login() {
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
+  const res = await fetch(`${API}/merchant/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password })
+  });
 
-      const res = await fetch(`${API}/merchant/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ email, password })
-      });
+  const data = await res.json();
 
-      const data = await res.json();
+  if (data.error) {
+    alert(data.error);
+    return;
+  }
 
-      if (data.error) {
-        document.getElementById("status").innerText = data.error;
-        return;
-      }
+  // 🔥 CRITICAL
+  localStorage.setItem("token", data.token);
 
-      // 🔥 CRITICAL FIX
-      localStorage.setItem("token", data.token);
-
-      // DEBUG
-      console.log("TOKEN SAVED:", data.token);
-
-      window.location.href = "/dashboard.html";
-    }
-  </script>
+  // 🔥 REDIRECT AFTER TOKEN SAVED
+  window.location.href = "/dashboard.html";
+}
+</script>
 
 </body>
 </html>

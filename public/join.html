@@ -15,17 +15,22 @@
 
     .box {
       background: white;
-      padding: 30px;
+      padding: 25px;
       border-radius: 10px;
-      width: 300px;
-      text-align: center;
+      width: 320px;
       box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 15px;
     }
 
     input {
       width: 100%;
       padding: 10px;
       margin-top: 10px;
+      box-sizing: border-box;
     }
 
     button {
@@ -41,7 +46,7 @@
 <body>
 
 <div class="box">
-  <h2 id="title">Loading...</h2>
+  <h2 id="title">Join</h2>
 
   <input id="phone" placeholder="Phone">
   <input id="name" placeholder="Name">
@@ -59,21 +64,13 @@ function getSlug() {
 
 const slug = getSlug();
 
-// 🔥 FIX: ensure title ALWAYS updates
+// 🔥 FIX TITLE
 async function loadMerchant() {
-  try {
-    const res = await fetch(`${API}/merchant/${slug}`);
-    const data = await res.json();
+  const res = await fetch(`${API}/merchant/${slug}`);
+  const data = await res.json();
 
-    console.log("MERCHANT:", data);
-
-    if (data.name) {
-      document.getElementById("title").innerText = "Join " + data.name;
-    } else {
-      document.getElementById("title").innerText = "Join";
-    }
-  } catch {
-    document.getElementById("title").innerText = "Join";
+  if (data.name) {
+    document.getElementById("title").innerText = "Join " + data.name;
   }
 }
 
@@ -81,7 +78,6 @@ loadMerchant();
 
 function join() {
   const phone = document.getElementById("phone").value;
-
   window.location.href = `${API}/wallet/${slug}/${phone}`;
 }
 </script>

@@ -19,29 +19,32 @@ function getToken() {
   return localStorage.getItem("token");
 }
 
+// 🔥 ENSURE TOKEN EXISTS FIRST
+const token = getToken();
+
+if (!token) {
+  window.location.href = "/login.html";
+}
+
+// 🔥 LOAD MERCHANT
 async function loadMerchant() {
   const res = await fetch(`${API}/merchant/me`, {
-    headers: { authorization: getToken() }
+    headers: { authorization: token }
   });
 
   const data = await res.json();
 
   if (!data.slug) {
-    document.getElementById("status").innerText = "Session invalid. Login again.";
+    localStorage.clear();
+    window.location.href = "/login.html";
     return;
   }
 
   document.getElementById("status").innerText = "Logged in as: " + data.name;
-
   window.slug = data.slug;
 }
 
 function generateQR() {
-  if (!window.slug) {
-    alert("Merchant not loaded");
-    return;
-  }
-
   const url = `${window.location.origin}/join/${window.slug}`;
   document.getElementById("link").innerText = url;
 }
