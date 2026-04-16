@@ -63,9 +63,10 @@ function getSlug() {
 
 const slug = getSlug();
 
-// 🔥 HARD MAP (SAFE — NO API CALL)
+// keep your working title logic
 const merchantNames = {
-  feralstudios: "Feral Cafe"
+  feralstudios: "Feral Cafe",
+  otsostreetcafe: "Otso Street Cafe"
 };
 
 if (merchantNames[slug]) {
@@ -73,9 +74,28 @@ if (merchantNames[slug]) {
     "Join " + merchantNames[slug];
 }
 
-function join() {
+async function join() {
   const phone = document.getElementById("phone").value;
-  window.location.href = `/wallet/${slug}/${phone}`;
+
+  if (!phone) {
+    alert("Enter phone number");
+    return;
+  }
+
+  try {
+    const res = await fetch(`/wallet/${slug}/${phone}`);
+    const data = await res.json();
+
+    if (data.saveJWT) {
+      // 🔥 THIS IS THE MISSING STEP
+      window.location.href = `https://pay.google.com/gp/v/save/${data.saveJWT}`;
+    } else {
+      alert("Failed to create wallet");
+    }
+
+  } catch (err) {
+    alert("Something went wrong");
+  }
 }
 </script>
 
