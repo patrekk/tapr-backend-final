@@ -79,12 +79,35 @@ function generateCustomerToken(customer, merchant) {
   });
 }
 
-// 🔥 RESTORED WALLET FUNCTIONS (THE ONLY FIX)
+// ---------- 🔥 WALLET FIX (REAL IMPLEMENTATION) ----------
+
+async function getAccessToken() {
+  const token = jwt.sign(
+    {
+      iss: SERVICE_ACCOUNT_EMAIL,
+      scope: "https://www.googleapis.com/auth/wallet_object.issuer",
+      aud: "https://oauth2.googleapis.com/token",
+      exp: Math.floor(Date.now() / 1000) + 3600,
+      iat: Math.floor(Date.now() / 1000)
+    },
+    PRIVATE_KEY,
+    { algorithm: "RS256" }
+  );
+
+  const res = await fetch("https://oauth2.googleapis.com/token", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${token}`
+  });
+
+  const data = await res.json();
+  return data.access_token;
+}
 
 async function createWalletObject(customer, merchant) {
   const objectId = `${ISSUER_ID}.${customer.wallet_id}`;
 
-  const payload = {
+  const object = {
     id: objectId,
     classId: CLASS_ID,
     state: "ACTIVE",
@@ -95,6 +118,31 @@ async function createWalletObject(customer, merchant) {
       value: generateCustomerToken(customer, merchant)
     }
   };
+
+  const accessToken = await getAccessToken();
+
+  // check if object exists
+  const check = await fetch(
+    `https://walletobjects.googleapis.com/walletobjects/v1/genericObject/${objectId}`,
+    {
+      headers: { Authorization: `Bearer ${accessToken}` }
+    }
+  );
+
+  // create if not exists
+  if (check.status === 404) {
+    await fetch(
+      "https://walletobjects.googleapis.com/walletobjects/v1/genericObject",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(object)
+      }
+    );
+  }
 
   return objectId;
 }
@@ -116,12 +164,9 @@ function generateSaveJWT(objectId) {
 
 // ---------- ROUTES ----------
 
-// JOIN
 app.get('/join/:slug', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'join.html'));
 });
-
-// ---------- MERCHANT ----------
 
 app.get('/merchant/me', verifySession, (req, res) => {
   res.json({
@@ -175,8 +220,6 @@ app.get('/merchant/scan-logs', verifySession, async (req, res) => {
   res.json(data);
 });
 
-// ---------- SIGNUP ----------
-
 app.post('/merchant/signup', async (req, res) => {
   const { name, email, password } = req.body;
 
@@ -199,8 +242,6 @@ app.post('/merchant/signup', async (req, res) => {
   res.json({ success: true });
 });
 
-// ---------- LOGIN ----------
-
 app.post('/merchant/login', async (req, res) => {
   const { email, password } = req.body;
 
@@ -221,8 +262,6 @@ app.post('/merchant/login', async (req, res) => {
 
   res.json({ token });
 });
-
-// ---------- WALLET ----------
 
 app.get('/wallet/:slug/:phone', async (req, res) => {
   const { slug, phone } = req.params;
@@ -265,8 +304,6 @@ app.get('/wallet/:slug/:phone', async (req, res) => {
     res.json({ error: 'wallet_failed', details: err.message });
   }
 });
-
-// ---------- SCAN ----------
 
 app.post('/scan', verifySession, async (req, res) => {
   try {
@@ -320,7 +357,6 @@ app.post('/scan', verifySession, async (req, res) => {
   }
 });
 
-// ---------- STATIC ----------
 app.use(express.static(path.join(__dirname, 'public'), { index: false }));
 
 app.listen(PORT, () => {
