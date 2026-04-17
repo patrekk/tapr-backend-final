@@ -113,16 +113,43 @@ async function createWalletObject(customer, merchant) {
   const objectId = `${ISSUER_ID}.${customer.wallet_id}`;
 
   const object = {
-    id: objectId,
-    classId: CLASS_ID,
-    state: "ACTIVE",
-    accountId: customer.phone,
-    accountName: merchant.name,
-    barcode: {
-      type: "QR_CODE",
-      value: generateCustomerToken(customer, merchant)
+  id: objectId,
+  classId: CLASS_ID,
+  state: "ACTIVE",
+
+  cardTitle: {
+    defaultValue: {
+      language: "en",
+      value: merchant.name
     }
-  };
+  },
+
+  subheader: {
+    defaultValue: {
+      language: "en",
+      value: "Tapr Loyalty"
+    }
+  },
+
+  header: {
+    defaultValue: {
+      language: "en",
+      value: customer.phone
+    }
+  },
+
+  textModulesData: [
+    {
+      header: "Visits",
+      body: String(customer.visit_count || 0)
+    }
+  ],
+
+  barcode: {
+    type: "QR_CODE",
+    value: generateCustomerToken(customer, merchant)
+  }
+};
 
   const accessToken = await getAccessToken();
 
