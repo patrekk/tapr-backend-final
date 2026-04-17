@@ -101,6 +101,11 @@ async function getAccessToken() {
   });
 
   const data = await res.json();
+
+  if (!data.access_token) {
+    throw new Error("Failed to get Google access token");
+  }
+
   return data.access_token;
 }
 
@@ -121,7 +126,7 @@ async function createWalletObject(customer, merchant) {
 
   const accessToken = await getAccessToken();
 
-  // check if object exists
+  // 🔥 CHECK EXISTENCE
   const check = await fetch(
     `https://walletobjects.googleapis.com/walletobjects/v1/genericObject/${objectId}`,
     {
@@ -129,19 +134,29 @@ async function createWalletObject(customer, merchant) {
     }
   );
 
-  // create if not exists
-  if (check.status === 404) {
-    await fetch(
-      "https://walletobjects.googleapis.com/walletobjects/v1/genericObject",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(object)
-      }
-    );
+  if (check.status === 200) {
+    return objectId;
+  }
+
+  // 🔥 CREATE OBJECT
+  const createRes = await fetch(
+    "https://walletobjects.googleapis.com/walletobjects/v1/genericObject",
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(object)
+    }
+  );
+
+  const createData = await createRes.json();
+
+  // 🔴 CRITICAL: FAIL IF CREATION FAILED
+  if (!createRes.ok) {
+    console.log("GOOGLE ERROR:", createData);
+    throw new Error("Google Wallet object creation failed");
   }
 
   return objectId;
