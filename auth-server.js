@@ -79,7 +79,7 @@ function generateCustomerToken(customer, merchant) {
   });
 }
 
-// ---------- 🔥 WALLET FIX (REAL IMPLEMENTATION) ----------
+// ---------- GOOGLE WALLET ----------
 
 async function getAccessToken() {
   const token = jwt.sign(
@@ -113,47 +113,19 @@ async function createWalletObject(customer, merchant) {
   const objectId = `${ISSUER_ID}.${customer.wallet_id}`;
 
   const object = {
-  id: objectId,
-  classId: CLASS_ID,
-  state: "ACTIVE",
-
-  cardTitle: {
-    defaultValue: {
-      language: "en",
-      value: merchant.name
+    id: objectId,
+    classId: CLASS_ID,
+    state: "ACTIVE",
+    accountId: customer.phone,
+    accountName: merchant.name,
+    barcode: {
+      type: "QR_CODE",
+      value: generateCustomerToken(customer, merchant)
     }
-  },
-
-  subheader: {
-    defaultValue: {
-      language: "en",
-      value: "Tapr Loyalty"
-    }
-  },
-
-  header: {
-    defaultValue: {
-      language: "en",
-      value: customer.phone
-    }
-  },
-
-  textModulesData: [
-    {
-      header: "Visits",
-      body: String(customer.visit_count || 0)
-    }
-  ],
-
-  barcode: {
-    type: "QR_CODE",
-    value: generateCustomerToken(customer, merchant)
-  }
-};
+  };
 
   const accessToken = await getAccessToken();
 
-  // 🔥 CHECK EXISTENCE
   const check = await fetch(
     `https://walletobjects.googleapis.com/walletobjects/v1/genericObject/${objectId}`,
     {
@@ -161,29 +133,25 @@ async function createWalletObject(customer, merchant) {
     }
   );
 
-  if (check.status === 200) {
-    return objectId;
-  }
+  if (check.status !== 200) {
+    const createRes = await fetch(
+      "https://walletobjects.googleapis.com/walletobjects/v1/genericObject",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(object)
+      }
+    );
 
-  // 🔥 CREATE OBJECT
-  const createRes = await fetch(
-    "https://walletobjects.googleapis.com/walletobjects/v1/genericObject",
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(object)
+    const createData = await createRes.json();
+
+    if (!createRes.ok) {
+      console.log("GOOGLE ERROR:", createData);
+      throw new Error("Google Wallet object creation failed");
     }
-  );
-
-  const createData = await createRes.json();
-
-  // 🔴 CRITICAL: FAIL IF CREATION FAILED
-  if (!createRes.ok) {
-    console.log("GOOGLE ERROR:", createData);
-    throw new Error("Google Wallet object creation failed");
   }
 
   return objectId;
@@ -243,25 +211,6 @@ app.get('/merchant/stats', verifySession, async (req, res) => {
   });
 });
 
-app.get('/merchant/customers', verifySession, async (req, res) => {
-  const { data } = await supabase
-    .from('customers')
-    .select('*')
-    .eq('merchant_id', req.merchant.id);
-
-  res.json(data);
-});
-
-app.get('/merchant/scan-logs', verifySession, async (req, res) => {
-  const { data } = await supabase
-    .from('scan_logs')
-    .select('*')
-    .eq('merchant_id', req.merchant.id)
-    .order('scanned_at', { ascending: false });
-
-  res.json(data);
-});
-
 app.post('/merchant/signup', async (req, res) => {
   const { name, email, password } = req.body;
 
@@ -305,8 +254,10 @@ app.post('/merchant/login', async (req, res) => {
   res.json({ token });
 });
 
-app.get('/wallet/:slug/:phone', async (req, res) => {
-  const { slug, phone } = req.params;
+// 🔥 UPDATED WALLET ROUTE (POST + name/email)
+app.post('/wallet/:slug', async (req, res) => {
+  const { slug } = req.params;
+  const { phone, name, email } = req.body;
 
   const merchant = await getMerchantBySlug(slug);
   if (!merchant) return res.json({ error: 'Invalid merchant' });
@@ -321,10 +272,12 @@ app.get('/wallet/:slug/:phone', async (req, res) => {
   if (!customer) {
     const wallet_id = `tapr_${phone}_${Date.now()}`;
 
-    const { data: newCustomer } = await supabase
+    const { data: newCustomer, error } = await supabase
       .from('customers')
       .insert([{
         phone,
+        name,
+        email,
         merchant_id: merchant.id,
         wallet_id,
         visit_count: 0,
@@ -332,6 +285,11 @@ app.get('/wallet/:slug/:phone', async (req, res) => {
       }])
       .select()
       .single();
+
+    if (error) {
+      console.log("INSERT ERROR:", error);
+      return res.json({ error: "customer_insert_failed" });
+    }
 
     customer = newCustomer;
   }
@@ -346,6 +304,8 @@ app.get('/wallet/:slug/:phone', async (req, res) => {
     res.json({ error: 'wallet_failed', details: err.message });
   }
 });
+
+// ---------- SCAN ----------
 
 app.post('/scan', verifySession, async (req, res) => {
   try {

@@ -76,19 +76,28 @@ if (merchantNames[slug]) {
 
 async function join() {
   const phone = document.getElementById("phone").value;
+  const name = document.getElementById("name").value;
+  const email = document.getElementById("email").value;
 
-  if (!phone) {
-    alert("Enter phone number");
+  if (!phone || !name || !email) {
+    alert("Fill all fields");
     return;
   }
 
   try {
-    const res = await fetch(`/wallet/${slug}/${phone}`);
+    const res = await fetch(`/wallet/${slug}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ phone, name, email })
+    });
+
     const data = await res.json();
 
     if (data.saveJWT) {
-      // 🔥 THIS IS THE MISSING STEP
-      window.location.href = `https://pay.google.com/gp/v/save/${data.saveJWT}`;
+      window.location.href =
+        `https://pay.google.com/gp/v/save/${data.saveJWT}`;
     } else {
       alert("Failed to create wallet");
     }
