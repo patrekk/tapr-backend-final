@@ -120,20 +120,28 @@ async function createWalletObject(customer, merchant) {
   accountId: String(customer.phone),
   accountName: String(merchant.name || "Tapr"),
 
-  // 🔥 REQUIRED FIELD (THIS FIXES YOUR ERROR)
+  // 🔥 REQUIRED: CARD TITLE
   cardTitle: {
     defaultValue: {
       language: "en-US",
       value: merchant.name || "Tapr"
     }
-    },
+  },
 
-    barcode: {
+  // 🔥 REQUIRED: HEADER (THIS FIXES CURRENT ERROR)
+  header: {
+    defaultValue: {
+      language: "en-US",
+      value: customer.name || "Tapr User"
+    }
+  },
+
+  barcode: {
     type: "QR_CODE",
     value: generateCustomerToken(customer, merchant)
-    },
+  },
 
-    textModulesData: [
+  textModulesData: [
     {
       header: "Customer",
       body: String(customer.name || "Tapr User")
@@ -142,8 +150,8 @@ async function createWalletObject(customer, merchant) {
       header: "Phone",
       body: String(customer.phone)
     }
-    ]
-  };
+  ]
+};
 
   const accessToken = await getAccessToken();
 
