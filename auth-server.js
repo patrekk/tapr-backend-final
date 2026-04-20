@@ -324,6 +324,30 @@ app.get('/merchant/scan-logs', verifySession, async (req, res) => {
   res.json(data);
 });
 
+// ---------- MERCHANT LOGIN ----------
+
+app.post('/merchant/login', async (req, res) => {
+  const { email, password } = req.body;
+
+  const { data: merchant } = await supabase
+    .from('merchants')
+    .select('*')
+    .eq('email', email)
+    .single();
+
+  if (!merchant || merchant.password !== password) {
+    return res.json({ error: 'Invalid credentials' });
+  }
+
+  const token = jwt.sign(
+    { merchant_id: merchant.id },
+    process.env.JWT_SECRET,
+    { expiresIn: '7d' }
+  );
+
+  res.json({ token });
+});
+
 app.use(express.static(path.join(__dirname, 'public'), { index: false }));
 
 app.listen(PORT, () => {

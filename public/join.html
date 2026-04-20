@@ -84,6 +84,24 @@ async function join() {
     return;
   }
 
+  // 🔥 PHONE (PH FORMAT)
+if (!/^09\d{9}$/.test(phone)) {
+  alert("Enter a valid PH phone number (09XXXXXXXXX)");
+  return;
+}
+
+// 🔥 EMAIL
+if (!/^\S+@\S+\.\S+$/.test(email)) {
+  alert("Enter a valid email");
+  return;
+}
+
+// 🔥 NAME (letters + spaces only)
+if (!/^[a-zA-Z\s]+$/.test(name)) {
+  alert("Name should only contain letters");
+  return;
+}
+
   try {
     const res = await fetch(`/wallet/${slug}`, {
       method: "POST",

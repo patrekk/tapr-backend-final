@@ -64,7 +64,13 @@ async function login() {
     body: JSON.stringify({ email, password })
   });
 
-  const data = await res.json();
+  let data;
+    try {
+      data = await res.json();
+    } catch (e) {
+      alert("Server error. Please try again.");
+      return;
+    }
 
   if (data.error) {
     alert(data.error);
