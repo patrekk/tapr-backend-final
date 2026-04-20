@@ -63,11 +63,18 @@ function getSlug() {
 
 const slug = getSlug();
 
-// keep your working title logic
-const merchantNames = {
-  feralstudios: "Feral Cafe",
-  otsostreetcafe: "Otso Street Cafe"
-};
+// get merchant names
+fetch(`/merchant/${slug}`)
+  .then(res => res.json())
+  .then(data => {
+    if (data.name) {
+      document.getElementById("title").innerText =
+        "Join " + data.name;
+    }
+  })
+  .catch(() => {
+    document.getElementById("title").innerText = "Join";
+  });
 
 if (merchantNames[slug]) {
   document.getElementById("title").innerText =
