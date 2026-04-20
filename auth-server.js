@@ -266,6 +266,64 @@ app.post('/wallet/:slug', async (req, res) => {
   }
 });
 
+// ---------- MERCHANT ROUTES ----------
+
+// Get current merchant
+app.get('/merchant/me', verifySession, async (req, res) => {
+  res.json({
+    name: req.merchant.name,
+    slug: req.merchant.slug
+  });
+});
+
+// Stats
+app.get('/merchant/stats', verifySession, async (req, res) => {
+  const merchantId = req.merchant.id;
+
+  const { data: customers } = await supabase
+    .from('customers')
+    .select('*')
+    .eq('merchant_id', merchantId);
+
+  const { data: logs } = await supabase
+    .from('scan_logs')
+    .select('*')
+    .eq('merchant_id', merchantId);
+
+  const today = new Date().toDateString();
+
+  const todayScans = logs.filter(l =>
+    new Date(l.scanned_at).toDateString() === today
+  );
+
+  res.json({
+    total_customers: customers.length,
+    total_scans: logs.length,
+    today_scans: todayScans.length
+  });
+});
+
+// Customers list
+app.get('/merchant/customers', verifySession, async (req, res) => {
+  const { data } = await supabase
+    .from('customers')
+    .select('*')
+    .eq('merchant_id', req.merchant.id);
+
+  res.json(data);
+});
+
+// Scan logs
+app.get('/merchant/scan-logs', verifySession, async (req, res) => {
+  const { data } = await supabase
+    .from('scan_logs')
+    .select('*')
+    .eq('merchant_id', req.merchant.id)
+    .order('scanned_at', { ascending: false });
+
+  res.json(data);
+});
+
 app.use(express.static(path.join(__dirname, 'public'), { index: false }));
 
 app.listen(PORT, () => {
