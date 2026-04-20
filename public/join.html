@@ -96,10 +96,13 @@ async function join() {
     const data = await res.json();
 
     if (data.saveJWT) {
-      window.location.href =
-        `https://pay.google.com/gp/v/save/${data.saveJWT}`;
-    } else {
-      alert("Failed to create wallet");
+
+    if (data.existing) {
+    alert("You are already registered. Opening your pass...");
+    }
+
+    window.location.href =
+    `https://pay.google.com/gp/v/save/${data.saveJWT}`;
     }
 
   } catch (err) {

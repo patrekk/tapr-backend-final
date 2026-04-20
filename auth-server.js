@@ -206,6 +206,8 @@ app.post('/wallet/:slug', async (req, res) => {
     .eq('merchant_id', merchant.id)
     .maybeSingle();
 
+  let isExisting = false;
+
   if (!customer) {
     const wallet_id = `tapr_${phone}_${Date.now()}`;
 
@@ -229,13 +231,20 @@ app.post('/wallet/:slug', async (req, res) => {
     }
 
     customer = newCustomer;
+
+  } else {
+    // 🔥 EXISTING USER (NO UPDATE, NO NEW WALLET)
+    isExisting = true;
   }
 
   try {
     const objectId = await createWalletObject(customer, merchant);
     const saveJWT = generateSaveJWT(objectId);
 
-    res.json({ saveJWT });
+    res.json({
+      saveJWT,
+      existing: isExisting
+    });
 
   } catch (err) {
     res.json({ error: 'wallet_failed', details: err.message });
