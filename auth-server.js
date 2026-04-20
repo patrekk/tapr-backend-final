@@ -113,28 +113,35 @@ async function createWalletObject(customer, merchant) {
   const objectId = `${ISSUER_ID}.${customer.wallet_id}`;
 
   const object = {
-    id: objectId,
-    classId: CLASS_ID,
-    state: "ACTIVE",
+  id: objectId,
+  classId: CLASS_ID,
+  state: "ACTIVE",
 
-    accountId: customer.phone,
-    accountName: merchant.name,
+  accountId: String(customer.phone),
+  accountName: String(merchant.name || "Tapr"),
 
-    barcode: {
-      type: "QR_CODE",
-      value: generateCustomerToken(customer, merchant)
+  // 🔥 REQUIRED FIELD (THIS FIXES YOUR ERROR)
+  cardTitle: {
+    defaultValue: {
+      language: "en-US",
+      value: merchant.name || "Tapr"
+    }
     },
 
-    // 🔥 REQUIRED DISPLAY DATA (THIS FIXES YOUR ERROR)
+    barcode: {
+    type: "QR_CODE",
+    value: generateCustomerToken(customer, merchant)
+    },
+
     textModulesData: [
-      {
-        header: "Customer",
-        body: customer.name || "Tapr User"
-      },
-      {
-        header: "Phone",
-        body: customer.phone
-      }
+    {
+      header: "Customer",
+      body: String(customer.name || "Tapr User")
+    },
+    {
+      header: "Phone",
+      body: String(customer.phone)
+    }
     ]
   };
 
