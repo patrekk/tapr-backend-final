@@ -94,6 +94,8 @@ async function join() {
     });
 
     const data = await res.json();
+    console.log("RESPONSE:", data);
+    console.log("STATUS: ", res.status);
 
     if (data.saveJWT) {
 
