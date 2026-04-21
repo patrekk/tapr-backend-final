@@ -28,7 +28,7 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
-const PRIVATE_KEY = "test";
+const PRIVATE_KEY = process.env.PRIVATE_KEY.replace(/\\n/g, '\n');
 const SERVICE_ACCOUNT_EMAIL = process.env.SERVICE_ACCOUNT_EMAIL;
 
 const ISSUER_ID = "3388000000023096184";
@@ -269,10 +269,19 @@ app.post('/wallet/:slug', async (req, res) => {
     isExisting = true;
   }
 
+  try {
+  const objectId = await createWalletObject(customer, merchant);
+  const saveJWT = generateSaveJWT(objectId);
+
   res.json({
-  saveJWT: "test",
-  existing: isExisting
-});
+    saveJWT,
+    existing: isExisting
+  });
+
+} catch (err) {
+  console.log("WALLET ERROR:", err);
+  res.json({ error: 'wallet_failed' });
+}
 });
 
 // ---------- MERCHANT ROUTES ----------
@@ -293,11 +302,42 @@ app.get('/merchant/me', verifySession, async (req, res) => {
 
 // Stats
 app.get('/merchant/stats', verifySession, async (req, res) => {
-  console.log("🔥 STATS ROUTE HIT");
+  try {
+    const merchantId = req.merchant.id;
 
-  return res.json({
-    force: "THIS IS THE REAL ROUTE"
-  });
+    const { data: customers } = await supabase
+      .from('customers')
+      .select('id')
+      .eq('merchant_id', merchantId);
+
+    const { data: logs } = await supabase
+      .from('scan_logs')
+      .select('id, scanned_at')
+      .eq('merchant_id', merchantId);
+
+    const safeCustomers = customers || [];
+    const safeLogs = logs || [];
+
+    const today = new Date().toDateString();
+
+    const todayScans = safeLogs.filter(l =>
+      new Date(l.scanned_at).toDateString() === today
+    );
+
+    res.json({
+      total_customers: safeCustomers.length,
+      total_scans: safeLogs.length,
+      today_scans: todayScans.length
+    });
+
+  } catch (err) {
+    console.log("STATS ERROR:", err);
+    res.json({
+      total_customers: 0,
+      total_scans: 0,
+      today_scans: 0
+    });
+  }
 });
 
 // Customers list

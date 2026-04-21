@@ -78,11 +78,6 @@ fetch(`${API}/merchant/${slug}`)
     document.getElementById("title").innerText = "Join";
   });
 
-if (merchantNames[slug]) {
-  document.getElementById("title").innerText =
-    "Join " + merchantNames[slug];
-}
-
 async function join() {
   const phone = document.getElementById("phone").value;
   const name = document.getElementById("name").value;
