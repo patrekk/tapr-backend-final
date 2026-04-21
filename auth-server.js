@@ -28,7 +28,7 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
-const PRIVATE_KEY = process.env.PRIVATE_KEY.replace(/\\n/g, '\n');
+const PRIVATE_KEY = "test";
 const SERVICE_ACCOUNT_EMAIL = process.env.SERVICE_ACCOUNT_EMAIL;
 
 const ISSUER_ID = "3388000000023096184";
@@ -257,18 +257,10 @@ app.post('/wallet/:slug', async (req, res) => {
     isExisting = true;
   }
 
-  try {
-    const objectId = await createWalletObject(customer, merchant);
-    const saveJWT = generateSaveJWT(objectId);
-
-    res.json({
-      saveJWT,
-      existing: isExisting
-    });
-
-  } catch (err) {
-    res.json({ error: 'wallet_failed', details: err.message });
-  }
+  res.json({
+  saveJWT: "test",
+  existing: isExisting
+});
 });
 
 app.get('/merchant/:slug', async (req, res) => {
