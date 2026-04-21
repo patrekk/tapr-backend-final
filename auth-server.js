@@ -306,6 +306,10 @@ app.get('/merchant/stats', verifySession, async (req, res) => {
     .select('*')
     .eq('merchant_id', merchantId);
 
+    const safeCustomers = customers || [];
+
+const safeLogs = logs || [];
+
   const today = new Date().toDateString();
 
   const todayScans = logs.filter(l =>
@@ -313,10 +317,12 @@ app.get('/merchant/stats', verifySession, async (req, res) => {
   );
 
   res.json({
-    total_customers: customers.length,
-    total_scans: logs.length,
-    today_scans: todayScans.length
-  });
+  total_customers: safeCustomers.length,
+  total_scans: safeLogs.length,
+  today_scans: safeLogs.filter(l =>
+    new Date(l.scanned_at).toDateString() === new Date().toDateString()
+  ).length
+});
 });
 
 // Customers list

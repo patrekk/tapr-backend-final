@@ -152,9 +152,9 @@
       });
       const data = await res.json();
 
-      document.getElementById("customers").innerText = data.total_customers;
-      document.getElementById("scans").innerText = data.total_scans;
-      document.getElementById("today").innerText = data.today_scans;
+      document.getElementById("customers").innerText = data.total_customers ?? 0;
+      document.getElementById("scans").innerText = data.total_scans ?? 0;
+      document.getElementById("today").innerText = data.today_scans ?? 0;
     }
 
     async function loadCustomers() {
