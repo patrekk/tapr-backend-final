@@ -7,6 +7,7 @@ import fetch from 'node-fetch';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import bcrypt from 'bcrypt';
+import rateLimit from 'express-rate-limit';
 
 dotenv.config();
 
@@ -18,6 +19,13 @@ console.log("ENV CHECK:", {
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+const limiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 50
+});
+
+app.use(limiter);
 
 const PORT = process.env.PORT || 4000;
 
@@ -409,7 +417,12 @@ app.post('/merchant/login', async (req, res) => {
 
 // ---------- SCAN ROUTE ----------
 
-app.post('/scan', verifySession, async (req, res) => {
+const scanLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 10
+});
+
+app.post('/scan', scanLimiter, verifySession, async (req, res) => {
   try {
     const { token } = req.body;
 
@@ -480,7 +493,11 @@ app.post('/scan', verifySession, async (req, res) => {
       merchant_id: req.merchant.id,
       customer_id: customer.id,
       scanned_at: new Date().toISOString(),
-      result: `Visit ${visit} → ${next_reward}`
+      result: JSON.stringify({
+      visit,
+      applied_discount,
+      next_reward
+      })
     }]);
 
     // ✅ RESPONSE
