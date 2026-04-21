@@ -293,7 +293,7 @@ app.get('/merchant/me', verifySession, async (req, res) => {
 });
 
 // Stats
-aapp.get('/merchant/stats', verifySession, async (req, res) => {
+app.get('/merchant/stats', verifySession, async (req, res) => {
   try {
     const merchantId = req.merchant.id;
 
