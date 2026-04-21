@@ -234,8 +234,8 @@ app.post('/wallet/:slug', async (req, res) => {
         email,
         merchant_id: merchant.id,
         wallet_id,
-        visit_count: 0,
-        pending_discount: 0
+        visit_count: 1,
+        pending_discount: 10
       }])
       .select()
       .single();
@@ -362,6 +362,95 @@ app.post('/merchant/login', async (req, res) => {
   );
 
   res.json({ token });
+});
+
+// ---------- SCAN ROUTE ----------
+
+app.post('/scan', verifySession, async (req, res) => {
+  try {
+    const { token } = req.body;
+
+    if (!token) return res.json({ error: 'No token' });
+
+    // 🔐 Decode QR
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET);
+    } catch {
+      return res.json({ error: 'Invalid or expired QR' });
+    }
+
+    // 🔒 Merchant isolation
+    if (decoded.merchant_id !== req.merchant.id) {
+      return res.json({ error: 'Invalid customer for this merchant' });
+    }
+
+    const phone = decoded.phone;
+
+    // 🔎 Find customer
+    const { data: customer } = await supabase
+      .from('customers')
+      .select('*')
+      .eq('phone', phone)
+      .eq('merchant_id', req.merchant.id)
+      .single();
+
+    if (!customer) {
+      return res.json({ error: 'Customer not found' });
+    }
+
+    // 🗓️ DAILY CHECK (core rule)
+    const today = new Date().toDateString();
+
+    if (customer.last_reward_day === today) {
+      return res.json({ error: 'Already Claimed Today' });
+    }
+
+    // 🎯 APPLY CURRENT REWARD (important: reward from previous visit)
+    const applied_discount = customer.pending_discount;
+
+    // 🔁 NEXT VISIT CALCULATION
+    let visit = customer.visit_count + 1;
+    if (visit > 5) visit = 1;
+
+    const next_reward = LOOP[visit - 1];
+
+    // 💾 UPDATE CUSTOMER
+    const { data: updated, error } = await supabase
+      .from('customers')
+      .update({
+        visit_count: visit,
+        pending_discount: next_reward,
+        last_reward_day: today
+      })
+      .eq('id', customer.id)
+      .select()
+      .single();
+
+    if (error) {
+      console.log("SCAN UPDATE ERROR:", error);
+      return res.json({ error: 'Update failed' });
+    }
+
+    // 🧾 LOG SCAN
+    await supabase.from('scan_logs').insert([{
+      merchant_id: req.merchant.id,
+      customer_id: customer.id,
+      scanned_at: new Date().toISOString(),
+      result: `Visit ${visit} → ${next_reward}`
+    }]);
+
+    // ✅ RESPONSE
+    res.json({
+      visit: updated.visit_count,
+      applied_discount,
+      next_reward
+    });
+
+  } catch (err) {
+    console.log("SCAN ERROR:", err);
+    res.json({ error: 'Scan failed' });
+  }
 });
 
 app.use(express.static(path.join(__dirname, 'public'), { index: false }));
