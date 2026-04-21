@@ -175,6 +175,10 @@ async function createWalletObject(customer, merchant) {
     {
       header: "Phone",
       body: String(customer.phone)
+    },
+    {
+      header: "Available Discount",
+      body: `₱${customer.pending_discount}`
     }
   ]
 };
@@ -260,7 +264,7 @@ app.post('/wallet/:slug', async (req, res) => {
         email,
         merchant_id: merchant.id,
         wallet_id,
-        visit_count: 1,
+        visit_count: 0,
         pending_discount: 10
       }])
       .select()
