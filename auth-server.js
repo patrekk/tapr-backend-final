@@ -449,3 +449,8 @@ app.use(express.static(path.join(__dirname, 'public'), { index: false }));
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on ${PORT}`);
 });
+
+// 🔥 KEEP PROCESS ALIVE (temporary fix)
+setInterval(() => {
+  console.log("alive");
+}, 10000);
