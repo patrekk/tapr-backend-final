@@ -64,7 +64,9 @@ function getSlug() {
 const slug = getSlug();
 
 // get merchant names
-fetch(`/merchant/${slug}`)
+const API = "https://tapr-backend-final-production.up.railway.app";
+
+fetch(`${API}/merchant/${slug}`)
   .then(res => res.json())
   .then(data => {
     if (data.name) {
@@ -110,7 +112,7 @@ if (!/^[a-zA-Z\s]+$/.test(name)) {
 }
 
   try {
-    const res = await fetch(`/wallet/${slug}`, {
+    const res = await fetch(`${API}/wallet/${slug}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"

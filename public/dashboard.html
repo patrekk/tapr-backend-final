@@ -218,7 +218,7 @@
 
       const data = await res.json();
 
-      const url = `${window.location.origin}/join/${data.slug}`;
+      const url = `${API}/join/${data.slug}`;
 
       document.getElementById("link").innerText = url;
 
