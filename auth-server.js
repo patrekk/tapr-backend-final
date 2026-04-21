@@ -6,6 +6,7 @@ import { createClient } from '@supabase/supabase-js';
 import fetch from 'node-fetch';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import bcrypt from 'bcrypt';
 
 dotenv.config();
 
@@ -388,7 +389,12 @@ app.post('/merchant/login', async (req, res) => {
     .eq('email', email)
     .single();
 
-  if (!merchant || merchant.password !== password) {
+  const valid = merchant
+
+  ? await bcrypt.compare(password, merchant.password)
+  : false;
+
+  if (!merchant || !valid) {
     return res.json({ error: 'Invalid credentials' });
   }
 
