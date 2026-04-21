@@ -434,6 +434,6 @@ app.post('/scan', verifySession, async (req, res) => {
 
 app.use(express.static(path.join(__dirname, 'public'), { index: false }));
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on ${PORT}`);
 });
