@@ -54,10 +54,16 @@ const getMerchantBySlug = async (slug) => {
 const verifySession = async (req, res, next) => {
   const token = req.headers['authorization'];
 
-  if (!token) return res.json({ error: 'No session' });
+  console.log("TOKEN:", token);
+
+  if (!token) {
+    console.log("NO TOKEN");
+    return res.json({ error: 'No session' });
+  }
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log("DECODED:", decoded);
 
     const { data: merchant } = await supabase
       .from('merchants')
@@ -65,12 +71,18 @@ const verifySession = async (req, res, next) => {
       .eq('id', decoded.merchant_id)
       .single();
 
-    if (!merchant) return res.json({ error: 'Invalid session' });
+    console.log("MERCHANT FROM DB:", merchant);
+
+    if (!merchant) {
+      console.log("MERCHANT NOT FOUND");
+      return res.json({ error: 'Invalid session' });
+    }
 
     req.merchant = merchant;
     next();
 
-  } catch {
+  } catch (err) {
+    console.log("JWT ERROR:", err.message);
     res.json({ error: 'Invalid session' });
   }
 };
