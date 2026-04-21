@@ -9,6 +9,11 @@ import { fileURLToPath } from 'url';
 
 dotenv.config();
 
+console.log("ENV CHECK:", {
+  SUPABASE_URL: process.env.SUPABASE_URL,
+  JWT_SECRET: process.env.JWT_SECRET
+});
+
 const app = express();
 app.use(cors());
 app.use(express.json());
