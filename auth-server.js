@@ -467,9 +467,16 @@ app.post('/scan', scanLimiter, verifySession, async (req, res) => {
 
     // 🔁 NEXT VISIT CALCULATION
     let visit = customer.visit_count + 1;
-    if (visit > 5) visit = 1;
 
-    const next_reward = LOOP[visit - 1];
+    let next_reward;
+
+    if (visit > 5) {
+      // 🔥 RESET LOOP
+      visit = 1;
+      next_reward = LOOP[0]; // = 10
+    } else {
+      next_reward = LOOP[visit - 1];
+    }
 
     // 💾 UPDATE CUSTOMER
     const { data: updated, error } = await supabase
