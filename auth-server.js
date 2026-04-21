@@ -293,36 +293,43 @@ app.get('/merchant/me', verifySession, async (req, res) => {
 });
 
 // Stats
-app.get('/merchant/stats', verifySession, async (req, res) => {
-  const merchantId = req.merchant.id;
+aapp.get('/merchant/stats', verifySession, async (req, res) => {
+  try {
+    const merchantId = req.merchant.id;
 
-  const { data: customers } = await supabase
-    .from('customers')
-    .select('*')
-    .eq('merchant_id', merchantId);
+    const { data: customers } = await supabase
+      .from('customers')
+      .select('*')
+      .eq('merchant_id', merchantId);
 
-  const { data: logs } = await supabase
-    .from('scan_logs')
-    .select('*')
-    .eq('merchant_id', merchantId);
+    const { data: logs } = await supabase
+      .from('scan_logs')
+      .select('*')
+      .eq('merchant_id', merchantId);
 
     const safeCustomers = customers || [];
+    const safeLogs = logs || [];
 
-const safeLogs = logs || [];
+    const today = new Date().toDateString();
 
-  const today = new Date().toDateString();
+    const todayScans = safeLogs.filter(l =>
+      new Date(l.scanned_at).toDateString() === today
+    );
 
-  const todayScans = logs.filter(l =>
-    new Date(l.scanned_at).toDateString() === today
-  );
+    res.json({
+      total_customers: safeCustomers.length,
+      total_scans: safeLogs.length,
+      today_scans: todayScans.length
+    });
 
-  res.json({
-  total_customers: safeCustomers.length,
-  total_scans: safeLogs.length,
-  today_scans: safeLogs.filter(l =>
-    new Date(l.scanned_at).toDateString() === new Date().toDateString()
-  ).length
-});
+  } catch (err) {
+    console.log("STATS ERROR:", err);
+    res.json({
+      total_customers: 0,
+      total_scans: 0,
+      today_scans: 0
+    });
+  }
 });
 
 // Customers list
