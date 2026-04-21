@@ -295,6 +295,12 @@ app.get('/merchant/:slug', async (req, res) => {
 
 // Get current merchant
 app.get('/merchant/me', verifySession, async (req, res) => {
+  console.log("REQ.MERCHANT:", req.merchant);
+
+  if (!req.merchant) {
+    return res.json({ debug: "NO MERCHANT ATTACHED" });
+  }
+
   res.json({
     name: req.merchant.name,
     slug: req.merchant.slug
