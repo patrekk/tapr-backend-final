@@ -294,43 +294,11 @@ app.get('/merchant/me', verifySession, async (req, res) => {
 
 // Stats
 app.get('/merchant/stats', verifySession, async (req, res) => {
-  try {
-    console.log("STATS ROUTE HIT");
-    const merchantId = req.merchant.id;
+  console.log("🔥 STATS ROUTE HIT");
 
-    const { data: customers } = await supabase
-      .from('customers')
-      .select('*')
-      .eq('merchant_id', merchantId);
-
-    const { data: logs } = await supabase
-      .from('scan_logs')
-      .select('*')
-      .eq('merchant_id', merchantId);
-
-    const safeCustomers = customers || [];
-    const safeLogs = logs || [];
-
-    const today = new Date().toDateString();
-
-    const todayScans = safeLogs.filter(l =>
-      new Date(l.scanned_at).toDateString() === today
-    );
-
-    res.json({
-      total_customers: safeCustomers.length,
-      total_scans: safeLogs.length,
-      today_scans: todayScans.length
-    });
-
-  } catch (err) {
-    console.log("STATS ERROR:", err);
-    res.json({
-      total_customers: 0,
-      total_scans: 0,
-      today_scans: 0
-    });
-  }
+  return res.json({
+    force: "THIS IS THE REAL ROUTE"
+  });
 });
 
 // Customers list
