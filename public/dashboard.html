@@ -166,6 +166,13 @@
       const table = document.getElementById("customersTable");
       table.innerHTML = "";
 
+      if (!Array.isArray(data)) {
+  console.log("Customers error:", data);
+  return;
+}
+
+
+
       data.forEach(c => {
         table.innerHTML += `
           <tr>
@@ -185,6 +192,14 @@
 
       const table = document.getElementById("logsTable");
       table.innerHTML = "";
+
+      if (!Array.isArray(data)) {
+
+  console.log("Logs error:", data);
+
+  return;
+
+}
 
       data.forEach(l => {
         table.innerHTML += `
