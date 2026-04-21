@@ -295,6 +295,7 @@ app.get('/merchant/me', verifySession, async (req, res) => {
 // Stats
 app.get('/merchant/stats', verifySession, async (req, res) => {
   try {
+    console.log("STATS ROUTE HIT");
     const merchantId = req.merchant.id;
 
     const { data: customers } = await supabase
