@@ -275,22 +275,6 @@ app.post('/wallet/:slug', async (req, res) => {
 });
 });
 
-app.get('/merchant/:slug', async (req, res) => {
-  const { slug } = req.params;
-
-  const { data: merchant } = await supabase
-    .from('merchants')
-    .select('name')
-    .eq('slug', slug)
-    .single();
-
-  if (!merchant) {
-    return res.json({});
-  }
-
-  res.json(merchant);
-});
-
 // ---------- MERCHANT ROUTES ----------
 
 // Get current merchant
@@ -335,6 +319,22 @@ app.get('/merchant/scan-logs', verifySession, async (req, res) => {
     .order('scanned_at', { ascending: false });
 
   res.json(data);
+});
+
+app.get('/merchant/:slug', async (req, res) => {
+  const { slug } = req.params;
+
+  const { data: merchant } = await supabase
+    .from('merchants')
+    .select('name')
+    .eq('slug', slug)
+    .single();
+
+  if (!merchant) {
+    return res.json({});
+  }
+
+  res.json(merchant);
 });
 
 // ---------- MERCHANT LOGIN ----------
