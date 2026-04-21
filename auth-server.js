@@ -450,6 +450,16 @@ app.post('/scan', verifySession, async (req, res) => {
   }
 });
 
+// ---------- TEST ROUTE ----------
+
+app.get('/test-live', (req, res) => {
+
+  console.log("🔥 TEST ROUTE HIT");
+
+  res.json({ status: "LIVE CODE" });
+
+});
+
 app.use(express.static(path.join(__dirname, 'public'), { index: false }));
 
 app.listen(PORT, '0.0.0.0', () => {
