@@ -60,7 +60,22 @@ function getRewardText(visit, pending) {
     return "Start earning rewards today";
   }
 
-  return `₱${pending} available`;
+  return `Next reward: ₱${pending}`;
+}
+
+function getProgressText(visit) {
+  const total = 5;
+  let text = "";
+
+  for (let i = 1; i <= total; i++) {
+    if (i <= visit) {
+      text += `✔ ${i}  `;
+    } else {
+      text += `○ ${i}  `;
+    }
+  }
+
+  return text.trim();
 }
 
 function generateSlug(name) {
@@ -128,8 +143,8 @@ async function updateWalletObject(customer, merchant) {
   const updatedObject = {
     textModulesData: [
   {
-    header: "Visits",
-    body: `${customer.visit_count}/5`
+    header: "Progress",
+    body: getProgressText(customer.visit_count)
   },
   {
     header: "Reward",
@@ -221,8 +236,8 @@ async function createWalletObject(customer, merchant) {
 
   textModulesData: [
   {
-    header: "Visits",
-    body: `${customer.visit_count}/5`
+    header: "Progress",
+    body: getProgressText(customer.visit_count)
   },
   {
     header: "Reward",
