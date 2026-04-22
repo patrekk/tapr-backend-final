@@ -71,6 +71,7 @@
       });
 
       const data = await res.json();
+      console.log("SCAN RESPONSE:", data);
       document.getElementById("merchantName").innerText =
         data.name || "Error loading";
     }
@@ -99,36 +100,13 @@
 
           const data = await res.json();
 
-          function getRewardText(visit, pending) {
-  if (visit === 0) {
-    return "₱10 ready on your first visit";
-  }
-
-  if (pending === 0) {
-    return "2 more visits → ₱50";
-  }
-
-  if (visit === 4) {
-    return "Next visit → ₱50";
-  }
-
-  return `Next visit → ₱${pending}`;
-}
-
 if (data.error) {
-  status.innerText = data.error;
-
-} else if (data.message) {
-  status.innerText = `${data.message}
+  status.innerText = `❌ ${data.error}`;
+} else {
+  status.innerText = `✅ ₱${data.applied_discount} DISCOUNT
 
 Visit ${data.visit}/5
-Applied: ₱${data.applied_discount}
-${getRewardText(data.visit, data.next_reward)}`;
-
-} else {
-  status.innerText = `Visit ${data.visit}/5
-Applied: ₱${data.applied_discount}
-${getRewardText(data.visit, data.next_reward)}`;
+Next: ₱${data.next_reward}`;
 }
         }
       );
