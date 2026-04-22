@@ -179,6 +179,10 @@ async function createWalletObject(customer, merchant) {
     {
       header: "Available Discount",
       body: `₱${customer.pending_discount}`
+    },
+    {
+      header: "Visits",
+      body: `${customer.visit_count}/5`
     }
   ]
 };
