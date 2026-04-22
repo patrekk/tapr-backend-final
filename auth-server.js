@@ -119,7 +119,6 @@ function generateCustomerToken(customer, merchant) {
 
 async function updateWalletObject(customer, merchant) {
   const objectId = `${ISSUER_ID}.${customer.wallet_id}`;
-
   const accessToken = await getAccessToken();
 
   const updatedObject = {
@@ -129,12 +128,20 @@ async function updateWalletObject(customer, merchant) {
         body: String(customer.name || "Tapr User")
       },
       {
+        header: "Phone",
+        body: String(customer.phone)
+      },
+      {
         header: "Visits",
         body: `${customer.visit_count}/5`
       },
       {
         header: "Reward Status",
         body: getRewardText(customer.visit_count, customer.pending_discount)
+      },
+      {
+        header: "Available Discount",
+        body: `₱${customer.pending_discount}`
       }
     ]
   };
