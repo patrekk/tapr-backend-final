@@ -49,11 +49,15 @@ const LOOP = [10, 10, 20, 0, 50];
 
 function getRewardText(visit, pending) {
   if (pending === 0) {
-    return "You're unlocking ₱50 — keep going";
+    return "You're close — big reward coming";
   }
 
   if (visit === 4) {
-    return "Next visit unlocks ₱50";
+    return "Next visit: ₱50 reward";
+  }
+
+  if (visit === 0) {
+    return "Start earning rewards today";
   }
 
   return `₱${pending} available`;
@@ -123,27 +127,15 @@ async function updateWalletObject(customer, merchant) {
 
   const updatedObject = {
     textModulesData: [
-      {
-        header: "Customer",
-        body: String(customer.name || "Tapr User")
-      },
-      {
-        header: "Phone",
-        body: String(customer.phone)
-      },
-      {
-        header: "Visits",
-        body: `${customer.visit_count}/5`
-      },
-      {
-        header: "Reward Status",
-        body: getRewardText(customer.visit_count, customer.pending_discount)
-      },
-      {
-        header: "Available Discount",
-        body: `₱${customer.pending_discount}`
-      }
-    ]
+  {
+    header: "Visits",
+    body: `${customer.visit_count}/5`
+  },
+  {
+    header: "Reward",
+    body: getRewardText(customer.visit_count, customer.pending_discount)
+  }
+]
   };
 
   const res = await fetch(
@@ -228,23 +220,15 @@ async function createWalletObject(customer, merchant) {
   },
 
   textModulesData: [
-    {
-      header: "Customer",
-      body: String(customer.name || "Tapr User")
-    },
-    {
-      header: "Phone",
-      body: String(customer.phone)
-    },
-    {
-      header: "Available Discount",
-      body: getRewardText(customer.visit_count, customer.pending_discount)
-    },
-    {
-      header: "Visits",
-      body: `${customer.visit_count}/5`
-    }
-  ]
+  {
+    header: "Visits",
+    body: `${customer.visit_count}/5`
+  },
+  {
+    header: "Reward",
+    body: getRewardText(customer.visit_count, customer.pending_discount)
+  }
+]
 };
 
   const accessToken = await getAccessToken();
