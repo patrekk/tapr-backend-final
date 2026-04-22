@@ -100,22 +100,36 @@
           const data = await res.json();
 
           function getRewardText(visit, pending) {
+  if (visit === 0) {
+    return "₱10 ready on your first visit";
+  }
+
   if (pending === 0) {
-    return "You're unlocking ₱50 — keep going";
+    return "2 more visits → ₱50";
   }
 
   if (visit === 4) {
-    return "Next visit unlocks ₱50";
+    return "Next visit → ₱50";
   }
 
-  return `₱${pending} available`;
+  return `Next visit → ₱${pending}`;
 }
 
-status.innerText = data.error
-  ? data.error
-  : `Visit ${data.visit}/5
+if (data.error) {
+  status.innerText = data.error;
+
+} else if (data.message) {
+  status.innerText = `${data.message}
+
+Visit ${data.visit}/5
 Applied: ₱${data.applied_discount}
 ${getRewardText(data.visit, data.next_reward)}`;
+
+} else {
+  status.innerText = `Visit ${data.visit}/5
+Applied: ₱${data.applied_discount}
+${getRewardText(data.visit, data.next_reward)}`;
+}
         }
       );
 
