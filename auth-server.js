@@ -48,19 +48,19 @@ const LOOP = [10, 10, 20, 0, 50];
 // ---------- HELPERS ----------
 
 function getRewardText(visit, pending) {
+  if (visit === 0) {
+    return "₱10 ready on your first visit";
+  }
+
   if (pending === 0) {
-    return "You're close — big reward coming";
+    return "2 more visits → ₱50";
   }
 
   if (visit === 4) {
-    return "Next visit: ₱50 reward";
+    return "Next visit → ₱50";
   }
 
-  if (visit === 0) {
-    return "Start earning rewards today";
-  }
-
-  return `Next reward: ₱${pending}`;
+  return `Next visit → ₱${pending}`;
 }
 
 function getProgressText(visit) {
@@ -535,9 +535,12 @@ app.post('/scan', scanLimiter, verifySession, async (req, res) => {
     // 🔁 NEXT VISIT CALCULATION
     let visit = customer.visit_count + 1;
 
+    let loopRestarted = false;
+
     // 🔥 HANDLE RESET
-      if (visit > 5) {
+    if (visit > 5) {
       visit = 1;
+      loopRestarted = true;
     }
 
     // 🔥 FIX: NEXT reward should be for NEXT visit
@@ -584,7 +587,8 @@ app.post('/scan', scanLimiter, verifySession, async (req, res) => {
     res.json({
       visit: updated.visit_count,
       applied_discount,
-      next_reward
+      next_reward,
+      message: loopRestarted ? "You’re back in the loop 🔥" : null
     });
 
   } catch (err) {
