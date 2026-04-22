@@ -99,9 +99,23 @@
 
           const data = await res.json();
 
-          status.innerText = data.error
-            ? data.error
-            : `Visit ${data.visit}/5\nDiscount Applied: ₱${data.applied_discount}\nNext Reward: ₱${data.next_reward}`;
+          function getRewardText(visit, pending) {
+  if (pending === 0) {
+    return "You're unlocking ₱50 — keep going";
+  }
+
+  if (visit === 4) {
+    return "Next visit unlocks ₱50";
+  }
+
+  return `₱${pending} available`;
+}
+
+status.innerText = data.error
+  ? data.error
+  : `Visit ${data.visit}/5
+Applied: ₱${data.applied_discount}
+${getRewardText(data.visit, data.next_reward)}`;
         }
       );
 

@@ -47,6 +47,18 @@ const LOOP = [10, 10, 20, 0, 50];
 
 // ---------- HELPERS ----------
 
+function getRewardText(visit, pending) {
+  if (pending === 0) {
+    return "You're unlocking ₱50 — keep going";
+  }
+
+  if (visit === 4) {
+    return "Next visit unlocks ₱50";
+  }
+
+  return `₱${pending} available`;
+}
+
 function generateSlug(name) {
   return name.toLowerCase().replace(/[^a-z0-9]/g, '');
 }
@@ -178,7 +190,7 @@ async function createWalletObject(customer, merchant) {
     },
     {
       header: "Available Discount",
-      body: `₱${customer.pending_discount}`
+      body: getRewardText(customer.visit_count, customer.pending_discount)
     },
     {
       header: "Visits",
