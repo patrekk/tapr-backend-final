@@ -117,6 +117,47 @@ function generateCustomerToken(customer, merchant) {
   });
 }
 
+async function updateWalletObject(customer, merchant) {
+  const objectId = `${ISSUER_ID}.${customer.wallet_id}`;
+
+  const accessToken = await getAccessToken();
+
+  const updatedObject = {
+    textModulesData: [
+      {
+        header: "Customer",
+        body: String(customer.name || "Tapr User")
+      },
+      {
+        header: "Visits",
+        body: `${customer.visit_count}/5`
+      },
+      {
+        header: "Reward Status",
+        body: getRewardText(customer.visit_count, customer.pending_discount)
+      }
+    ]
+  };
+
+  const res = await fetch(
+    `https://walletobjects.googleapis.com/walletobjects/v1/genericObject/${objectId}`,
+    {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(updatedObject)
+    }
+  );
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    console.log("WALLET PATCH ERROR:", data);
+  }
+}
+
 // ---------- GOOGLE WALLET ----------
 
 async function getAccessToken() {
@@ -512,6 +553,13 @@ app.post('/scan', scanLimiter, verifySession, async (req, res) => {
     if (error) {
       console.log("SCAN UPDATE ERROR:", error);
       return res.json({ error: 'Update failed' });
+    }
+
+    // 🔥 UPDATE WALLET (AFTER DB SUCCESS)
+    try {
+      await updateWalletObject(updated, req.merchant);
+    } catch (err) {
+      console.log("WALLET UPDATE ERROR:", err.message);
     }
 
     // 🧾 LOG SCAN
