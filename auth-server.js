@@ -383,19 +383,17 @@ app.get('/merchant/stats', verifySession, async (req, res) => {
 
     const { data: customers } = await supabase
       .from('customers')
-      .select('id')
-      .eq('merchant_id', merchantId);
-
-    const { data: logs } = await supabase
-      .from('scan_logs')
-      .select('id')
+      .select('total_visits')
       .eq('merchant_id', merchantId);
 
     const safeCustomers = customers || [];
-    const safeLogs = logs || [];
 
     const totalCustomers = safeCustomers.length;
-    const totalVisits = safeLogs.length;
+
+    const totalVisits = safeCustomers.reduce(
+      (sum, c) => sum + (c.total_visits || 0),
+      0
+    );
 
     const avgVisits =
       totalCustomers > 0
@@ -582,24 +580,35 @@ app.post('/scan', scanLimiter, verifySession, async (req, res) => {
     });
 
     // 🧾 LOG SCAN (WITH ERROR CHECK)
-    const { error: logError } = await supabase
-      .from('scan_logs')
-      .insert([{
-        merchant_id: req.merchant.id,
-        customer_id: customer.id,
-        phone: customer.phone,
-        scanned_at: new Date().toISOString(),
-        result: JSON.stringify({
-          visit,
-          discount: applied_discount
-        })
-      }]);
+    if (!customer.id || !req.merchant.id) {
+  console.log("❌ INVALID IDS", {
+    customer_id: customer.id,
+    merchant_id: req.merchant.id
+  });
+} else {
+  const insertData = {
+    merchant_id: req.merchant.id,
+    customer_id: customer.id,
+    phone: customer.phone,
+    scanned_at: new Date().toISOString(),
+    result: JSON.stringify({
+      visit,
+      discount: applied_discount
+    })
+  };
 
-      console.log("INSERT RESPONSE:", logError);
+  console.log("INSERTING:", insertData);
 
-    if (logError) {
-      console.log("SCAN LOG INSERT ERROR:", logError);
-    }
+  const { data, error } = await supabase
+    .from('scan_logs')
+    .insert([insertData]);
+
+  if (error) {
+    console.log("❌ SCAN LOG INSERT ERROR:", error);
+  } else {
+    console.log("✅ SCAN LOG INSERTED");
+  }
+}
 
     // ✅ RESPONSE
     res.json({
