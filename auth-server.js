@@ -571,14 +571,25 @@ app.post('/scan', scanLimiter, verifySession, async (req, res) => {
       console.log("WALLET UPDATE ERROR:", err.message);
     }
 
-    // 🧾 LOG SCAN
-    await supabase.from('scan_logs').insert([{
+    console.log("TRYING TO LOG SCAN:", {
       merchant_id: req.merchant.id,
-      customer_id: customer.id,
-      phone: customer.phone,
-      scanned_at: new Date().toISOString(),
-      result: `Visit ${visit} → ₱${applied_discount}`
-    }]);
+      phone: customer.phone
+    });
+
+    // 🧾 LOG SCAN (WITH ERROR CHECK)
+    const { error: logError } = await supabase
+      .from('scan_logs')
+      .insert([{
+        merchant_id: req.merchant.id,
+        customer_id: customer.id,
+        phone: customer.phone,
+        scanned_at: new Date().toISOString(),
+        result: `Visit ${visit} → ₱${applied_discount}`
+      }]);
+
+    if (logError) {
+      console.log("SCAN LOG INSERT ERROR:", logError);
+    }
 
     // ✅ RESPONSE
     res.json({
