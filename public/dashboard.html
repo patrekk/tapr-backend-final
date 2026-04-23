@@ -204,23 +204,31 @@
   }
 
   data.forEach(l => {
-    let parsed;
+  let visit = "-";
+  let discount = "-";
 
-    try {
-      parsed = JSON.parse(l.result);
-    } catch {
-      parsed = { visit: "-", discount: "-" };
+  try {
+    const parsed = JSON.parse(l.result);
+    visit = parsed.visit ?? "-";
+    discount = parsed.discount ?? "-";
+  } catch {
+    // fallback for old string format
+    const match = l.result.match(/Visit (\d+) → ₱(\d+)/);
+    if (match) {
+      visit = match[1];
+      discount = match[2];
     }
+  }
 
-    table.innerHTML += `
-      <tr>
-        <td>${l.phone}</td>
-        <td>${parsed.visit}</td>
-        <td>₱${parsed.discount}</td>
-        <td>${new Date(l.scanned_at).toLocaleTimeString()}</td>
-      </tr>
-    `;
-  });
+  table.innerHTML += `
+    <tr>
+      <td>${l.phone}</td>
+      <td>${visit}</td>
+      <td>₱${discount}</td>
+      <td>${new Date(l.scanned_at).toLocaleTimeString()}</td>
+    </tr>
+  `;
+});
 }
 
     async function generateQR() {
