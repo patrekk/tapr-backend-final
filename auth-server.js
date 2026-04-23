@@ -564,8 +564,14 @@ app.post('/scan', scanLimiter, verifySession, async (req, res) => {
       return res.json({ error: 'Update failed' });
     }
 
-    console.log("SKIPPING WALLET UPDATE FOR DEBUG");
-    // await updateWalletObject(updated, req.merchant);
+    console.log("🚀 START WALLET UPDATE");
+
+  try {
+  await updateWalletObject(updated, req.merchant);
+  console.log("✅ WALLET UPDATED");
+} catch (err) {
+  console.log("❌ WALLET UPDATE ERROR:", err.message);
+}
 
     console.log("TRYING TO LOG SCAN:", {
       merchant_id: req.merchant.id,
