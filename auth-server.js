@@ -575,12 +575,9 @@ app.post('/scan', scanLimiter, verifySession, async (req, res) => {
     await supabase.from('scan_logs').insert([{
       merchant_id: req.merchant.id,
       customer_id: customer.id,
+      phone: customer.phone,
       scanned_at: new Date().toISOString(),
-      result: JSON.stringify({
-      visit,
-      applied_discount,
-      next_reward
-      })
+      result: `Visit ${visit} → ₱${applied_discount}`
     }]);
 
     // ✅ RESPONSE
