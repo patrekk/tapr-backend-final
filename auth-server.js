@@ -302,7 +302,7 @@ app.get('/join/:slug', (req, res) => {
 
 app.post('/wallet/:slug', async (req, res) => {
   const { slug } = req.params;
-  const { phone, name, email } = req.body;
+  const { phone, name, email, birthday } = req.body;
 
   const merchant = await getMerchantBySlug(slug);
   if (!merchant) return res.json({ error: 'Invalid merchant' });
@@ -325,6 +325,7 @@ app.post('/wallet/:slug', async (req, res) => {
         phone,
         name,
         email,
+        birthday,
         merchant_id: merchant.id,
         wallet_id,
         visit_count: 0,

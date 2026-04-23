@@ -49,13 +49,21 @@
 <div class="box">
   <h2 id="title">Join</h2>
 
-  <p style="text-align:center; font-size:14px; margin-bottom:15px;">
-    Join and get instant rewards on every visit.<br>
-    Bigger discounts unlock as you come back.
-  </p>
+  <h2>Get rewarded every visit</h2>
+
+<p>
+No apps. No cards. Just scan and save.<br><br>
+
+✔ ₱10 on your first visit<br>
+✔ Bigger rewards every time<br>
+✔ ₱50 on your 5th visit<br><br>
+
+Join in 10 seconds.
+</p>
 
   <input id="phone" placeholder="Phone Number">
   <input id="name" placeholder="Name">
+  <input type="date" id="birthday">
   <input id="email" placeholder="Email">
 
   <button onclick="join()">Join</button>
@@ -117,7 +125,8 @@ if (!/^[a-zA-Z\s]+$/.test(name)) {
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ phone, name, email })
+      body: JSON.stringify({ phone, name, email, birthday: document.getElementById("birthday").value
+ })
     });
 
     const data = await res.json();
