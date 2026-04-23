@@ -564,12 +564,8 @@ app.post('/scan', scanLimiter, verifySession, async (req, res) => {
       return res.json({ error: 'Update failed' });
     }
 
-    // 🔥 UPDATE WALLET (AFTER DB SUCCESS)
-    try {
-      await updateWalletObject(updated, req.merchant);
-    } catch (err) {
-      console.log("WALLET UPDATE ERROR:", err.message);
-    }
+    console.log("SKIPPING WALLET UPDATE FOR DEBUG");
+    // await updateWalletObject(updated, req.merchant);
 
     console.log("TRYING TO LOG SCAN:", {
       merchant_id: req.merchant.id,
@@ -586,6 +582,8 @@ app.post('/scan', scanLimiter, verifySession, async (req, res) => {
         scanned_at: new Date().toISOString(),
         result: `Visit ${visit} → ₱${applied_discount}`
       }]);
+
+      console.log("INSERT RESPONSE:", logError);
 
     if (logError) {
       console.log("SCAN LOG INSERT ERROR:", logError);
