@@ -588,7 +588,7 @@ app.post('/scan', scanLimiter, verifySession, async (req, res) => {
         merchant_id: req.merchant.id,
         customer_id: customer.id,
         phone: customer.phone,
-        scanned_at: Date.now(),
+        scanned_at: new Date().toISOString(),
         result: JSON.stringify({
           visit,
           discount: applied_discount
