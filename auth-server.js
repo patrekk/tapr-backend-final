@@ -529,6 +529,18 @@ app.post('/scan', scanLimiter, verifySession, async (req, res) => {
       return res.json({ error: 'Already Claimed Today' });
     }
 
+    // ⏱️ COOLDOWN CHECK (10 seconds)
+    const now = new Date();
+
+    if (customer.last_scan_at) {
+      const lastScan = new Date(customer.last_scan_at);
+      const diffSeconds = (now - lastScan) / 1000;
+
+      if (diffSeconds < 10) {
+        return res.json({ error: "Wait a few seconds before scanning again" });
+      }
+    }
+
     // 🎯 APPLY CURRENT REWARD (important: reward from previous visit)
     const applied_discount = customer.pending_discount;
 
@@ -554,7 +566,8 @@ app.post('/scan', scanLimiter, verifySession, async (req, res) => {
         visit_count: visit,
         total_visits: (customer.total_visits || 0) + 1,
         pending_discount: next_reward,
-        last_reward_day: today
+        last_reward_day: today,
+        last_scan_at: now.toISOString()
       })
       .eq('id', customer.id)
       .select()
