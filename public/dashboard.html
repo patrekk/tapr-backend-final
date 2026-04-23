@@ -125,7 +125,9 @@
       <thead>
         <tr>
           <th>Phone</th>
-          <th>Result</th>
+          <th>Visit</th>
+          <th>Discount</th>
+          <th>Time</th>
         </tr>
       </thead>
       <tbody id="logsTable"></tbody>
@@ -187,31 +189,39 @@
     }
 
     async function loadLogs() {
-      const res = await fetch(`${API}/merchant/scan-logs`, {
-        headers: { authorization: getToken() }
-      });
-      const data = await res.json();
+  const res = await fetch(`${API}/merchant/scan-logs`, {
+    headers: { authorization: getToken() }
+  });
 
-      const table = document.getElementById("logsTable");
-      table.innerHTML = "";
+  const data = await res.json();
 
-      if (!Array.isArray(data)) {
+  const table = document.getElementById("logsTable");
+  table.innerHTML = "";
 
-  console.log("Logs error:", data);
+  if (!Array.isArray(data)) {
+    console.log("Logs error:", data);
+    return;
+  }
 
-  return;
+  data.forEach(l => {
+    let parsed;
 
-}
-
-      data.forEach(l => {
-        table.innerHTML += `
-          <tr>
-            <td>${l.phone}</td>
-            <td>${l.result}</td>
-          </tr>
-        `;
-      });
+    try {
+      parsed = JSON.parse(l.result);
+    } catch {
+      parsed = { visit: "-", discount: "-" };
     }
+
+    table.innerHTML += `
+      <tr>
+        <td>${l.phone}</td>
+        <td>${parsed.visit}</td>
+        <td>₱${parsed.discount}</td>
+        <td>${new Date(l.scanned_at).toLocaleTimeString()}</td>
+      </tr>
+    `;
+  });
+}
 
     async function generateQR() {
       const res = await fetch(`${API}/merchant/me`, {

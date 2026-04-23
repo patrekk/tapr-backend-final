@@ -589,7 +589,10 @@ app.post('/scan', scanLimiter, verifySession, async (req, res) => {
         customer_id: customer.id,
         phone: customer.phone,
         scanned_at: Date.now(),
-        result: `Visit ${visit} → ₱${applied_discount}`
+        result: JSON.stringify({
+          visit,
+          discount: applied_discount
+        })
       }]);
 
       console.log("INSERT RESPONSE:", logError);
