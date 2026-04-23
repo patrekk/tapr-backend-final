@@ -388,30 +388,32 @@ app.get('/merchant/stats', verifySession, async (req, res) => {
 
     const { data: logs } = await supabase
       .from('scan_logs')
-      .select('id, scanned_at')
+      .select('id')
       .eq('merchant_id', merchantId);
 
     const safeCustomers = customers || [];
     const safeLogs = logs || [];
 
-    const today = new Date().toDateString();
+    const totalCustomers = safeCustomers.length;
+    const totalVisits = safeLogs.length;
 
-    const todayScans = safeLogs.filter(l =>
-      new Date(l.scanned_at).toDateString() === today
-    );
+    const avgVisits =
+      totalCustomers > 0
+        ? (totalVisits / totalCustomers).toFixed(1)
+        : 0;
 
     res.json({
-      total_customers: safeCustomers.length,
-      total_scans: safeLogs.length,
-      today_scans: todayScans.length
+      total_customers: totalCustomers,
+      total_visits: totalVisits,
+      avg_visits: avgVisits
     });
 
   } catch (err) {
     console.log("STATS ERROR:", err);
     res.json({
       total_customers: 0,
-      total_scans: 0,
-      today_scans: 0
+      total_visits: 0,
+      avg_visits: 0
     });
   }
 });
@@ -552,6 +554,7 @@ app.post('/scan', scanLimiter, verifySession, async (req, res) => {
       .from('customers')
       .update({
         visit_count: visit,
+        total_visits: (customer.total_visits || 0) + 1,
         pending_discount: next_reward,
         last_reward_day: today
       })

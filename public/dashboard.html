@@ -96,11 +96,11 @@
     </div>
     <div class="card">
       <h3 id="scans">0</h3>
-      <p>Total Scans</p>
+      <p>Visits/p>
     </div>
     <div class="card">
-      <h3 id="today">0</h3>
-      <p>Today</p>
+      <h3 id="avg">0</h3>
+      <p>Avg Visits</p>
     </div>
   </div>
 
@@ -111,7 +111,8 @@
         <tr>
           <th>Phone</th>
           <th>Name</th>
-          <th>Visits</th>
+          <th>Loop</th>
+          <th>Total</th>
         </tr>
       </thead>
       <tbody id="customersTable"></tbody>
@@ -153,8 +154,8 @@
       const data = await res.json();
 
       document.getElementById("customers").innerText = data.total_customers ?? 0;
-      document.getElementById("scans").innerText = data.total_scans ?? 0;
-      document.getElementById("today").innerText = data.today_scans ?? 0;
+      document.getElementById("visits").innerText = data.total_visits ?? 0;
+      document.getElementById("avg").innerText = data.avg_visits ?? 0;
     }
 
     async function loadCustomers() {
@@ -179,6 +180,7 @@
             <td>${c.phone}</td>
             <td>${c.name || "-"}</td>
             <td>${c.visit_count}</td>
+            <td>${c.total_visits || 0}</td>
           </tr>
         `;
       });
