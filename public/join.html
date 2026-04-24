@@ -46,7 +46,7 @@ h1 {
   text-align: center;
   font-size: 14px;
   color: #666;
-  margin-bottom: 18px;
+  margin-bottom: 10px;
 }
 
 .benefits {
@@ -65,13 +65,18 @@ h1 {
 
 input {
   width: 100%;
-  padding: 14px;
+  padding: 16px;
   margin-top: 12px;
-  border-radius: 10px;
+  border-radius: 12px;
   border: 1px solid #ddd;
-  font-size: 14px;
+  font-size: 16px;
   box-sizing: border-box;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  background: white;
+  appearance: none;
+}
+
+input[type="date"] {
+  min-height: 52px;
 }
 
 input:hover {
@@ -86,15 +91,14 @@ input:focus {
 
 button {
   width: 100%;
-  padding: 16x;
-  margin-top: 24px;
+  padding: 18x;
+  margin-top: 28px;
   background: #0B0B0B;
   color: white;
   border: none;
-  border-radius: 12px;
-  font-size: 15px;
+  border-radius: 14px;
+  font-size: 16px;
   cursor: pointer;
-  transition: background 0.15s ease, transform 0.1s ease;
 }
 
 button:hover {
