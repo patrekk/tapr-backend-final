@@ -314,6 +314,22 @@ app.post('/send-otp', async (req, res) => {
     .eq('phone', phone)
     .maybeSingle();
 
+// 🔒 BLOCK CHECK (ADD THIS PART)
+
+if (existing?.blocked_until) {
+
+  const now = new Date();
+
+  const blocked = new Date(existing.blocked_until);
+
+  if (now < blocked) {
+
+    return res.json({ error: "Too many attempts. Try again later." });
+
+  }
+
+}
+
   if (existing) {
   const now = new Date();
   const expires = new Date(existing.expires_at);
@@ -363,6 +379,15 @@ const { data: otpRecord } = await supabase
   .eq('phone', phone)
   .maybeSingle();
 
+if (otpRecord?.blocked_until) {
+  const now = new Date();
+  const blocked = new Date(otpRecord.blocked_until);
+
+  if (now < blocked) {
+    return res.json({ error: "Too many attempts. Try again later." });
+  }
+}
+
 if (!otpRecord) {
   return res.json({ error: "No OTP found" });
 }
@@ -384,16 +409,20 @@ if (otpRecord.code !== otp) {
 
   // 🔒 LOCK AFTER 5 ATTEMPTS
   if (newAttempts >= 5) {
-    await supabase
-      .from('otp_codes')
-      .update({
-        attempts: newAttempts,
-        locked: true
-      })
-      .eq('id', otpRecord.id);
 
-    return res.json({ error: "Too many attempts. OTP locked." });
-  }
+  const blockTime = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+
+  await supabase
+    .from('otp_codes')
+    .update({
+      attempts: newAttempts,
+      locked: true,
+      blocked_until: blockTime.toISOString()
+    })
+    .eq('id', otpRecord.id);
+
+  return res.json({ error: "Too many attempts. Try again later." });
+}
 
   // 🔁 UPDATE ATTEMPTS
   await supabase
