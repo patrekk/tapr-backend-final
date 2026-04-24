@@ -3,70 +3,115 @@
 <head>
   <title>Join</title>
   <style>
-    body {
-      font-family: Arial;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-      background: #f5f5f5;
-    }
+body {
+  font-family: Arial;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+  background: #E4E4E4;
+}
 
-    .box {
-      background: white;
-      padding: 30px;
-      border-radius: 12px;
-      width: 320px;
-      box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-    }
+.box {
+  background: white;
+  padding: 32px;
+  border-radius: 16px;
+  width: 340px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+}
 
-    h2 {
-      text-align: center;
-      margin-bottom: 20px;
-    }
+h1 {
+  text-align: center;
+  margin-bottom: 6px;
+  color: #0B0B0B;
+}
 
-    input {
-      width: 100%;
-      padding: 10px;
-      margin-top: 10px;
-      box-sizing: border-box;
-    }
+.sub {
+  text-align: center;
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 18px;
+}
 
-    button {
-      width: 100%;
-      padding: 12px;
-      margin-top: 20px;
-      background: black;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-  </style>
+.benefits {
+  font-size: 14px;
+  margin-bottom: 22px;
+  color: #333;
+}
+
+.benefits div {
+  margin-bottom: 6px;
+}
+
+input {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+  transition: all 0.15s ease;
+}
+
+input:hover {
+  border-color: #aaa;
+}
+
+input:focus {
+  border-color: #2B396D;
+  box-shadow: 0 0 0 2px rgba(43,57,109,0.15);
+  outline: none;
+}
+
+button {
+  width: 100%;
+  padding: 14px;
+  margin-top: 22px;
+  background: #0B0B0B;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+button:hover {
+  background: #2B396D;
+}
+
+button:active {
+  transform: scale(0.97);
+}
+
+button:disabled {
+  background: #aaa;
+  cursor: not-allowed;
+}
+</style>
 </head>
 <body>
 
 <div class="box">
-  <h2 id="title">Join</h2>
+  <h1 id="title">Join</h1>
 
-  <h2>Get rewarded every visit</h2>
+  <p class="sub">Get rewarded every visit</p>
 
-<p>
-No apps. No cards. Just scan and save.<br><br>
+  <div class="benefits">
+    <div>₱10 on your first visit</div>
+    <div>Bigger rewards each time</div>
+    <div>₱50 on your 5th visit</div>
+  </div>
 
-✔ ₱10 on your first visit<br>
-✔ Bigger rewards every time<br>
-✔ ₱50 on your 5th visit<br><br>
-
-Join in 10 seconds.
-</p>
-
-  <input id="phone" placeholder="Phone Number">
-  <input id="name" placeholder="Name">
+  <input id="phone" placeholder="Phone number">
+  <input id="name" placeholder="Full name">
   <input type="date" id="birthday">
   <input id="email" placeholder="Email">
 
-  <button onclick="join()">Join</button>
+  <button onclick="join()" id="joinBtn">
+    Join & Get Rewards
+  </button>
 </div>
 
 <script>
@@ -92,6 +137,9 @@ fetch(`${API}/merchant/${slug}`)
   });
 
 async function join() {
+  const btn = document.getElementById("joinBtn");
+  btn.disabled = true;
+  btn.innerText = "Loading...";
   const phone = document.getElementById("phone").value;
   const name = document.getElementById("name").value;
   const email = document.getElementById("email").value;
@@ -99,30 +147,40 @@ async function join() {
 
   if (!phone || !name || !email || !birthday) {
     alert("Fill all fields");
+    btn.disabled = false;
+    btn.innerText = "Join & Get Rewards";
     return;
   }
 
   // 🔥 PHONE
   if (!/^09\d{9}$/.test(phone)) {
     alert("Enter a valid PH phone number (09XXXXXXXXX)");
+    btn.disabled = false;
+    btn.innerText = "Join & Get Rewards";
     return;
   }
 
   // 🔥 EMAIL
   if (!/^\S+@\S+\.\S+$/.test(email)) {
     alert("Enter a valid email");
+    btn.disabled = false;
+    btn.innerText = "Join & Get Rewards";
     return;
   }
 
   // 🔥 NAME
   if (!/^[a-zA-Z\s]+$/.test(name)) {
     alert("Name should only contain letters");
+    btn.disabled = false;
+    btn.innerText = "Join & Get Rewards";
     return;
   }
 
   // 🔥 BIRTHDAY CHECK
   if (!birthday) {
     alert("Enter your birthday");
+    btn.disabled = false;
+    btn.innerText = "Join & Get Rewards";
     return;
   }
 
@@ -145,6 +203,8 @@ const otpData = await otpRes.json();
 
 if (otpData.error) {
   alert(otpData.error);
+  btn.disabled = false;
+  btn.innerText = "Join & Get Rewards";
   return;
 }
 
@@ -153,6 +213,8 @@ if (otpData.error) {
 
   } catch (err) {
     alert("Something went wrong");
+    btn.disabled = false;
+    btn.innerText = "Join & Get Rewards";
   }
 }
 </script>
