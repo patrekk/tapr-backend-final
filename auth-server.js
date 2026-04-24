@@ -300,12 +300,56 @@ app.get('/join/:slug', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'join.html'));
 });
 
+// ---------- OTP ROUTE ----------
+app.post('/send-otp', async (req, res) => {
+  const { phone } = req.body;
+
+  if (!phone) return res.json({ error: "No phone" });
+
+  const code = Math.floor(100000 + Math.random() * 900000).toString();
+
+  const expires = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+
+  // delete old OTPs for this number
+await supabase
+  .from('otp_codes')
+  .delete()
+  .eq('phone', phone);
+
+// insert new OTP
+await supabase.from('otp_codes').insert([{
+  phone,
+  code,
+  expires_at: expires.toISOString()
+}]);
+
+  console.log("🔥 OTP CODE:", phone, code);
+
+  res.json({ success: true });
+});
+
 app.post('/wallet/:slug', async (req, res) => {
   const { slug } = req.params;
-  const { phone, name, email, birthday } = req.body;
+  const { phone, name, email, birthday, otp } = req.body;
 
   const merchant = await getMerchantBySlug(slug);
   if (!merchant) return res.json({ error: 'Invalid merchant' });
+
+  // 🔐 VERIFY OTP
+  const { data: validOTP } = await supabase
+    .from('otp_codes')
+    .select('*')
+    .eq('phone', phone)
+    .eq('code', otp)
+    .maybeSingle();
+
+  if (!validOTP) {
+    return res.json({ error: "Invalid OTP" });
+  }
+
+  if (new Date() > new Date(validOTP.expires_at)) {
+    return res.json({ error: "OTP expired" });
+  }
 
   let { data: customer } = await supabase
     .from('customers')

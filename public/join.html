@@ -95,53 +95,61 @@ async function join() {
   const phone = document.getElementById("phone").value;
   const name = document.getElementById("name").value;
   const email = document.getElementById("email").value;
+  const birthday = document.getElementById("birthday").value;
 
-  if (!phone || !name || !email) {
+  if (!phone || !name || !email || !birthday) {
     alert("Fill all fields");
     return;
   }
 
-  // 🔥 PHONE (PH FORMAT)
-if (!/^09\d{9}$/.test(phone)) {
-  alert("Enter a valid PH phone number (09XXXXXXXXX)");
-  return;
-}
+  // 🔥 PHONE
+  if (!/^09\d{9}$/.test(phone)) {
+    alert("Enter a valid PH phone number (09XXXXXXXXX)");
+    return;
+  }
 
-// 🔥 EMAIL
-if (!/^\S+@\S+\.\S+$/.test(email)) {
-  alert("Enter a valid email");
-  return;
-}
+  // 🔥 EMAIL
+  if (!/^\S+@\S+\.\S+$/.test(email)) {
+    alert("Enter a valid email");
+    return;
+  }
 
-// 🔥 NAME (letters + spaces only)
-if (!/^[a-zA-Z\s]+$/.test(name)) {
-  alert("Name should only contain letters");
-  return;
-}
+  // 🔥 NAME
+  if (!/^[a-zA-Z\s]+$/.test(name)) {
+    alert("Name should only contain letters");
+    return;
+  }
+
+  // 🔥 BIRTHDAY CHECK
+  if (!birthday) {
+    alert("Enter your birthday");
+    return;
+  }
 
   try {
-    const res = await fetch(`${API}/wallet/${slug}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ phone, name, email, birthday: document.getElementById("birthday").value
- })
-    });
+    // 👉 SAVE DATA TEMPORARILY
+    localStorage.setItem("joinData", JSON.stringify({
+      phone, name, email, birthday
+    }));
 
-    const data = await res.json();
-    console.log("RESPONSE:", data);
-    console.log("STATUS: ", res.status);
+    // 👉 SEND OTP
+    const otpRes = await fetch(`${API}/send-otp`, {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({ phone })
+});
 
-    if (data.saveJWT) {
+const otpData = await otpRes.json();
 
-    if (data.existing) {
-    alert("You are already registered. Opening your pass...");
-    }
+if (otpData.error) {
+  alert(otpData.error);
+  return;
+}
 
-    window.location.href =
-    `https://pay.google.com/gp/v/save/${data.saveJWT}`;
-    }
+    // 👉 REDIRECT TO OTP PAGE
+    window.location.href = `/otp.html?slug=${slug}`;
 
   } catch (err) {
     alert("Something went wrong");

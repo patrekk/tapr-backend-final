@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Verify</title>
+  <style>
+    body {
+      font-family: Arial;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background: #f5f5f5;
+    }
+
+    .box {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      width: 320px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-top: 15px;
+      text-align: center;
+      font-size: 18px;
+      letter-spacing: 5px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 20px;
+      background: black;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    .small {
+      font-size: 12px;
+      margin-top: 10px;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+
+<div class="box">
+  <h2>Verify your number</h2>
+
+  <p class="small" id="phoneText"></p>
+
+  <input id="otp" placeholder="______" maxlength="6" inputmode="numeric">
+
+  <button onclick="verify()" id="verifyBtn">Verify</button>
+
+  <button onclick="resend()" style="background:#ccc;color:black;">
+    Resend Code
+  </button>
+</div>
+
+<script>
+const API = "https://tapr-backend-final-production.up.railway.app";
+
+function getSlug() {
+  return new URLSearchParams(window.location.search).get("slug");
+}
+
+// 🔥 SHOW PHONE NUMBER
+const joinData = JSON.parse(localStorage.getItem("joinData"));
+if (joinData?.phone) {
+  document.getElementById("phoneText").innerText =
+    "Code sent to " + joinData.phone;
+}
+
+// 🔥 VERIFY OTP
+async function verify() {
+  const otp = document.getElementById("otp").value;
+  const btn = document.getElementById("verifyBtn");
+
+  if (!otp || otp.length !== 6) {
+    alert("Enter 6-digit code");
+    return;
+  }
+
+  if (!joinData) {
+    alert("Session expired. Go back.");
+    return;
+  }
+
+  btn.innerText = "Verifying...";
+  btn.disabled = true;
+
+  try {
+    const res = await fetch(`${API}/wallet/${getSlug()}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        ...joinData,
+        otp
+      })
+    });
+
+    const result = await res.json();
+
+    if (result.saveJWT) {
+      localStorage.removeItem("joinData");
+
+      window.location.href =
+        `https://pay.google.com/gp/v/save/${result.saveJWT}`;
+    } else {
+      alert(result.error || "Invalid OTP");
+      btn.innerText = "Verify";
+      btn.disabled = false;
+    }
+
+  } catch (err) {
+    alert("Something went wrong");
+    btn.innerText = "Verify";
+    btn.disabled = false;
+  }
+}
+
+// 🔥 RESEND OTP
+async function resend() {
+  if (!joinData?.phone) return;
+
+  const res = await fetch(`${API}/send-otp`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ phone: joinData.phone })
+  });
+
+  const data = await res.json();
+
+  if (data.error) {
+    alert(data.error);
+    return;
+  }
+
+  alert("New OTP sent");
+}
+</script>
+
+</body>
+</html>
