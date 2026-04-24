@@ -16,11 +16,11 @@ body {
 
 .box {
   background: white;
-  padding: 28px;
+  padding: 32px;
   border-radius: 16px;
   width: 100%;
   max-width: 380px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  box-shadow: 0 10px 30px rgba(43,57,109,0.12);
 }
 
 @media (max-width: 480px) {
@@ -58,9 +58,17 @@ h1 {
   font-size: 14px;
   margin: 20px 0 26px;
   padding: 18px;
-  background: #f7f7f7;
+  background: rgba(43, 57, 109, 0.06);
   border-radius: 14px;
   text-align: center;
+}
+
+h1 {
+  color: #0B0B0B;
+}
+
+strong {
+  color: #2B396D;
 }
 
 .benefits div {
@@ -97,14 +105,23 @@ input:focus {
 button {
   width: 100%;
   padding: 18x;
-  margin-top: 30px;
-  background: #0B0B0B;
+  margin-top: 28px;
+  background: #2B396D;
   color: white;
   border: none;
   border-radius: 16px;
   font-size: 16px;
-  font-weight: bold;
+  font-weight: 600;
   cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+button:hover {
+  background: #1f2a52;
+}
+
+button:active {
+  transform: scale(0.97);
 }
 
 @media (max-width: 480px) {
