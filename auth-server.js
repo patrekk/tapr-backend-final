@@ -412,7 +412,7 @@ await supabase
   .delete()
   .eq('id', otpRecord.id);
 
-  if (new Date() > new Date(validOTP.expires_at)) {
+  if (new Date() > new Date(otpRecord.expires_at)) {
   return res.json({ error: "OTP expired" });
 }
 
@@ -420,7 +420,7 @@ await supabase
 await supabase
   .from('otp_codes')
   .delete()
-  .eq('id', validOTP.id);
+  .eq('id', otpRecord.id);
 
   let { data: customer } = await supabase
     .from('customers')
