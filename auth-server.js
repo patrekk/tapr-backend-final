@@ -441,16 +441,6 @@ await supabase
   .delete()
   .eq('id', otpRecord.id);
 
-  if (new Date() > new Date(otpRecord.expires_at)) {
-  return res.json({ error: "OTP expired" });
-}
-
-// 🔥 DELETE OTP AFTER USE (VERY IMPORTANT)
-await supabase
-  .from('otp_codes')
-  .delete()
-  .eq('id', otpRecord.id);
-
   let { data: customer } = await supabase
     .from('customers')
     .select('*')
