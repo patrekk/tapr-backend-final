@@ -306,22 +306,40 @@ app.post('/send-otp', async (req, res) => {
 
   if (!phone) return res.json({ error: "No phone" });
 
+  // 🔥 STEP 1: CHECK IF RECENT OTP EXISTS
+  const { data: existing } = await supabase
+    .from('otp_codes')
+    .select('*')
+    .eq('phone', phone)
+    .maybeSingle();
+
+  if (existing) {
+  const now = new Date();
+  const expires = new Date(existing.expires_at);
+
+  // if OTP still valid → block resend
+  if (now < expires) {
+    return res.json({ error: "Wait before requesting another code" });
+  }
+}
+
+  // 🔥 STEP 2: GENERATE CODE (ONLY AFTER CHECK)
   const code = Math.floor(100000 + Math.random() * 900000).toString();
 
-  const expires = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+  const expires = new Date(Date.now() + 5 * 60 * 1000);
 
-  // delete old OTPs for this number
-await supabase
-  .from('otp_codes')
-  .delete()
-  .eq('phone', phone);
+  // 🔥 STEP 3: DELETE OLD OTP
+  await supabase
+    .from('otp_codes')
+    .delete()
+    .eq('phone', phone);
 
-// insert new OTP
-await supabase.from('otp_codes').insert([{
-  phone,
-  code,
-  expires_at: expires.toISOString()
-}]);
+  // 🔥 STEP 4: INSERT NEW OTP
+  await supabase.from('otp_codes').insert([{
+    phone,
+    code,
+    expires_at: expires.toISOString()
+  }]);
 
   console.log("🔥 OTP CODE:", phone, code);
 
@@ -348,8 +366,14 @@ app.post('/wallet/:slug', async (req, res) => {
   }
 
   if (new Date() > new Date(validOTP.expires_at)) {
-    return res.json({ error: "OTP expired" });
-  }
+  return res.json({ error: "OTP expired" });
+}
+
+// 🔥 DELETE OTP AFTER USE (VERY IMPORTANT)
+await supabase
+  .from('otp_codes')
+  .delete()
+  .eq('id', validOTP.id);
 
   let { data: customer } = await supabase
     .from('customers')

@@ -111,10 +111,15 @@ async function verify() {
     const result = await res.json();
 
     if (result.saveJWT) {
-      localStorage.removeItem("joinData");
 
-      window.location.href =
-        `https://pay.google.com/gp/v/save/${result.saveJWT}`;
+  if (result.existing) {
+    alert("Welcome back! Opening your pass...");
+  }
+
+  localStorage.removeItem("joinData");
+
+  window.location.href =
+    `https://pay.google.com/gp/v/save/${result.saveJWT}`;
     } else {
       alert(result.error || "Invalid OTP");
       btn.innerText = "Verify";
