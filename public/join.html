@@ -24,15 +24,19 @@ body {
 
 @media (max-width: 480px) {
   body {
-    align-items: flex-start;
-    padding: 20px;
+    align-items: stretch;
+    padding: 0px;
+    background: white;
   }
 
   .box {
-    border-radius: 16px;
     width: 100%;
     max-width: 100%;
-    padding: 24px;
+    height: 100vh;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 24px 20px;
+    justify-content: center;
   }
 }
 
@@ -92,13 +96,22 @@ input:focus {
 button {
   width: 100%;
   padding: 18x;
-  margin-top: 28px;
+  margin-top: 30px;
   background: #0B0B0B;
   color: white;
   border: none;
-  border-radius: 14px;
+  border-radius: 16px;
   font-size: 16px;
+  font-weight: bold;
   cursor: pointer;
+}
+
+@media (max-width: 480px) {
+  button {
+    padding: 20px;
+    font-size: 17px;
+    border-radius: 18px;
+  }
 }
 
 button:hover {
