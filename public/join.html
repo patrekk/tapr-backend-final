@@ -19,6 +19,8 @@ body {
   border-radius: 16px;
   width: 340px;
   box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  display: flex;
+  flex-direction: column;
 }
 
 h1 {
@@ -36,22 +38,26 @@ h1 {
 
 .benefits {
   font-size: 14px;
-  margin-bottom: 22px;
+  margin-bottom: 24px;
   color: #333;
+  padding: 16px;
+  background: #f7f7f7;
+  border-radius: 12px;
 }
 
 .benefits div {
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 
 input {
   width: 100%;
-  padding: 12px;
-  margin-top: 10px;
-  border-radius: 8px;
+  padding: 14px;
+  margin-top: 12px;
+  border-radius: 10px;
   border: 1px solid #ddd;
   font-size: 14px;
-  transition: all 0.15s ease;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 input:hover {
@@ -66,15 +72,15 @@ input:focus {
 
 button {
   width: 100%;
-  padding: 14px;
-  margin-top: 22px;
+  padding: 16x;
+  margin-top: 24px;
   background: #0B0B0B;
   color: white;
   border: none;
-  border-radius: 10px;
+  border-radius: 12px;
   font-size: 15px;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: background 0.15s ease, transform 0.1s ease;
 }
 
 button:hover {
