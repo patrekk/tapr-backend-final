@@ -339,7 +339,9 @@ app.post('/send-otp', async (req, res) => {
   await supabase.from('otp_codes').insert([{
     phone,
     code,
-    expires_at: expires.toISOString()
+    expires_at: expires.toISOString(),
+    attempts: 0,
+    locked: false
   }]);
 
   console.log("🔥 OTP CODE:", phone, code);
@@ -354,17 +356,61 @@ app.post('/wallet/:slug', async (req, res) => {
   const merchant = await getMerchantBySlug(slug);
   if (!merchant) return res.json({ error: 'Invalid merchant' });
 
-  // 🔐 VERIFY OTP
-  const { data: validOTP } = await supabase
-    .from('otp_codes')
-    .select('*')
-    .eq('phone', phone)
-    .eq('code', otp)
-    .maybeSingle();
+  // 🔐 GET OTP (by phone only first)
+const { data: otpRecord } = await supabase
+  .from('otp_codes')
+  .select('*')
+  .eq('phone', phone)
+  .maybeSingle();
 
-  if (!validOTP) {
-    return res.json({ error: "Invalid OTP" });
+if (!otpRecord) {
+  return res.json({ error: "No OTP found" });
+}
+
+// 🔒 CHECK LOCK
+if (otpRecord.locked) {
+  return res.json({ error: "Too many attempts. Request a new code." });
+}
+
+// ⏳ CHECK EXPIRY
+if (new Date() > new Date(otpRecord.expires_at)) {
+  return res.json({ error: "OTP expired" });
+}
+
+// ❌ WRONG CODE
+if (otpRecord.code !== otp) {
+
+  const newAttempts = (otpRecord.attempts || 0) + 1;
+
+  // 🔒 LOCK AFTER 5 ATTEMPTS
+  if (newAttempts >= 5) {
+    await supabase
+      .from('otp_codes')
+      .update({
+        attempts: newAttempts,
+        locked: true
+      })
+      .eq('id', otpRecord.id);
+
+    return res.json({ error: "Too many attempts. OTP locked." });
   }
+
+  // 🔁 UPDATE ATTEMPTS
+  await supabase
+    .from('otp_codes')
+    .update({
+      attempts: newAttempts
+    })
+    .eq('id', otpRecord.id);
+
+  return res.json({ error: "Invalid OTP" });
+}
+
+// ✅ CORRECT OTP → DELETE
+await supabase
+  .from('otp_codes')
+  .delete()
+  .eq('id', otpRecord.id);
 
   if (new Date() > new Date(validOTP.expires_at)) {
   return res.json({ error: "OTP expired" });
