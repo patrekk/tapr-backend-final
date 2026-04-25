@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tapr – Turn Customers Into Regulars</title>
@@ -62,6 +64,11 @@ body {
   border: none;
   font-weight: 600;
   cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.cta:hover {
+  transform: scale(1.05);
 }
 
 .secondary {
@@ -104,6 +111,12 @@ body {
   border-radius: 16px;
   border: 1px solid var(--border);
   text-align: left;
+  transition: all 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
 }
 
 /* COMPARISON */
@@ -157,7 +170,7 @@ body {
 </div>
 
 <!-- PAIN -->
-<div class="section container">
+<div class="section container" data-aos="fade-up">
   <h2>Most customers never come back</h2>
   <p>
     They visit once… then disappear.  
@@ -167,7 +180,7 @@ body {
 </div>
 
 <!-- SOLUTION -->
-<div class="section container">
+<div class="section container" data-aos="fade-up">
   <h2>Tapr gives them a reason to return</h2>
 
   <div class="grid">
@@ -188,8 +201,26 @@ body {
   </div>
 </div>
 
+<div class="section container" data-aos="fade-up">
+  <h2>See how it works in seconds</h2>
+
+  <div style="margin-top:30px;">
+    <button class="cta" onclick="showDemo()">Try Demo</button>
+  </div>
+
+  <div id="demoBox" style="display:none; margin-top:30px;">
+    <div style="background:white; padding:20px; border-radius:16px; border:1px solid #eee; max-width:400px; margin:auto;">
+      <h3>Visit 1 / 5</h3>
+      <div style="height:10px; background:#eee; border-radius:10px; margin:10px 0;">
+        <div id="progressBar" style="width:20%; height:100%; background:var(--primary); border-radius:10px;"></div>
+      </div>
+      <p style="font-size:13px; color:#666;">Keep visiting to unlock your reward</p>
+    </div>
+  </div>
+</div>
+
 <!-- WHY IT WORKS -->
-<div class="section container">
+<div class="section container" data-aos="fade-up">
   <h2>Why it works</h2>
 
   <div class="grid">
@@ -211,7 +242,7 @@ body {
 </div>
 
 <!-- COMPARISON -->
-<div class="section container">
+<div class="section container" data-aos="fade-up">
   <h2>Stop using systems that don’t work</h2>
 
   <div class="table">
@@ -243,7 +274,7 @@ body {
 </div>
 
 <!-- PROOF -->
-<div class="section container">
+<div class="section container" data-aos="fade-up">
   <h2>Businesses are already seeing results</h2>
 
   <div class="grid">
@@ -272,6 +303,38 @@ body {
   Start Getting Repeat Customers
 </button>
 </div>
+
+<div style="margin-top:40px;">
+  <img src="https://dummyimage.com/600x350/edf1ff/2b396d&text=Scan+→+Earn+→+Return"
+       style="width:100%; max-width:600px; border-radius:16px; box-shadow:0 10px 30px rgba(0,0,0,0.1);">
+</div>
+
+<script>
+AOS.init({
+  duration: 800,
+  once: true
+});
+</script>
+
+<script>
+function showDemo() {
+  const box = document.getElementById("demoBox");
+  const bar = document.getElementById("progressBar");
+
+  box.style.display = "block";
+
+  let progress = 20;
+
+  const interval = setInterval(() => {
+    progress += 20;
+    bar.style.width = progress + "%";
+
+    if (progress >= 100) {
+      clearInterval(interval);
+    }
+  }, 500);
+}
+</script>
 
 </body>
 </html>
