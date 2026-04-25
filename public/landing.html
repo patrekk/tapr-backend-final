@@ -87,12 +87,19 @@ body {
 }
 
 .secondary {
-  margin-left: 10px;
-  background: transparent;
-  border: 1px solid var(--border);
+  background: #fff;
+  border: 1px solid #ddd;
   padding: 14px 22px;
   border-radius: 12px;
   cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.secondary:hover {
+  background: #f5f6fa;
+  border-color: #ccc;
+  transform: translateY(-1px);
 }
 
 /* SECTION */
@@ -241,7 +248,7 @@ body {
   </button>
 </div>
 
-<p style="margin-top:14px; font-size:13px; color:#777;">
+<p style="margin-top:20px; font-size:13px; color:#777;">
   Set up in 2 minutes • No app required • Start immediately
 </p>
 
@@ -254,17 +261,23 @@ body {
 </div>
 </div>
 
-<div class="section container" data-aos="fade-up">
-  <h3>Scan this now</h3>
-  <p style="font-size:13px; color:#666;">
+<div class="section container" data-aos="fade-up" style="text-align:center;">
+  
+  <h3 style="font-size:22px; margin-bottom:6px;">Scan this now</h3>
+
+  <p style="font-size:13px; color:#666; margin-bottom:16px;">
     Experience exactly what your customers will see
   </p>
 
-  <img 
-    src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://tapr-backend-final-production.up.railway.app/signup.html"
-    style="margin-top:10px; border-radius:12px;"
-  >
+  <div style="display:flex; justify-content:center;">
+    <img 
+      src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://tapr-backend-final-production.up.railway.app/signup.html"
+      style="border-radius:12px;"
+    >
+  </div>
+
 </div>
+<div style="height:40px;"></div>
 
 <!-- PAIN -->
 <div class="section container" data-aos="fade-up">
