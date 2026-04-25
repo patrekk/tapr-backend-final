@@ -507,7 +507,8 @@ app.get('/merchant/me', verifySession, async (req, res) => {
 
   res.json({
     name: req.merchant.name,
-    slug: req.merchant.slug
+    slug: req.merchant.slug,
+    hex_color: req.merchant.hex_color
   });
 });
 

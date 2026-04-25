@@ -1,13 +1,26 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <title>Dashboard</title>
   <style>
+
+    :root {
+  --primary: #2B396D;
+  --bg: #F7F8FA;
+  --card: #FFFFFF;
+  --text: #0B0B0B;
+  --muted: #777;
+  --border: #E5E7EB;
+}
+
     body {
-      font-family: Arial;
-      margin: 20px;
-      background: #f5f5f5;
-    }
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+  padding: 24px;
+  background: var(--bg);
+  color: var(--text);
+}
 
     h2 {
       margin-bottom: 10px;
@@ -15,50 +28,81 @@
 
     .cards {
       display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
+      gap: 16px;
+      margin-bottom: 24px;
     }
 
     .card {
-      flex: 1;
-      background: black;
-      color: white;
-      padding: 20px;
-      text-align: center;
-      border-radius: 10px;
-    }
+  flex: 1;
+  background: var(--card);
+  padding: 20px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  text-align: center;
+}
+
+.card h3 {
+  font-size: 28px;
+  margin: 0;
+  color: var(--primary);
+}
+
+.card p {
+  font-size: 13px;
+  color: var(--muted);
+}
 
     .section {
-      background: #eee;
-      padding: 15px;
-      border-radius: 10px;
-      margin-bottom: 20px;
-    }
+  background: var(--card);
+  padding: 20px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  margin-bottom: 20px;
+}
 
     table {
-      width: 100%;
-      border-collapse: collapse;
-    }
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
 
-    th {
-      text-align: left;
-      padding: 8px;
-      background: #ddd;
-    }
+th {
+  text-align: left;
+  padding: 10px;
+  font-size: 13px;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+}
 
-    td {
-      padding: 8px;
-      border-bottom: 1px solid #ccc;
-    }
+td {
+  padding: 12px 10px;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+}
 
-    button {
-      padding: 10px;
-      margin-bottom: 10px;
-      background: black;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
+tr:hover {
+  background: #f9fafb;
+}
+
+button {
+  padding: 12px 16px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+button.secondary {
+  background: white;
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+button:hover {
+  filter: brightness(0.9);
+}
 
     #qrBox {
       text-align: center;
@@ -77,13 +121,14 @@
 </head>
 <body>
 
-  <h2>Dashboard</h2>
-
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+  <h2 style="margin:0;">Dashboard</h2>
   <button onclick="goScanner()">Open Scanner</button>
+</div>
 
   <div class="section">
     <h3>Your QR</h3>
-    <button onclick="generateQR()">Generate QR</button>
+    <button onclick="generateQR()" class="secondary">Generate QR</button>
 
     <div id="qrBox"></div>
     <p id="link"></p>
@@ -245,6 +290,21 @@
       document.getElementById("qrBox").innerHTML =
         `<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${url}" />`;
     }
+
+async function applyBranding() {
+  const res = await fetch(`${API}/merchant/me`, {
+    headers: { authorization: getToken() }
+  });
+
+  const data = await res.json();
+
+  if (data.hex_color) {
+    document.documentElement.style
+      .setProperty('--primary', data.hex_color);
+  }
+}
+
+applyBranding();    
 
     loadStats();
     loadCustomers();
