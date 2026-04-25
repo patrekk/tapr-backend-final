@@ -66,7 +66,7 @@ h1 {
   font-size: 14px;
   margin: 20px 0 26px;
   padding: 18px;
-  background: rgba(43, 57, 109, 0.06); /*leave for now */
+  background: color-mix(in srgb, var(--primary) 8%, white);
   border-radius: 14px;
   text-align: center;
 }
@@ -102,7 +102,7 @@ input:hover {
 
 input:focus {
   border-color: #2B396D;
-  box-shadow: 0 0 0 2px rgba(43,57,109,0.15);
+  box-shadow: 0 0 0 2px var(--primary);
   outline: none;
 }
 
@@ -187,11 +187,17 @@ const API = "https://tapr-backend-final-production.up.railway.app";
 fetch(`${API}/merchant/${slug}`)
   .then(res => res.json())
   .then(data => {
-    if (data.name) {
-      document.getElementById("title").innerText =
-        "Join " + data.name;
-    }
-  })
+  if (data.name) {
+    document.getElementById("title").innerText =
+      "Join " + data.name;
+  }
+
+  // 🎨 APPLY MERCHANT COLOR (ADD THIS)
+  if (data.hex_color) {
+    document.documentElement.style
+      .setProperty('--primary', data.hex_color);
+  }
+})
   .catch(() => {
     document.getElementById("title").innerText = "Join";
   });

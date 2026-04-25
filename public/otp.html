@@ -72,7 +72,7 @@ input {
 
 input:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 0 2px rgba(43,57,109,0.15);
+  box-shadow: 0 0 0 2px var(--primary);
   outline: none;
 }
 
@@ -136,6 +136,16 @@ button:disabled {
 
 <script>
 const API = "https://tapr-backend-final-production.up.railway.app";
+const slug = getSlug();
+
+fetch(`${API}/merchant/${slug}`)
+  .then(res => res.json())
+  .then(data => {
+    if (data.hex_color) {
+      document.documentElement.style
+        .setProperty('--primary', data.hex_color);
+    }
+  });
 
 function getSlug() {
   return new URLSearchParams(window.location.search).get("slug");
