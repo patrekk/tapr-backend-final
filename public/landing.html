@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -176,7 +175,9 @@ body {
   <button class="cta" onclick="window.location.href='/signup.html'">
     Start Getting Repeat Customers
     </button>
-  <button class="secondary">See How It Works</button>
+  <button class="secondary" onclick="document.getElementById('demoSection').scrollIntoView({behavior:'smooth'})">
+  See How It Works
+</button>
 </div>
 
 <div class="section container" data-aos="fade-up">
@@ -193,9 +194,10 @@ body {
   </div>
 </div>
 
-<div style="margin-top:30px;">
+<div class="section container" data-aos="fade-up">
+  <h3>Scan this now</h3>
   <p style="font-size:13px; color:#666;">
-    Or scan this QR to experience it instantly
+    Experience exactly what your customers will see
   </p>
 
   <img 
@@ -240,8 +242,8 @@ body {
   <h2>See how it works in seconds</h2>
 
   <div style="margin-top:30px;">
-    <button class="cta" onclick="window.location.href='/signup.html'">
-  Try It Live
+    <button class="cta" onclick="showDemo()">
+  Try Demo
 </button>
   </div>
 
@@ -257,7 +259,7 @@ body {
 </div>
 
 <!-- WHY IT WORKS -->
-<div class="section container" data-aos="fade-up">
+<div id="demoSection" class="section container" data-aos="fade-up">
   <h2>Why it works</h2>
 
   <div class="grid">
@@ -341,11 +343,6 @@ body {
 </button>
 </div>
 
-<div style="margin-top:40px;">
-  <img src="https://dummyimage.com/600x350/edf1ff/2b396d&text=Scan+→+Earn+→+Return"
-       style="width:100%; max-width:600px; border-radius:16px; box-shadow:0 10px 30px rgba(0,0,0,0.1);">
-</div>
-
 <script>
 AOS.init({
   duration: 800,
@@ -372,6 +369,6 @@ function showDemo() {
   }, 500);
 }
 </script>
-
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 </body>
 </html>
