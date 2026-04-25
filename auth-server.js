@@ -836,21 +836,6 @@ app.post('/scan', scanLimiter, verifySession, async (req, res) => {
   }
 });
 
-app.post('/merchant/update-profile', verifySession, async (req, res) => {
-  const { hex_color } = req.body;
-
-  const { error } = await supabase
-    .from('merchants')
-    .update({ hex_color })
-    .eq('id', req.merchant.id);
-
-  if (error) {
-    return res.json({ error: "update_failed" });
-  }
-
-  res.json({ success: true });
-});
-
 // ---------- TEST ROUTE ----------
 
 app.get('/test-live', (req, res) => {
