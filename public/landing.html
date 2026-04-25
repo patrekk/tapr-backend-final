@@ -28,6 +28,7 @@ body {
   font-family: 'Inter', sans-serif;
   background: var(--bg);
   color: var(--text);
+  background: linear-gradient(to bottom, #f7f8fa, #ffffff);
 }
 
 /* CONTAINER */
@@ -40,7 +41,8 @@ body {
 /* HERO */
 .hero {
   text-align: center;
-  padding: 80px 20px 60px;
+  padding: 140px 20px 100px;
+  background: radial-gradient(circle at top, #eef2ff, #f7f8fa);
 }
 
 .hero h1 {
@@ -154,44 +156,75 @@ body {
     font-size: 28px;
   }
 }
+
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 16px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255,255,255,0.6);
+  backdrop-filter: blur(10px);
+  z-index: 10;
+}
+
+.logo {
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.nav-btn {
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  background: white;
+  cursor: pointer;
+}
 </style>
 </head>
+
+<div class="nav">
+  <div class="logo">Tapr</div>
+  <button class="nav-btn" onclick="window.location.href='/login.html'">
+    Login
+  </button>
+</div>
 
 <body>
 
 <!-- HERO -->
-<div class="hero container">
-  <h1>Turn first-time customers into regulars</h1>
-  <p>No apps. No cards. Just scan once and bring them back.</p>
+<h1 style="font-size:44px;">
+  Turn first-time customers  
+  <br>
+  into regulars
+</h1>
 
-  <p style="margin-top:10px; font-weight:600;">
-  Customers come back within 5 visits.
+<p style="margin-top:16px; font-size:18px; color:#555;">
+  Tapr gives customers a reason to come back — automatically.
 </p>
 
-  <p style="color:#d00; font-weight:600; margin-top:10px;">
-  Early access – free for first businesses
-</p>
-
+<div style="margin-top:30px;">
   <button class="cta" onclick="window.location.href='/signup.html'">
-    Start Getting Repeat Customers
-    </button>
+    Start Free
+  </button>
+
   <button class="secondary" onclick="document.getElementById('demoSection').scrollIntoView({behavior:'smooth'})">
-  See How It Works
-</button>
+    See How It Works
+  </button>
 </div>
 
-<div class="section container" data-aos="fade-up">
-  <h2>See exactly what your customers see</h2>
+<p style="margin-top:14px; font-size:13px; color:#888;">
+  No setup • No app • Takes 2 minutes
+</p>
 
-  <p style="margin-bottom:20px;">
-    No downloads. No friction. Just scan and join.
-  </p>
-
-  <div style="margin-top:20px;">
-    <button class="cta" onclick="window.location.href='/signup.html'">
-      Open Demo Join Page
-    </button>
-  </div>
+<div style="margin-top:50px;">
+  <img 
+    src="https://dummyimage.com/800x450/edf1ff/2b396d&text=Scan+→+Earn+→+Return"
+    style="width:100%; max-width:700px; border-radius:18px; box-shadow:0 20px 40px rgba(0,0,0,0.1);"
+  >
 </div>
 
 <div class="section container" data-aos="fade-up">
