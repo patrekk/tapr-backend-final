@@ -179,7 +179,7 @@ body {
   top: 0;
   left: 0;
   right: 0;
-  padding: 16px 24px;
+  padding: 16px 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -212,15 +212,12 @@ body {
 
 <body>
 <div class="nav">
-
+    <div class="container" style="display: flex; justify-content: space-between; align-items: center;">
   <div class="logo">Tapr</div>
-
   <button class="nav-btn" onclick="window.location.href='/login.html'">
-
     Login
-
   </button>
-
+</div>
 </div>
 
 <!-- HERO -->
@@ -263,8 +260,9 @@ body {
 </div>
 </div>
 
-<div class="section" data-aos="fade-up" style="text-align:center;">
-
+<div class="section cointainer" data-aos="fade-up">
+<div style="max-width:600px; margin:0 auto;">
+  
   <h3 style="font-size:22px; margin-bottom:6px;">Scan this now</h3>
 
   <p style="font-size:13px; color:#666; margin-bottom:16px;">
@@ -276,6 +274,7 @@ body {
     style="display:block; margin:0 auto; border-radius:12px;"
   >
 
+</div>
 </div>
 <div style="height:40px;"></div>
 
