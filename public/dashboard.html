@@ -227,6 +227,9 @@ button:hover {
 
 <div class="main">
 <div id="dashboardPage">
+<div style="background:#eef2ff; padding:12px 16px; border-radius:12px; margin-bottom:20px; font-size:13px;">
+  💡 Tip: Print your QR and place it near your cashier to start getting customers instantly.
+</div>
 <div class="topbar">
   <div>
   <h2 id="merchantName">Dashboard</h2>
@@ -293,7 +296,7 @@ button:hover {
     <input id="emailInput" placeholder="Email" style="margin-bottom:10px;">
     <input id="colorInput" placeholder="#2B396D" style="margin-bottom:10px;">
 
-    <button onclick="saveProfile()">Save Changes</button>
+    <button onclick="saveProfile(event)">Save Changes</button>
   </div>
 
   <div class="section">
@@ -387,9 +390,9 @@ function showPage(page, el) {
       });
       const data = await res.json();
 
-      document.getElementById("customers").innerText = data.total_customers ?? 0;
-      document.getElementById("scans").innerText = data.total_visits ?? 0;
-      document.getElementById("avg").innerText = data.avg_visits ?? 0;
+      animateNumber("customers", data.total_customers ?? 0);
+      animateNumber("scans", data.total_visits ?? 0);
+      animateNumber("avg", data.avg_visits ?? 0);
     }
 
     async function loadCustomers() {
@@ -406,7 +409,17 @@ function showPage(page, el) {
   return;
 }
 
-
+if (data.length === 0) {
+  table.innerHTML = `
+    <tr>
+      <td colspan="4" style="text-align:center; padding:30px; color:#777;">
+        No customers yet.<br>
+        <span style="font-size:12px;">Scan your first customer to get started.</span>
+      </td>
+    </tr>
+  `;
+  return;
+}
 
       data.forEach(c => {
         table.innerHTML += `
@@ -431,9 +444,21 @@ function showPage(page, el) {
   table.innerHTML = "";
 
   if (!Array.isArray(data)) {
-    console.log("Logs error:", data);
-    return;
-  }
+  console.log("Logs error:", data);
+  return;
+}
+
+if (data.length === 0) {
+  table.innerHTML = `
+    <tr>
+      <td colspan="4" style="text-align:center; padding:30px; color:#777;">
+        No scans yet.<br>
+        <span style="font-size:12px;">Your activity will show here.</span>
+      </td>
+    </tr>
+  `;
+  return;
+}
 
   data.forEach(l => {
   let visit = "-";
@@ -464,19 +489,26 @@ function showPage(page, el) {
 }
 
     async function generateQR() {
-      const res = await fetch(`${API}/merchant/me`, {
-        headers: { authorization: getToken() }
-      });
+  const btn = event?.target || document.querySelector("#qrPage button");
+  btn.innerText = "Generating...";
+  btn.disabled = true;
 
-      const data = await res.json();
+  const res = await fetch(`${API}/merchant/me`, {
+    headers: { authorization: getToken() }
+  });
 
-      const url = `${API}/join/${data.slug}`;
+  const data = await res.json();
 
-      document.getElementById("link").innerText = url;
+  const url = `${API}/join/${data.slug}`;
 
-      document.getElementById("qrBox").innerHTML =
-        `<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${url}" />`;
-    }
+  document.getElementById("link").innerText = url;
+
+  document.getElementById("qrBox").innerHTML =
+    `<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${url}" />`;
+
+  btn.innerText = "Generate QR";
+  btn.disabled = false;
+}
 
 async function loadProfile() {
   const res = await fetch(`${API}/merchant/me`, {
@@ -506,15 +538,35 @@ async function applyBranding() {
   document.body.style.visibility = "visible";
 }
 
-async function saveProfile() {
+async function saveProfile(event) {
+  const btn = event.target;
+  btn.innerText = "Saving...";
+  btn.disabled = true;
+
   const name = document.getElementById("nameInput").value;
   const email = document.getElementById("emailInput").value;
   const color = document.getElementById("colorInput").value;
 
+  if (!name || !email) {
+  alert("Name and email required");
+  btn.innerText = "Save Changes";
+  btn.disabled = false;
+  return;
+}
+
+if (!/^\S+@\S+\.\S+$/.test(email)) {
+  alert("Invalid email");
+  btn.innerText = "Save Changes";
+  btn.disabled = false;
+  return;
+}
+
   if (!color || !color.startsWith("#")) {
-    alert("Enter valid hex color (e.g. #228B22)");
-    return;
-  }
+  alert("Enter valid hex color (e.g. #228B22)");
+  btn.innerText = "Save Changes";
+  btn.disabled = false;
+  return;
+}
 
   const res = await fetch(`${API}/merchant/update-profile`, {
     method: "POST",
@@ -540,6 +592,9 @@ async function saveProfile() {
   } else {
     alert("Failed to save");
   }
+
+  btn.innerText = "Save Changes";
+  btn.disabled = false;
 }
 
 async function changePassword() {
@@ -565,7 +620,11 @@ async function changePassword() {
   const data = await res.json();
 
   if (data.success) {
-    alert("Password updated");
+  alert("Password updated");
+
+  document.getElementById("newPassword").value = "";
+  document.getElementById("confirmPassword").value = "";
+
   } else {
     alert("Failed to update password");
   }
@@ -586,6 +645,23 @@ async function loadMerchantName() {
   if (data.name) {
     document.getElementById("merchantName").innerText = data.name;
   }
+}
+
+function animateNumber(id, value) {
+  const el = document.getElementById(id);
+  let start = 0;
+  const duration = 400;
+  const step = value / (duration / 16);
+
+  const counter = setInterval(() => {
+    start += step;
+    if (start >= value) {
+      el.innerText = value;
+      clearInterval(counter);
+    } else {
+      el.innerText = Math.floor(start);
+    }
+  }, 16);
 }
 
     applyBranding();    
