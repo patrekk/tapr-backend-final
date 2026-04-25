@@ -13,6 +13,10 @@
 }
 
 body {
+  opacity: 0;
+}
+
+body {
   font-family: 'Inter', sans-serif;
   display: flex;
   justify-content: center;
@@ -145,6 +149,11 @@ fetch(`${API}/merchant/${slug}`)
       document.documentElement.style
         .setProperty('--primary', data.hex_color);
     }
+
+    document.body.style.opacity = "1";
+  })
+  .catch(() => {
+    document.body.style.opacity = "1";
   });
 
 function getSlug() {
