@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tapr – Turn Customers Into Regulars</title>
@@ -26,51 +25,67 @@
 
 body {
   font-family: 'Inter', sans-serif;
-  background: var(--bg);
-  color: var(--text);
   background: linear-gradient(to bottom, #f7f8fa, #ffffff);
+  color: var(--text);
 }
 
 /* CONTAINER */
 .container {
   max-width: 1100px;
-  margin: auto;
+  margin: 0 auto;
   padding: 24px;
+}
+
+/* NAV (FIXED) */
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: rgba(255,255,255,0.6);
+  backdrop-filter: blur(10px);
+  z-index: 10;
+}
+
+.nav-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 16px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  font-weight: 700;
+}
+
+.nav-btn {
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  background: white;
+  cursor: pointer;
 }
 
 /* HERO */
 .hero {
   text-align: center;
   padding: 160px 20px 120px;
-  background: radial-gradient(circle at top, rgba(43,57,109,0.08), transparent 60%);
-  position: relative;
-}
-
-.hero::before {
-  content: "";
-  position: absolute;
-  top: -200px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 600px;
-  height: 600px;
-  background: radial-gradient(circle, rgba(43,57,109,0.15), transparent 70%);
-  filter: blur(80px);
-  z-index: 0;
 }
 
 .hero h1 {
-  font-size: 42px;
-  font-weight: 700;
-  margin-bottom: 16px;
+  font-size: 48px;
+  line-height: 1.1;
 }
 
 .hero p {
-  color: var(--muted);
-  font-size: 16px;
-  margin-bottom: 24px;
+  max-width: 600px;
+  margin: 18px auto 0;
+  color: #555;
 }
 
+/* BUTTONS */
 .cta {
   background: var(--primary);
   color: white;
@@ -79,40 +94,27 @@ body {
   border: none;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.cta:hover {
-  transform: scale(1.05);
 }
 
 .secondary {
-  background: #fff;
+  background: white;
   border: 1px solid #ddd;
   padding: 14px 22px;
   border-radius: 12px;
   cursor: pointer;
-  font-weight: 500;
-  transition: all 0.2s ease;
-}
-
-.secondary:hover {
-  background: #f5f6fa;
-  border-color: #ccc;
-  transform: translateY(-1px);
 }
 
 /* SECTION */
-.section h2 {
-  font-size: 28px;
-  margin-bottom: 12px;
+.section {
+  text-align: center;
+  margin-top: 120px;
 }
 
 .section p {
-  color: var(--muted);
   max-width: 600px;
-  margin: 0 auto 10px;
+  margin: 10px auto 0;
   text-align: center;
+  color: var(--muted);
 }
 
 /* GRID */
@@ -123,22 +125,36 @@ body {
   margin-top: 30px;
 }
 
+/* CARDS FIXED */
 .card {
   background: white;
   padding: 22px;
   border-radius: 18px;
   border: 1px solid #eee;
-  text-align: left;
-  transition: all 0.25s ease;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+  text-align: left; /* FORCE LEFT */
 }
 
-.card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 20px 50px rgba(0,0,0,0.08);
+.card h3 {
+  margin-bottom: 6px;
 }
 
-/* COMPARISON */
+.card p {
+  text-align: left; /* CRITICAL FIX */
+  margin: 0;
+}
+
+/* DEMO BOX */
+.demo-box {
+  background:white;
+  padding:20px;
+  border-radius:16px;
+  border:1px solid #eee;
+  max-width:400px;
+  margin:30px auto;
+  text-align:left;
+}
+
+/* TABLE */
 .table {
   margin-top: 30px;
   border: 1px solid var(--border);
@@ -161,293 +177,104 @@ body {
   font-weight: 600;
 }
 
-/* FINAL CTA */
+/* FINAL */
 .final {
+  text-align: center;
   margin-top: 100px;
-  text-align: center;
   padding-bottom: 80px;
-}
-
-/* MOBILE */
-@media (max-width: 600px) {
-  .hero h1 {
-    font-size: 28px;
-  }
-}
-
-.nav {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  padding: 16px 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: rgba(255,255,255,0.6);
-  backdrop-filter: blur(10px);
-  z-index: 10;
-}
-
-.logo {
-  font-weight: 700;
-  font-size: 18px;
-}
-
-.nav-btn {
-  padding: 10px 14px;
-  border-radius: 10px;
-  border: 1px solid #ddd;
-  background: white;
-  cursor: pointer;
-}
-
-.section {
-  margin-top: 120px;
-  text-align: center;
-}
-
-.nav .container {
-  padding: 0 24px;
 }
 </style>
 </head>
 
 <body>
+
+<!-- NAV -->
 <div class="nav">
-    <div class="container" style="display: flex; justify-content: space-between; align-items: center;">
-  <div class="logo">Tapr</div>
-  <button class="nav-btn" onclick="window.location.href='/login.html'">
-    Login
-  </button>
-</div>
+  <div class="nav-inner">
+    <div class="logo">Tapr</div>
+    <button class="nav-btn">Login</button>
+  </div>
 </div>
 
 <!-- HERO -->
-<div class="hero container">
-  <div style="position:relative; z-index:1;">
+<div class="hero">
+  <p style="font-size:12px; letter-spacing:1px;">CUSTOMER RETENTION SYSTEM</p>
 
-    <p style="font-size:12px; color:#888; letter-spacing:1px; text-transform:uppercase; margin-bottom:10px;">
-      Customer Retention System
-    </p>
+  <h1>
+    Turn first-time customers  
+    into <span style="color:var(--primary)">regulars</span>
+  </h1>
 
-    <h1 style="font-size:48px; line-height:1.1;">
-      Turn first-time customers  
-      into <span style="color:var(--primary)">regulars</span>
-    </h1>
-
-<p style="margin-top:18px; font-size:18px; color:#555; max-width:600px; margin-left:auto; margin-right:auto;">
-  Tapr gives every customer a reason to come back — automatically.
-</p>
-
-<div style="margin-top:30px; display:flex; justify-content:center; gap:10px; flex-wrap:wrap;">
-  <button class="cta" onclick="window.location.href='/signup.html'">
-    Start Free → Get Repeat Customers
-  </button>
-
-  <button class="secondary" onclick="document.getElementById('demoSection').scrollIntoView({behavior:'smooth'})">
-    See How It Works
-  </button>
-</div>
-
-<p style="margin-top:20px; font-size:13px; color:#777;">
-  Set up in 2 minutes • No app required • Start immediately
-</p>
-
-<div style="margin-top:50px;">
-  <img 
-    src="https://placehold.co/900x500?text=Tapr+Dashboard"
-    style="width:100%; max-width:800px; border-radius:20px; box-shadow:0 30px 80px rgba(0,0,0,0.15); border: 1px solid #eee;"
-  >
-</div>
-</div>
-</div>
-
-<div class="section container" data-aos="fade-up">
-<div style="max-width:600px; margin:0 auto;">
-  
-  <h3 style="font-size:22px; margin-bottom:6px;">Scan this now</h3>
-
-  <p style="font-size:13px; color:#666; margin-bottom:16px;">
-    Experience exactly what your customers will see
+  <p>
+    Tapr gives every customer a reason to come back — automatically.
   </p>
 
-  <img 
-    src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://tapr-backend-final-production.up.railway.app/signup.html"
-    style="display:block; margin:0 auto; border-radius:12px;"
-  >
+  <div style="margin-top:30px; display:flex; justify-content:center; gap:10px;">
+    <button class="cta">Start Free → Get Repeat Customers</button>
+    <button class="secondary">See How It Works</button>
+  </div>
 
+  <p style="margin-top:20px;">
+    Set up in 2 minutes • No app required • Start immediately
+  </p>
 </div>
-</div>
-<div style="height:40px;"></div>
 
 <!-- PAIN -->
-<div class="section container" data-aos="fade-up">
+<div class="section">
   <h2>Most customers never come back</h2>
   <p>
-    They visit once… then disappear.  
-    Not because your business is bad—  
+    They visit once… then disappear. Not because your business is bad—
     but because there’s no reason to return.
   </p>
 </div>
 
 <!-- SOLUTION -->
-<div class="section container" data-aos="fade-up">
+<div class="section">
   <h2>Tapr gives them a reason to return</h2>
 
-  <div class="grid">
-    <div class="card">
-      <h3>1. Scan QR</h3>
-      <p>Customer joins instantly. No app needed.</p>
-    </div>
-
-    <div class="card">
-      <h3>2. Earn Visits</h3>
-      <p>Every visit builds progress toward rewards.</p>
-    </div>
-
-    <div class="card">
-      <h3>3. Come Back</h3>
-      <p>Customers return to complete rewards.</p>
-    </div>
-  </div>
-</div>
-
-<div class="section container" data-aos="fade-up">
-  <h2>See how it works in seconds</h2>
-
-  <div style="margin-top:30px;">
-    <button class="cta" onclick="showDemo(); document.getElementById('demoBox').scrollIntoView({behavior:'smooth'})">
-  Try Demo
-</button>
-  </div>
-
-  <div id="demoBox" style="display:none; margin-top:30px;">
-    <div style="background:white; padding:20px; border-radius:16px; border:1px solid #eee; max-width:400px; margin:auto;">
-      <h3>Customer Progress</h3>
-      <p style="font-size:12px; color:#999; margin-top:4px;">
-  Visit 1 of 5
-</p>
-      <div style="height:10px; background:#eee; border-radius:10px; margin:10px 0;">
-        <div id="progressBar" style="width:20%; height:100%; background:var(--primary); border-radius:10px;"></div>
+  <div class="container">
+    <div class="grid">
+      <div class="card">
+        <h3>1. Scan QR</h3>
+        <p>Customer joins instantly. No app needed.</p>
       </div>
-      <p style="font-size:13px; color:#666;">
-        Customers come back to complete rewards
-        </p>
+
+      <div class="card">
+        <h3>2. Earn Visits</h3>
+        <p>Every visit builds progress toward rewards.</p>
+      </div>
+
+      <div class="card">
+        <h3>3. Come Back</h3>
+        <p>Customers return to complete rewards.</p>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- WHY IT WORKS -->
-<div id="demoSection" class="section container" data-aos="fade-up" style="margin-top:40px;">
+<!-- WHY -->
+<div class="section">
   <h2>Why it works</h2>
 
-  <div class="grid">
-    <div class="card">
-      <h3>Progress</h3>
-      <p>People finish what they start.</p>
-    </div>
+  <div class="container">
+    <div class="grid">
+      <div class="card">
+        <h3>Progress</h3>
+        <p>People finish what they start.</p>
+      </div>
 
-    <div class="card">
-      <h3>Rewards</h3>
-      <p>Small incentives drive repeat visits.</p>
-    </div>
+      <div class="card">
+        <h3>Rewards</h3>
+        <p>Small incentives drive repeat visits.</p>
+      </div>
 
-    <div class="card">
-      <h3>Convenience</h3>
-      <p>Always on their phone. Never forgotten.</p>
-    </div>
-  </div>
-</div>
-
-<!-- COMPARISON -->
-<div class="section container" data-aos="fade-up">
-  <h2>Stop using systems that don’t work</h2>
-
-  <div class="table">
-    <div class="row header">
-      <div class="cell">Stamp Cards</div>
-      <div class="cell">Tapr</div>
-    </div>
-
-    <div class="row">
-      <div class="cell">Lost or forgotten</div>
-      <div class="cell">Always on phone</div>
-    </div>
-
-    <div class="row">
-      <div class="cell">Manual tracking</div>
-      <div class="cell">Automatic</div>
-    </div>
-
-    <div class="row">
-      <div class="cell">No data</div>
-      <div class="cell">Track customers</div>
-    </div>
-
-    <div class="row">
-      <div class="cell">Low return rate</div>
-      <div class="cell">Built for repeat visits</div>
+      <div class="card">
+        <h3>Convenience</h3>
+        <p>Always on their phone. Never forgotten.</p>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- PROOF -->
-<div class="section container" data-aos="fade-up">
-  <h2>Businesses are already seeing results</h2>
-
-  <div class="grid">
-    <div class="card">
-      <p>"We started getting repeat customers within a week."</p>
-    </div>
-
-    <div class="card">
-      <p>"Way better than stamp cards. Customers actually use it."</p>
-    </div>
-
-    <div class="card">
-      <p>"+30% repeat visits in the first month"</p>
-    </div>
-  </div>
-</div>
-
-<!-- FINAL CTA -->
-<div class="final container">
-  <h2>Every day you wait = lost returning customers</h2>
-  <p style="margin:16px 0;">
-    You’re already getting customers. Tapr makes sure they come back.
-  </p>
-
-  <button class="cta" onclick="window.location.href='/signup.html'">
-  Start Getting Repeat Customers
-</button>
-</div>
-
-<script>
-function showDemo() {
-  const box = document.getElementById("demoBox");
-  const bar = document.getElementById("progressBar");
-
-  box.style.display = "block";
-
-  let progress = 20;
-
-  const interval = setInterval(() => {
-    progress += 20;
-    bar.style.width = progress + "%";
-
-    if (progress >= 100) {
-      clearInterval(interval);
-    }
-  }, 500);
-}
-</script>
-<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-<script>
-AOS.init({
-  duration: 800,
-  once: true
-});
-</script>
 </body>
 </html>
