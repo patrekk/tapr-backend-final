@@ -214,6 +214,7 @@ button:hover {
     <button onclick="showPage('dashboard', this)" class="nav active">Dashboard</button>
 <button onclick="showPage('profile', this)" class="nav">Profile</button>
 <button onclick="showPage('pass', this)" class="nav">Pass Customization</button>
+<button onclick="showPage('qr', this)" class="nav">Store QR</button>
   </div>
 </div>
 
@@ -228,14 +229,6 @@ button:hover {
 </div>
   <button onclick="goScanner()">Open Scanner</button>
 </div>
-
-  <div class="section">
-    <h3>Your Store QR</h3>
-    <button onclick="generateQR()" class="secondary">Get Your Store QR</button>
-
-    <div id="qrBox"></div>
-    <p id="link"></p>
-  </div>
 
   <div class="cards">
     <div class="card">
@@ -315,6 +308,25 @@ button:hover {
 
   </div>
 
+<div id="qrPage" style="display:none;">
+
+  <div class="section">
+    <h3>Your Store QR</h3>
+
+    <p style="font-size:13px; color:var(--muted); margin-bottom:16px;">
+      Let customers scan this to join your loyalty program.
+    </p>
+
+    <button onclick="generateQR()" class="secondary">
+      Generate QR
+    </button>
+
+    <div id="qrBox"></div>
+    <p id="link"></p>
+  </div>
+
+</div>
+
 </div> <!-- passPage -->
 
   <script>
@@ -324,6 +336,7 @@ function showPage(page, el) {
   document.getElementById("dashboardPage").style.display = "none";
   document.getElementById("profilePage").style.display = "none";
   document.getElementById("passPage").style.display = "none";
+  document.getElementById("qrPage").style.display = "none";
 
   document.getElementById(page + "Page").style.display = "block";
 
