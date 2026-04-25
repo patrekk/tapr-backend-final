@@ -4,6 +4,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <title>Verify</title>
   <style>
+
+:root {
+  --primary: #2B396D;
+  --bg: #E4E4E4;
+  --text: #0B0B0B;
+  --muted: #666;
+}
+
 body {
   font-family: 'Inter', sans-serif;
   display: flex;
@@ -11,7 +19,7 @@ body {
   align-items: center;
   height: 100vh;
   margin: 0;
-  background: #E4E4E4;
+  background: var(--bg);
 }
 
 .box {
@@ -41,12 +49,12 @@ body {
 
 h1 {
   margin-bottom: 6px;
-  color: #0B0B0B;
+  color: var(--text);
 }
 
 .sub {
   font-size: 14px;
-  color: #666;
+  color: var(--muted);
   margin-bottom: 20px;
 }
 
@@ -63,7 +71,7 @@ input {
 }
 
 input:focus {
-  border-color: #2B396D;
+  border-color: var(--primary);
   box-shadow: 0 0 0 2px rgba(43,57,109,0.15);
   outline: none;
 }
@@ -72,7 +80,7 @@ button {
   width: 100%;
   padding: 18px;
   margin-top: 20px;
-  background: #2B396D;
+  background: var(--primary);
   color: white;
   border: none;
   border-radius: 16px;
@@ -95,6 +103,14 @@ button:disabled {
   color: #888;
   margin-bottom: 10px;
 }
+
+.tapr {
+  text-align: center;
+  font-size: 11px;
+  color: #999;
+  margin-top: 14px;
+  opacity: 0.6;
+}
 </style>
 </head>
 <body>
@@ -115,6 +131,7 @@ button:disabled {
   <button onclick="resend()" class="secondary">
     Resend Code
   </button>
+  <p class="tapr">Powered by Tapr</p>
 </div>
 
 <script>
