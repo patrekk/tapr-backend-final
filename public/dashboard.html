@@ -44,15 +44,15 @@
     .card {
   flex: 1;
   background: var(--card);
-  padding: 20px;
-  border-radius: 16px;
+  padding: 22px;
+  border-radius: 18px;
   border: 1px solid var(--border);
-  text-align: center;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+  text-align: left;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.05);
 }
 
 .card h3 {
-  font-size: 28px;
+  font-size: 32px;
   margin: 0;
   color: var(--primary);
 }
@@ -60,6 +60,7 @@
 .card p {
   font-size: 13px;
   color: var(--muted);
+  margin-top: 6px;
 }
 
     .section {
@@ -219,13 +220,18 @@ button:hover {
 <div class="main">
 <div id="dashboardPage">
 <div class="topbar">
-  <h2>Dashboard</h2>
+  <div>
+  <h2 id="merchantName">Dashboard</h2>
+  <p style="font-size:13px; color:var(--muted); margin-top:4px;">
+    Your loyalty system is active and ready to scan customers.
+  </p>
+</div>
   <button onclick="goScanner()">Open Scanner</button>
 </div>
 
   <div class="section">
-    <h3>Your QR</h3>
-    <button onclick="generateQR()" class="secondary">Generate QR</button>
+    <h3>Your Store QR</h3>
+    <button onclick="generateQR()" class="secondary">Get Your Store QR</button>
 
     <div id="qrBox"></div>
     <p id="link"></p>
@@ -483,7 +489,20 @@ async function saveProfile() {
   }
 }
 
+async function loadMerchantName() {
+  const res = await fetch(`${API}/merchant/me`, {
+    headers: { authorization: getToken() }
+  });
+
+  const data = await res.json();
+
+  if (data.name) {
+    document.getElementById("merchantName").innerText = data.name;
+  }
+}
+
 applyBranding();    
+loadMerchantName();
 
     loadStats();
     loadCustomers();
