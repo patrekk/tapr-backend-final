@@ -508,8 +508,71 @@ app.get('/merchant/me', verifySession, async (req, res) => {
   res.json({
     name: req.merchant.name,
     slug: req.merchant.slug,
-    hex_color: req.merchant.hex_color
+    hex_color: req.merchant.hex_color,
+    email: req.merchant.email
   });
+});
+
+// 🔧 UPDATE PROFILE
+
+app.post('/merchant/update-profile', verifySession, async (req, res) => {
+
+  const { name, email, hex_color } = req.body;
+
+  const { error } = await supabase
+
+    .from('merchants')
+
+    .update({
+
+      name,
+
+      email,
+
+      hex_color
+
+    })
+
+    .eq('id', req.merchant.id);
+
+  if (error) {
+
+    console.log("UPDATE PROFILE ERROR:", error);
+
+    return res.json({ error: "update_failed" });
+
+  }
+
+  res.json({ success: true });
+
+});
+
+// 🔧 CHANGE PASSWORD
+
+app.post('/merchant/change-password', verifySession, async (req, res) => {
+
+  const { password } = req.body;
+
+  const hashed = await bcrypt.hash(password, 10);
+
+  const { error } = await supabase
+
+    .from('merchants')
+
+    .update({ password: hashed })
+
+    .eq('id', req.merchant.id);
+
+  if (error) {
+
+    console.log("PASSWORD UPDATE ERROR:", error);
+
+    return res.json({ error: "password_failed" });
+
+  }
+
+  res.json({ success: true });
+
 });
 
 // Stats

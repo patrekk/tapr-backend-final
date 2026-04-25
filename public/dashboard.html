@@ -164,6 +164,7 @@ button:hover {
   border-right: 1px solid var(--border);
   height: 100vh;
   padding: 20px;
+  position: relative;
 }
 
 .logo {
@@ -216,6 +217,12 @@ button:hover {
 <button onclick="showPage('pass', this)" class="nav">Pass Customization</button>
 <button onclick="showPage('qr', this)" class="nav">Store QR</button>
   </div>
+
+  <div style="position:absolute; bottom:20px; left:20px; right:20px;">
+  <button onclick="logout()" class="nav" style="width:100%;">
+    Logout
+  </button>
+</div>
 </div>
 
 <div class="main">
@@ -280,13 +287,25 @@ button:hover {
 <div id="profilePage" style="display:none;">
 
   <div class="section">
-  <h3>Business Profile</h3>
+    <h3>Business Profile</h3>
 
-  <input id="colorInput" placeholder="#2B396D" style="margin-bottom:10px; padding:10px; width:100%; border-radius:10px; border:1px solid #ddd;">
+    <input id="nameInput" placeholder="Business Name" style="margin-bottom:10px;">
+    <input id="emailInput" placeholder="Email" style="margin-bottom:10px;">
+    <input id="colorInput" placeholder="#2B396D" style="margin-bottom:10px;">
 
-  <button onclick="saveProfile()">Save Changes</button>
-</div>
-</div> <!-- profilePage -->
+    <button onclick="saveProfile()">Save Changes</button>
+  </div>
+
+  <div class="section">
+    <h3>Change Password</h3>
+
+    <input type="password" id="newPassword" placeholder="New Password" style="margin-bottom:10px;">
+    <input type="password" id="confirmPassword" placeholder="Re-enter Password" style="margin-bottom:10px;">
+
+    <button onclick="changePassword()">Update Password</button>
+  </div>
+
+</div><!-- profilePage -->
 
 <div id="passPage" style="display:none;">
 
@@ -308,6 +327,8 @@ button:hover {
 
   </div>
 
+</div>
+
 <div id="qrPage" style="display:none;">
 
   <div class="section">
@@ -327,8 +348,6 @@ button:hover {
 
 </div>
 
-</div> <!-- passPage -->
-
   <script>
     const API = "https://tapr-backend-final-production.up.railway.app";
 
@@ -342,6 +361,12 @@ function showPage(page, el) {
 
   document.querySelectorAll(".nav").forEach(btn => btn.classList.remove("active"));
   el.classList.add("active");
+
+  // 🔥 AUTO LOAD QR
+
+  if (page === "qr") {
+
+    generateQR();}
 }
 
     function getToken() {
@@ -453,6 +478,18 @@ function showPage(page, el) {
         `<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${url}" />`;
     }
 
+async function loadProfile() {
+  const res = await fetch(`${API}/merchant/me`, {
+    headers: { authorization: getToken() }
+  });
+
+  const data = await res.json();
+
+  if (data.name) document.getElementById("nameInput").value = data.name;
+  if (data.email) document.getElementById("emailInput").value = data.email;
+  if (data.hex_color) document.getElementById("colorInput").value = data.hex_color;
+}
+
 async function applyBranding() {
   const res = await fetch(`${API}/merchant/me`, {
     headers: { authorization: getToken() }
@@ -470,6 +507,8 @@ async function applyBranding() {
 }
 
 async function saveProfile() {
+  const name = document.getElementById("nameInput").value;
+  const email = document.getElementById("emailInput").value;
   const color = document.getElementById("colorInput").value;
 
   if (!color || !color.startsWith("#")) {
@@ -484,6 +523,8 @@ async function saveProfile() {
       authorization: getToken()
     },
     body: JSON.stringify({
+      name,
+      email,
       hex_color: color
     })
   });
@@ -493,13 +534,46 @@ async function saveProfile() {
   if (data.success) {
     alert("Saved!");
 
-    // 🔥 update instantly
     document.documentElement.style
       .setProperty('--primary', color);
 
   } else {
     alert("Failed to save");
   }
+}
+
+async function changePassword() {
+  const pass1 = document.getElementById("newPassword").value;
+  const pass2 = document.getElementById("confirmPassword").value;
+
+  if (!pass1 || pass1 !== pass2) {
+    alert("Passwords do not match");
+    return;
+  }
+
+  const res = await fetch(`${API}/merchant/change-password`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      authorization: getToken()
+    },
+    body: JSON.stringify({
+      password: pass1
+    })
+  });
+
+  const data = await res.json();
+
+  if (data.success) {
+    alert("Password updated");
+  } else {
+    alert("Failed to update password");
+  }
+}
+
+function logout() {
+  localStorage.removeItem("token");
+  window.location.href = "/login.html";
 }
 
 async function loadMerchantName() {
@@ -514,11 +588,11 @@ async function loadMerchantName() {
   }
 }
 
-applyBranding();    
-loadMerchantName();
-
+    applyBranding();    
+    loadMerchantName();
     loadStats();
     loadCustomers();
+    loadProfile();
     loadLogs();
   </script>
 </div>
