@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tapr – Turn Customers Into Regulars</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --primary: #2B396D;
+  --bg: #F7F8FA;
+  --text: #0B0B0B;
+  --muted: #666;
+  --card: #FFFFFF;
+  --border: #E5E7EB;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* CONTAINER */
+.container {
+  max-width: 1100px;
+  margin: auto;
+  padding: 24px;
+}
+
+/* HERO */
+.hero {
+  text-align: center;
+  padding: 80px 20px 60px;
+}
+
+.hero h1 {
+  font-size: 42px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.hero p {
+  color: var(--muted);
+  font-size: 16px;
+  margin-bottom: 24px;
+}
+
+.cta {
+  background: var(--primary);
+  color: white;
+  padding: 14px 22px;
+  border-radius: 12px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.secondary {
+  margin-left: 10px;
+  background: transparent;
+  border: 1px solid var(--border);
+  padding: 14px 22px;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+/* SECTION */
+.section {
+  margin-top: 80px;
+  text-align: center;
+}
+
+.section h2 {
+  font-size: 28px;
+  margin-bottom: 16px;
+}
+
+.section p {
+  color: var(--muted);
+  max-width: 600px;
+  margin: auto;
+}
+
+/* GRID */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px,1fr));
+  gap: 20px;
+  margin-top: 30px;
+}
+
+.card {
+  background: var(--card);
+  padding: 20px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  text-align: left;
+}
+
+/* COMPARISON */
+.table {
+  margin-top: 30px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.cell {
+  padding: 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.header {
+  background: #f0f2f7;
+  font-weight: 600;
+}
+
+/* FINAL CTA */
+.final {
+  margin-top: 100px;
+  text-align: center;
+  padding-bottom: 80px;
+}
+
+/* MOBILE */
+@media (max-width: 600px) {
+  .hero h1 {
+    font-size: 28px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<!-- HERO -->
+<div class="hero container">
+  <h1>Turn first-time customers into regulars</h1>
+  <p>No apps. No cards. Just scan once and bring them back.</p>
+
+  <button class="cta">Start Getting Repeat Customers</button>
+  <button class="secondary">See How It Works</button>
+</div>
+
+<!-- PAIN -->
+<div class="section container">
+  <h2>Most customers never come back</h2>
+  <p>
+    They visit once… then disappear.  
+    Not because your business is bad—  
+    but because there’s no reason to return.
+  </p>
+</div>
+
+<!-- SOLUTION -->
+<div class="section container">
+  <h2>Tapr gives them a reason to return</h2>
+
+  <div class="grid">
+    <div class="card">
+      <h3>1. Scan QR</h3>
+      <p>Customer joins instantly. No app needed.</p>
+    </div>
+
+    <div class="card">
+      <h3>2. Earn Visits</h3>
+      <p>Every visit builds progress toward rewards.</p>
+    </div>
+
+    <div class="card">
+      <h3>3. Come Back</h3>
+      <p>Customers return to complete rewards.</p>
+    </div>
+  </div>
+</div>
+
+<!-- WHY IT WORKS -->
+<div class="section container">
+  <h2>Why it works</h2>
+
+  <div class="grid">
+    <div class="card">
+      <h3>Progress</h3>
+      <p>People finish what they start.</p>
+    </div>
+
+    <div class="card">
+      <h3>Rewards</h3>
+      <p>Small incentives drive repeat visits.</p>
+    </div>
+
+    <div class="card">
+      <h3>Convenience</h3>
+      <p>Always on their phone. Never forgotten.</p>
+    </div>
+  </div>
+</div>
+
+<!-- COMPARISON -->
+<div class="section container">
+  <h2>Stop using systems that don’t work</h2>
+
+  <div class="table">
+    <div class="row header">
+      <div class="cell">Stamp Cards</div>
+      <div class="cell">Tapr</div>
+    </div>
+
+    <div class="row">
+      <div class="cell">Lost or forgotten</div>
+      <div class="cell">Always on phone</div>
+    </div>
+
+    <div class="row">
+      <div class="cell">Manual tracking</div>
+      <div class="cell">Automatic</div>
+    </div>
+
+    <div class="row">
+      <div class="cell">No data</div>
+      <div class="cell">Track customers</div>
+    </div>
+
+    <div class="row">
+      <div class="cell">Low return rate</div>
+      <div class="cell">Built for repeat visits</div>
+    </div>
+  </div>
+</div>
+
+<!-- PROOF -->
+<div class="section container">
+  <h2>Businesses are already seeing results</h2>
+
+  <div class="grid">
+    <div class="card">
+      <p>"We started getting repeat customers within a week."</p>
+    </div>
+
+    <div class="card">
+      <p>"Way better than stamp cards. Customers actually use it."</p>
+    </div>
+
+    <div class="card">
+      <p>"+30% repeat visits in the first month"</p>
+    </div>
+  </div>
+</div>
+
+<!-- FINAL CTA -->
+<div class="final container">
+  <h2>Every day you wait = lost returning customers</h2>
+  <p style="margin:16px 0;">
+    You’re already getting customers. Tapr makes sure they come back.
+  </p>
+
+  <button class="cta" onclick="window.location.href='/signup.html'">
+  Start Getting Repeat Customers
+</button>
+</div>
+
+</body>
+</html>
