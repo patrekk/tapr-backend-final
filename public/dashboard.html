@@ -5,6 +5,10 @@
   <title>Dashboard</title>
   <style>
 
+  body {
+  visibility: hidden;
+}
+
     :root {
   --primary: #2B396D;
   --bg: #F7F8FA;
@@ -209,6 +213,25 @@ button:hover {
     </table>
   </div>
 
+  <div class="section">
+  <h3>Business Profile</h3>
+
+  <input id="colorInput" placeholder="#2B396D" style="margin-bottom:10px; padding:10px; width:100%; border-radius:10px; border:1px solid #ddd;">
+
+  <button onclick="saveProfile()">Save Changes</button>
+</div>
+
+<div class="section">
+  <h3>Pass Customization</h3>
+  <p style="font-size:13px; color:#777;">
+    Customize your loyalty pass design and rewards layout.
+  </p>
+
+  <button class="secondary" disabled>
+    Coming Soon
+  </button>
+</div>
+
   <script>
     const API = "https://tapr-backend-final-production.up.railway.app";
 
@@ -331,6 +354,42 @@ async function applyBranding() {
   if (data.hex_color) {
     document.documentElement.style
       .setProperty('--primary', data.hex_color);
+  }
+
+  // 🔥 SHOW PAGE AFTER COLOR APPLIED
+  document.body.style.visibility = "visible";
+}
+
+async function saveProfile() {
+  const color = document.getElementById("colorInput").value;
+
+  if (!color || !color.startsWith("#")) {
+    alert("Enter valid hex color (e.g. #228B22)");
+    return;
+  }
+
+  const res = await fetch(`${API}/merchant/update-profile`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      authorization: getToken()
+    },
+    body: JSON.stringify({
+      hex_color: color
+    })
+  });
+
+  const data = await res.json();
+
+  if (data.success) {
+    alert("Saved!");
+
+    // 🔥 update instantly
+    document.documentElement.style
+      .setProperty('--primary', color);
+
+  } else {
+    alert("Failed to save");
   }
 }
 
