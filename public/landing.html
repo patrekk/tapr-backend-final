@@ -78,6 +78,13 @@ body {
   background: radial-gradient(circle at top, rgba(43,57,109,0.08), transparent 60%);
 }
 
+.hero h1 {
+  font-size: 48px;
+  line-height: 1.1;
+  max-width: 900px;
+  margin: auto;
+}
+
 /* BUTTONS */
 .cta {
   background: var(--primary);
@@ -165,6 +172,25 @@ body {
   transform: translateY(-2px);
 }
 
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.cell {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.row .cell:first-child {
+  border-right: 1px solid var(--border);
+}
+
+.header {
+  background: #f5f7fb;
+  font-weight: 600;
+}
+
 /* FINAL */
 .final {
   margin-top: 140px;
@@ -204,8 +230,8 @@ body {
   </p>
 
   <h1 style="font-size:48px; line-height:1.1;">
-    Turn first-time customers  
-    into <span style="color:var(--primary)">repeat revenue</span>
+    Turn first-time customers into <br>
+    <span style="color:var(--primary)">repeat revenue</span>
   </h1>
 
   <p style="margin-top:18px; font-size:18px; color:#555; max-width:600px; margin:auto;">
@@ -430,6 +456,7 @@ function showDemo() {
     if (progress >= 100) clearInterval(interval);
   }, 500);
 }
+
 </script>
 
 </body>
