@@ -203,17 +203,19 @@ body {
     Customer Retention System
   </p>
 
-  <h1 style="font-size:48px;">
-    Turn first-time customers into <span style="color:var(--primary)">regulars</span>
+  <h1 style="font-size:48px; line-height:1.1;">
+    Turn first-time customers  
+    into <span style="color:var(--primary)">repeat revenue</span>
   </h1>
 
   <p style="margin-top:18px; font-size:18px; color:#555; max-width:600px; margin:auto;">
-    Most businesses lose 70% of customers after one visit. Tapr brings them back — automatically.
+    Most businesses lose 70% of customers after one visit.  
+    Tapr brings them back — automatically.
   </p>
 
   <div style="margin-top:30px; display:flex; justify-content:center; gap:10px; flex-wrap:wrap;">
     <button class="cta" onclick="window.location.href='/signup.html'">
-      Start Free → Get Repeat Customers
+      Start Free → Turn Customers Into Regulars
     </button>
 
     <button class="secondary" onclick="document.getElementById('demoSection').scrollIntoView({behavior:'smooth'})">
@@ -238,45 +240,35 @@ body {
 <div class="section container">
   <h2>You're losing customers every single day</h2>
   <p>
-    They visit once… then disappear. Not because your business is bad— but because nothing pulls them back.
+    They visit once… then disappear.  
+    Not because your business is bad —  
+    but because nothing pulls them back.
   </p>
 </div>
 
 <!-- SOLUTION -->
 <div class="section container">
-  <h2>Turn one-time customers into regulars</h2>
+  <h2>Turn one-time customers into repeat revenue</h2>
+
+  <p style="text-align:center; color:#666; margin-top:10px;">
+    It takes less than 10 seconds for a customer to start coming back.
+  </p>
 
   <div class="grid">
     <div class="card">
-      <h3>1. Scan QR</h3>
-      <p>Customer joins instantly. No app needed.</p>
+      <h3>1. Customer scans</h3>
+      <p>They join instantly. No app, no friction.</p>
     </div>
 
     <div class="card">
-      <h3>2. Earn Visits</h3>
-      <p>Every visit builds progress toward rewards.</p>
+      <h3>2. Progress builds</h3>
+      <p>Every visit moves them closer to a reward.</p>
     </div>
 
     <div class="card">
-      <h3>3. Come Back</h3>
-      <p>Customers return to complete rewards.</p>
+      <h3>3. They return</h3>
+      <p>Customers come back to complete what they started.</p>
     </div>
-  </div>
-</div>
-
-<!-- SCAN -->
-<div class="section container">
-  <div style="max-width:600px; margin:auto; text-align:center;">
-    <h3>Scan this now</h3>
-    <p>Experience exactly what your customers will see</p>
-
-    <img 
-      src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://tapr-backend-final-production.up.railway.app/signup.html"
-      style="display:block; margin:20px auto;"
-    >
-    <p style="text-align:center; color:#666; margin-top:10px;">
-It takes less than 10 seconds for a customer to start coming back.
-</p>
   </div>
 </div>
 
@@ -291,15 +283,17 @@ It takes less than 10 seconds for a customer to start coming back.
   <div id="demoBox" style="display:none; margin-top:30px;">
     <div style="background:white; padding:20px; border-radius:16px; max-width:400px; margin:auto;">
       <h3>Customer Progress</h3>
-      <p>Visit 1 of 5</p>
-      <div style="height:10px; background:#eee; border-radius: 10px; overflow: hidden;">
+      <p style="font-size:12px; color:#999;">Visit 1 of 5</p>
+
+      <div style="height:10px; background:#eee; border-radius:10px; overflow:hidden;">
         <div id="progressBar" style="width:20%; height:100%; background:var(--primary);"></div>
       </div>
+
+      <p style="font-size:13px; color:#666; margin-top:10px;">
+        Customers come back to complete rewards
+      </p>
     </div>
   </div>
-  <p style="font-size:13px; color:#666; margin-top:10px;">
-Customers come back to complete rewards
-</p>
 </div>
 
 <!-- WHY -->
@@ -307,9 +301,33 @@ Customers come back to complete rewards
   <h2>Why it works</h2>
 
   <div class="grid">
-    <div class="card"><h3>Progress</h3><p>People hate leaving things unfinished.</p></div>
-    <div class="card"><h3>Rewards</h3><p>Small rewards create repeat habits.</p></div>
-    <div class="card"><h3>Convenience</h3><p>If it's on their phone, they don't forget.</p></div>
+    <div class="card">
+      <h3>People finish what they start</h3>
+      <p>Progress creates a natural urge to return.</p>
+    </div>
+
+    <div class="card">
+      <h3>Small rewards drive habits</h3>
+      <p>Even simple incentives increase repeat visits.</p>
+    </div>
+
+    <div class="card">
+      <h3>Always on their phone</h3>
+      <p>No cards to lose. No apps to install.</p>
+    </div>
+  </div>
+</div>
+
+<!-- SCAN -->
+<div class="section container">
+  <div style="max-width:600px; margin:auto; text-align:center;">
+    <h3>Scan this now</h3>
+    <p>See exactly what your customers will experience</p>
+
+    <img 
+      src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://tapr-backend-final-production.up.railway.app/signup.html"
+      style="display:block; margin:20px auto;"
+    >
   </div>
 </div>
 
@@ -322,18 +340,22 @@ Customers come back to complete rewards
       <div class="cell">Stamp Cards</div>
       <div class="cell">Tapr</div>
     </div>
+
     <div class="row">
       <div class="cell">Lost or forgotten</div>
       <div class="cell">Always on phone</div>
     </div>
+
     <div class="row">
       <div class="cell">Manual tracking</div>
       <div class="cell">Automatic</div>
     </div>
+
     <div class="row">
       <div class="cell">No data</div>
-      <div class="cell">Track customers</div>
+      <div class="cell">Real customer tracking</div>
     </div>
+
     <div class="row">
       <div class="cell">Low return rate</div>
       <div class="cell">Built for repeat visits</div>
@@ -379,11 +401,15 @@ Customers come back to complete rewards
 
 <!-- FINAL -->
 <div class="final container">
-  <h2>Every day without this = customers you don't get back</h2>
-  <p>You’re already getting customers. Tapr makes sure they come back.</p>
+  <h2>Every day without this = customers you don’t get back</h2>
+
+  <p>
+    You’re already getting customers. Tapr makes sure they return.
+  </p>
+
   <p style="margin-top:10px; font-size:14px; color:#777;">
-No app. No setup stress. Start in 2 minutes.
-</p>
+    No app. No setup stress. Start in 2 minutes.
+  </p>
 
   <button class="cta" onclick="window.location.href='/signup.html'">
     Start Getting Repeat Customers
