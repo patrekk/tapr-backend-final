@@ -130,8 +130,8 @@ body {
 }
 
 .card:hover {
-    transform: translate(-4px);
-    box-shadow: all 0.2s ease;
+    transform: translateY(-4px);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.08);
 }
 
 /* TABLE FIX */
@@ -159,6 +159,10 @@ body {
 
 .cta {
   box-shadow: 0 10px 25px rgba(43,57,109,0.25);
+}
+
+.cta:hover {
+  transform: translateY(-2px);
 }
 
 /* FINAL */
@@ -200,16 +204,16 @@ body {
   </p>
 
   <h1 style="font-size:48px;">
-    Turn first-time customers into <span style="color:var(--primary)">regulars</span>
+    Turn first-time customers into <span style="color:var(--primary)">repeat revenue</span>
   </h1>
 
   <p style="margin-top:18px; font-size:18px; color:#555; max-width:600px; margin:auto;">
-    Tapr gives every customer a reason to come back — automatically.
+    Most businesses lose 70% of customers after one visit. Tapr brings them back — automatically.
   </p>
 
   <div style="margin-top:30px; display:flex; justify-content:center; gap:10px; flex-wrap:wrap;">
     <button class="cta" onclick="window.location.href='/signup.html'">
-      Start Free → Get Repeat Customers
+      Start Free → Turn Customers Into Regulars
     </button>
 
     <button class="secondary" onclick="document.getElementById('demoSection').scrollIntoView({behavior:'smooth'})">
@@ -230,30 +234,17 @@ body {
 
 </div>
 
-<!-- SCAN -->
-<div class="section container">
-  <div style="max-width:600px; margin:auto; text-align:center;">
-    <h3>Scan this now</h3>
-    <p>Experience exactly what your customers will see</p>
-
-    <img 
-      src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://tapr-backend-final-production.up.railway.app/signup.html"
-      style="display:block; margin:20px auto;"
-    >
-  </div>
-</div>
-
 <!-- PAIN -->
 <div class="section container">
-  <h2>Most customers never come back</h2>
+  <h2>You're losing customers every single day</h2>
   <p>
-    They visit once… then disappear. Not because your business is bad— but because there’s no reason to return.
+    They visit once… then disappear. Not because your business is bad— but because nothing pulls them back.
   </p>
 </div>
 
 <!-- SOLUTION -->
 <div class="section container">
-  <h2>Tapr gives them a reason to return</h2>
+  <h2>Turn one-time customers into repeat revenue</h2>
 
   <div class="grid">
     <div class="card">
@@ -273,9 +264,25 @@ body {
   </div>
 </div>
 
+<!-- SCAN -->
+<div class="section container">
+  <div style="max-width:600px; margin:auto; text-align:center;">
+    <h3>Scan this now</h3>
+    <p>Experience exactly what your customers will see</p>
+
+    <img 
+      src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://tapr-backend-final-production.up.railway.app/signup.html"
+      style="display:block; margin:20px auto;"
+    >
+    <p style="text-align:center; color:#666; margin-top:10px;">
+It takes less than 10 seconds for a customer to start coming back.
+</p>
+  </div>
+</div>
+
 <!-- DEMO -->
 <div class="section container">
-  <h2>See how it works in seconds</h2>
+  <h2>Watch customers come back in real time</h2>
 
   <div style="text-align:center; margin-top:30px;">
     <button class="cta" onclick="showDemo()">Try Demo</button>
@@ -285,11 +292,14 @@ body {
     <div style="background:white; padding:20px; border-radius:16px; max-width:400px; margin:auto;">
       <h3>Customer Progress</h3>
       <p>Visit 1 of 5</p>
-      <div style="height:10px; background:#eee;">
+      <div style="height:10px; background:#eee; border-radius: 10px; overflow: hidden;">
         <div id="progressBar" style="width:20%; height:100%; background:var(--primary);"></div>
       </div>
     </div>
   </div>
+  <p style="font-size:13px; color:#666; margin-top:10px;">
+Customers come back to complete rewards
+</p>
 </div>
 
 <!-- WHY -->
@@ -297,15 +307,15 @@ body {
   <h2>Why it works</h2>
 
   <div class="grid">
-    <div class="card"><h3>Progress</h3><p>People finish what they start.</p></div>
-    <div class="card"><h3>Rewards</h3><p>Small incentives drive repeat visits.</p></div>
-    <div class="card"><h3>Convenience</h3><p>Always on their phone.</p></div>
+    <div class="card"><h3>Progress</h3><p>People hate leaving things unfinished.</p></div>
+    <div class="card"><h3>Rewards</h3><p>Small rewards create repeat habits.</p></div>
+    <div class="card"><h3>Convenience</h3><p>If it's on their phone, they don't forget.</p></div>
   </div>
 </div>
 
 <!-- TABLE -->
 <div class="section container">
-  <h2>Stop using systems that don’t work</h2>
+  <h2>Why most loyalty systems fail</h2>
 
   <div class="table">
     <div class="row header">
@@ -331,10 +341,49 @@ body {
   </div>
 </div>
 
+<!-- PROOF -->
+<div class="section container">
+  <h2>Businesses are already seeing results</h2>
+
+  <div class="grid">
+
+    <div class="card">
+      <p style="font-weight:600; margin-bottom:8px;">
+        “We saw repeat customers in 3 days.”
+      </p>
+      <p style="color:#666; font-size:14px;">
+        No app, no explaining — customers just scanned and came back.
+      </p>
+    </div>
+
+    <div class="card">
+      <p style="font-weight:600; margin-bottom:8px;">
+        “Customers actually ask about their progress now.”
+      </p>
+      <p style="color:#666; font-size:14px;">
+        It turned visits into something they want to complete.
+      </p>
+    </div>
+
+    <div class="card">
+      <p style="font-weight:600; margin-bottom:8px;">
+        “We stopped using stamp cards completely.”
+      </p>
+      <p style="color:#666; font-size:14px;">
+        Everything is automatic — no more manual tracking.
+      </p>
+    </div>
+
+  </div>
+</div>
+
 <!-- FINAL -->
 <div class="final container">
-  <h2>Every day you wait = lost returning customers</h2>
+  <h2>Every day without this = customers you don't get back</h2>
   <p>You’re already getting customers. Tapr makes sure they come back.</p>
+  <p style="margin-top:10px; font-size:14px; color:#777;">
+No app. No setup stress. Start in 2 minutes.
+</p>
 
   <button class="cta" onclick="window.location.href='/signup.html'">
     Start Getting Repeat Customers
