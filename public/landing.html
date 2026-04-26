@@ -125,6 +125,13 @@ body {
   border-radius: 18px;
   border: 1px solid #eee;
   text-align: left;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+  transition: all 0.2s ease;
+}
+
+.card:hover {
+    transform: translate(-4px);
+    box-shadow: all 0.2s ease;
 }
 
 /* TABLE FIX */
@@ -150,11 +157,25 @@ body {
   font-weight: 600;
 }
 
+.cta {
+  box-shadow: 0 10px 25px rgba(43,57,109,0.25);
+}
+
 /* FINAL */
 .final {
-  margin-top: 100px;
+  margin-top: 140px;
   text-align: center;
-  padding-bottom: 80px;
+  padding: 100px 20px 100px;
+}
+
+.final h2 {
+    margin-bottom: 16px;
+}
+
+.final p {
+    margin-bottom: 28px;
+    color: var(--muted);
+    font-size: 18px;
 }
 </style>
 </head>
