@@ -217,7 +217,13 @@ body {
   margin-bottom: 10px;
 }
 
-img:hover {
+.logo-strip img {
+  opacity: 0.7;
+  filter: grayscale(100%);
+  transition: all 0.2s ease;
+}
+
+.logo-strip img:hover {
   opacity: 1;
   filter: grayscale(0%);
 }
@@ -444,7 +450,7 @@ img:hover {
   <div style="color:#888; font-size:13px; margin-bottom:16px;">
     Used by local businesses
   </div>
-  <div style="
+  <div class="logo-strip" style="
     display:flex;
     justify-content:center;
     align-items:center;
