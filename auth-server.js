@@ -724,10 +724,6 @@ app.post('/scan', scanLimiter, verifySession, async (req, res) => {
     // 🗓️ DAILY CHECK (core rule)
     const today = new Date().toDateString();
 
-    if (customer.last_reward_day === today) {
-      return res.json({ error: 'Already Claimed Today' });
-    }
-
     // ⏱️ COOLDOWN CHECK (10 seconds)
     const now = new Date();
 
@@ -815,11 +811,17 @@ app.post('/scan', scanLimiter, verifySession, async (req, res) => {
   console.log("🚨 INSERTING:", insertData);
 
   const { data, error } = await supabase
-    .from('scan_logs')
-    .insert([insertData])
-    .select();
+  .from('scan_logs')
+  .insert([insertData])
+  .select();
 
-  console.log("🚨 INSERT RESULT:", { data, error });
+if (error) {
+  console.log("❌ SCAN LOG INSERT ERROR:", error);
+
+  return res.json({
+    error: "Already scanned today"
+  });
+}
 }
 
     // ✅ RESPONSE
