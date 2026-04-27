@@ -318,8 +318,6 @@ app.post('/send-otp', async (req, res) => {
 
 if (existing?.blocked_until) {
 
-  const now = new Date();
-
   const blocked = new Date(existing.blocked_until);
 
   if (now < blocked) {
