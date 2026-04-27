@@ -36,6 +36,10 @@ body {
   box-shadow: 0 10px 30px rgba(43,57,109,0.12);
 }
 
+#merchantLogo {
+  display: none;
+}
+
 @media (max-width: 480px) {
   body {
     align-items: stretch;
@@ -157,6 +161,7 @@ button:disabled {
 <body>
 
 <div class="box">
+  <img id="merchantLogo" style="max-width:120px; margin:0 auto 10px;" />
   <h1 id="title">Join</h1>
 
   <p class="sub">Get rewarded every visit</p>
@@ -194,6 +199,15 @@ fetch(`${API}/merchant/${slug}`)
     if (data.name) {
       document.getElementById("title").innerText =
         "Join " + data.name;
+    }
+
+    if (data.logo_url) {
+      const logo = document.getElementById("merchantLogo");
+      logo.src = data.logo_url;
+      logo.style.display = "block";
+
+      // OPTIONAL: hide text if logo exists
+      document.getElementById("title").style.display = "none";
     }
 
     if (data.hex_color) {
