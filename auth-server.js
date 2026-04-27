@@ -724,6 +724,10 @@ app.post('/scan', scanLimiter, verifySession, async (req, res) => {
     // 🗓️ DAILY CHECK (core rule)
     const today = new Date().toDateString();
 
+if (customer.last_reward_day === today) {
+  return res.json({ error: 'Already Claimed Today' });
+}
+
     // ⏱️ COOLDOWN CHECK (10 seconds)
     const now = new Date();
 
@@ -738,6 +742,7 @@ app.post('/scan', scanLimiter, verifySession, async (req, res) => {
 
     // 🎯 APPLY CURRENT REWARD (important: reward from previous visit)
     const applied_discount = customer.pending_discount;
+    
 
     // 🔁 NEXT VISIT CALCULATION
     let visit = customer.visit_count + 1;
@@ -754,24 +759,50 @@ app.post('/scan', scanLimiter, verifySession, async (req, res) => {
     const next_index = visit % 5;
     const next_reward = LOOP[next_index];
 
-    // 💾 UPDATE CUSTOMER
-    const { data: updated, error } = await supabase
-      .from('customers')
-      .update({
-        visit_count: visit,
-        total_visits: (customer.total_visits || 0) + 1,
-        pending_discount: next_reward,
-        last_reward_day: today,
-        last_scan_at: now.toISOString()
-      })
-      .eq('id', customer.id)
-      .select()
-      .single();
+    const now = new Date();
 
-    if (error) {
-      console.log("SCAN UPDATE ERROR:", error);
-      return res.json({ error: 'Update failed' });
-    }
+const insertData = {
+  merchant_id: req.merchant.id,
+  customer_id: customer.id,
+  phone: customer.phone,
+  scanned_at: now.toISOString(),
+  scan_date: now.toISOString().split('T')[0],
+  result: {
+    visit: customer.visit_count + 1,
+    discount: customer.pending_discount
+  }
+};
+
+const { error: insertError } = await supabase
+  .from('scan_logs')
+  .insert([insertData]);
+
+if (insertError) {
+  console.log("❌ SCAN BLOCKED:", insertError.message);
+
+  return res.json({
+    error: "Already scanned today"
+  });
+}
+
+// 💾 UPDATE CUSTOMER (ONLY AFTER INSERT SUCCESS)
+const { data: updated, error } = await supabase
+  .from('customers')
+  .update({
+    visit_count: visit,
+    total_visits: (customer.total_visits || 0) + 1,
+    pending_discount: next_reward,
+    last_reward_day: today,
+    last_scan_at: now.toISOString()
+  })
+  .eq('id', customer.id)
+  .select()
+  .single();
+
+if (error) {
+  console.log("SCAN UPDATE ERROR:", error);
+  return res.json({ error: 'Update failed' });
+}
 
     console.log("🚀 START WALLET UPDATE");
 
