@@ -818,43 +818,6 @@ if (error) {
       phone: customer.phone
     });
 
-    // 🧾 LOG SCAN (WITH ERROR CHECK)
-    if (!customer.id || !req.merchant.id) {
-  console.log("❌ INVALID IDS", {
-    customer_id: customer.id,
-    merchant_id: req.merchant.id
-  });
-} else {
-  const now = new Date();
-
-  const insertData = {
-  merchant_id: req.merchant.id,
-  customer_id: customer.id,
-  phone: customer.phone,
-  scanned_at: now.toISOString(),
-  scan_date: now.toISOString().split('T')[0], // 👈 THIS
-  result: {
-    visit,
-    discount: applied_discount
-  }
-};
-
-  console.log("🚨 INSERTING:", insertData);
-
-  const { data, error } = await supabase
-  .from('scan_logs')
-  .insert([insertData])
-  .select();
-
-if (error) {
-  console.log("❌ SCAN LOG INSERT ERROR:", error);
-
-  return res.json({
-    error: "Already scanned today"
-  });
-}
-}
-
     // ✅ RESPONSE
     res.json({
       visit: updated.visit_count,
