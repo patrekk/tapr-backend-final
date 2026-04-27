@@ -292,12 +292,20 @@ button:hover {
   <div class="section">
     <h3>Business Profile</h3>
 
-    <input id="nameInput" placeholder="Business Name" style="margin-bottom:10px;">
-    <input id="emailInput" placeholder="Email" style="margin-bottom:10px;">
-    <input id="colorInput" placeholder="#2B396D" style="margin-bottom:10px;">
-    <input type="file" id="logoInput" accept="image/*" style="margin-bottom:10px;">
+    <div style="display:flex; gap:10px; margin-bottom:10px;">
+      <input id="nameInput" placeholder="Business Name">
+      <input id="emailInput" placeholder="Email">
+      <input id="colorInput" placeholder="#2B396D">
+    </div>
 
-    <button onclick="saveProfile(event)">Save Changes</button>
+    <div style="margin-bottom:10px;">
+      <input type="file" id="logoInput">
+      <p style="font-size:12px; color:#777; margin-top:6px;">
+      Recommended: square logo (1:1), at least 300x300px
+      </p>
+</div>
+
+<button onclick="saveProfile(event)">Save Changes</button>
   </div>
 
   <div class="section">
@@ -579,6 +587,47 @@ formData.append("hex_color", color);
 
 const file = document.getElementById("logoInput").files[0];
 if (file) {
+  const img = new Image();
+  img.src = URL.createObjectURL(file);
+
+  await new Promise(resolve => {
+    img.onload = () => {
+      if (img.width < 300 || img.height < 300) {
+        alert("Logo is too small. Use at least 300x300px for best quality.");
+      }
+
+      if (img.width !== img.height) {
+        alert("Recommended: use a square logo (1:1 ratio) for best display.");
+      }
+
+      resolve();
+    };
+  });
+}
+if (file) {
+  const img = new Image();
+  img.src = URL.createObjectURL(file);
+
+  await new Promise(resolve => {
+    img.onload = () => {
+      let warning = "";
+
+      if (img.width < 300 || img.height < 300) {
+        warning += "• Minimum size: 300x300px\n";
+      }
+
+      if (img.width !== img.height) {
+        warning += "• Use square (1:1 ratio)\n";
+      }
+
+      if (warning) {
+        alert("Logo recommendation:\n\n" + warning);
+      }
+
+      resolve();
+    };
+  });
+
   formData.append("logo", file);
 }
 
