@@ -809,17 +809,14 @@ app.post('/scan', scanLimiter, verifySession, async (req, res) => {
     })
   };
 
-  console.log("INSERTING:", insertData);
+  console.log("🚨 INSERTING:", insertData);
 
   const { data, error } = await supabase
     .from('scan_logs')
-    .insert([insertData]);
+    .insert([insertData])
+    .select();
 
-  if (error) {
-    console.log("❌ SCAN LOG INSERT ERROR:", error);
-  } else {
-    console.log("✅ SCAN LOG INSERTED");
-  }
+  console.log("🚨 INSERT RESULT:", { data, error });
 }
 
     // ✅ RESPONSE
