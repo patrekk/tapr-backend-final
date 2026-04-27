@@ -295,6 +295,7 @@ button:hover {
     <input id="nameInput" placeholder="Business Name" style="margin-bottom:10px;">
     <input id="emailInput" placeholder="Email" style="margin-bottom:10px;">
     <input id="colorInput" placeholder="#2B396D" style="margin-bottom:10px;">
+    <input type="file" id="logoInput" accept="image/*" style="margin-bottom:10px;">
 
     <button onclick="saveProfile(event)">Save Changes</button>
   </div>
@@ -570,18 +571,24 @@ if (!/^\S+@\S+\.\S+$/.test(email)) {
   return;
 }
 
-  const res = await fetch(`${API}/merchant/update-profile`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      authorization: getToken()
-    },
-    body: JSON.stringify({
-      name,
-      email,
-      hex_color: color
-    })
-  });
+  const formData = new FormData();
+
+formData.append("name", name);
+formData.append("email", email);
+formData.append("hex_color", color);
+
+const file = document.getElementById("logoInput").files[0];
+if (file) {
+  formData.append("logo", file);
+}
+
+const res = await fetch(`${API}/merchant/update-profile`, {
+  method: "POST",
+  headers: {
+    authorization: getToken()
+  },
+  body: formData
+});
 
   const data = await res.json();
 

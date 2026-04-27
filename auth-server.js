@@ -8,6 +8,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import bcrypt from 'bcrypt';
 import rateLimit from 'express-rate-limit';
+import multer from 'multer';
 
 dotenv.config();
 
@@ -20,6 +21,8 @@ const app = express();
 app.set('trust proxy', 1);
 app.use(cors());
 app.use(express.json());
+
+const upload = multer({ storage: multer.memoryStorage() });
 
 const limiter = rateLimit({
   windowMs: 60 * 1000,
@@ -511,9 +514,38 @@ app.get('/merchant/me', verifySession, async (req, res) => {
 
 // 🔧 UPDATE PROFILE
 
-app.post('/merchant/update-profile', verifySession, async (req, res) => {
+app.post(
+  '/merchant/update-profile',
+  verifySession,
+  upload.single('logo'),
+  async (req, res) => {
 
   const { name, email, hex_color } = req.body;
+
+let logo_url = null;
+
+if (req.file) {
+  const file = req.file;
+
+  const filePath = `logos/${req.merchant.id}_${Date.now()}.png`;
+
+  const { error: uploadError } = await supabase.storage
+    .from('logos')
+    .upload(filePath, file.buffer, {
+      contentType: file.mimetype
+    });
+
+  if (uploadError) {
+    console.log("UPLOAD ERROR:", uploadError);
+    return res.json({ error: "upload_failed" });
+  }
+
+  const { data } = supabase.storage
+    .from('logos')
+    .getPublicUrl(filePath);
+
+  logo_url = data.publicUrl;
+}
 
   const { error } = await supabase
 
@@ -752,7 +784,7 @@ app.post('/scan', scanLimiter, verifySession, async (req, res) => {
     const next_reward = LOOP[next_index];
 
 const insertData = {
-  merchant_id: req.merchant.id,
+  merchant_id: String(req.merchant.id),
   customer_id: customer.id,
   phone: customer.phone,
   scanned_at: now.toISOString(),

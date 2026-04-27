@@ -21,6 +21,7 @@
     "google-auth-library": "^10.6.2",
     "html5-qrcode": "^2.3.8",
     "jsonwebtoken": "^9.0.3",
+    "multer": "^2.1.1",
     "node-fetch": "^3.3.2",
     "qrcode": "^1.5.4"
   }
