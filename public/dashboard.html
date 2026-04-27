@@ -464,18 +464,20 @@ if (data.length === 0) {
   let visit = "-";
   let discount = "-";
 
+  if (typeof l.result === "string") {
   try {
     const parsed = JSON.parse(l.result);
     visit = parsed.visit ?? "-";
     discount = parsed.discount ?? "-";
   } catch {
-    // fallback for old string format
-    const match = l.result.match(/Visit (\d+) → ₱(\d+)/);
-    if (match) {
-      visit = match[1];
-      discount = match[2];
-    }
+    visit = "-";
+    discount = "-";
   }
+} else {
+  // ✅ already object (your current backend)
+  visit = l.result?.visit ?? "-";
+  discount = l.result?.discount ?? "-";
+}
 
   table.innerHTML += `
     <tr>
