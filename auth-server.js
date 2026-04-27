@@ -718,11 +718,7 @@ app.post('/scan', scanLimiter, verifySession, async (req, res) => {
     }
 
     // 🗓️ DAILY CHECK (core rule)
-    const today = new Date().toDateString();
-
-if (customer.last_reward_day === today) {
-  return res.json({ error: 'Already Claimed Today' });
-}
+    const today = new Date().toISOString().split('T')[0];
 
     // ⏱️ COOLDOWN CHECK (10 seconds)
     const now = new Date();
@@ -786,7 +782,6 @@ const { data: updated, error } = await supabase
     visit_count: visit,
     total_visits: (customer.total_visits || 0) + 1,
     pending_discount: next_reward,
-    last_reward_day: today,
     last_scan_at: now.toISOString()
   })
   .eq('id', customer.id)
