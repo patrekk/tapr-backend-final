@@ -510,7 +510,9 @@ if (data.length === 0) {
 
   const data = await res.json();
 
-  const url = `${API}/join/${data.slug}`;
+  const PUBLIC_URL = "https://tapr.ph";
+
+  const url = `${PUBLIC_URL}/join/${data.slug}`;
 
   document.getElementById("link").innerText = url;
 
