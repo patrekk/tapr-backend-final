@@ -667,7 +667,7 @@ app.get('/merchant/:slug', async (req, res) => {
 
   const { data: merchant } = await supabase
     .from('merchants')
-    .select('name , hex_color')
+    .select('name, hex_color, logo_url')
     .eq('slug', slug)
     .single();
 
