@@ -552,12 +552,10 @@ if (req.file) {
     .from('merchants')
 
     .update({
-
       name,
-
       email,
-
-      hex_color
+      hex_color,
+      ...(logo_url && {logo_url})
 
     })
 
