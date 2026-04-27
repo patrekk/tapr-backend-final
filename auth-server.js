@@ -329,7 +329,6 @@ if (existing?.blocked_until) {
 }
 
   if (existing) {
-  const now = new Date();
   const expires = new Date(existing.expires_at);
 
   // if OTP still valid → block resend
@@ -378,7 +377,6 @@ const { data: otpRecord } = await supabase
   .maybeSingle();
 
 if (otpRecord?.blocked_until) {
-  const now = new Date();
   const blocked = new Date(otpRecord.blocked_until);
 
   if (now < blocked) {
@@ -756,8 +754,6 @@ if (customer.last_reward_day === today) {
     // 🔥 FIX: NEXT reward should be for NEXT visit
     const next_index = visit % 5;
     const next_reward = LOOP[next_index];
-
-    const now = new Date();
 
 const insertData = {
   merchant_id: req.merchant.id,
