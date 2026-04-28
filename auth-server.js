@@ -881,7 +881,7 @@ app.get('/signup', (req, res) => {
 });
 
 // OPTIONAL: block direct .html access
-app.get('/*.html', (req, res) => {
+app.get(/\.html$/, (req, res) => {
   return res.redirect(req.path.replace('.html', ''));
 });
 
