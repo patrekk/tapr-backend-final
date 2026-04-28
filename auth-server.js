@@ -791,10 +791,10 @@ const { error: insertError } = await supabase
   .insert([insertData]);
 
 if (insertError) {
-  console.log("❌ SCAN BLOCKED:", insertError.message);
+  console.log("❌ SCAN ERROR:", insertError);
 
   return res.json({
-    error: "Already scanned today"
+    error: insertError.message
   });
 }
 
