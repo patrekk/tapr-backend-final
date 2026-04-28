@@ -862,6 +862,30 @@ app.get('/test-live', (req, res) => {
 });
 
 app.use(express.static(path.join(__dirname, 'public')));
+
+// CLEAN ROUTES (NO .html)
+app.get('/login', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
+
+app.get('/dashboard', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
+});
+
+app.get('/scanner', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'scanner.html'));
+});
+
+app.get('/signup', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'signup.html'));
+});
+
+// OPTIONAL: block direct .html access
+app.get('/*.html', (req, res) => {
+  return res.redirect(req.path.replace('.html', ''));
+});
+
+// fallback
 app.use((req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
