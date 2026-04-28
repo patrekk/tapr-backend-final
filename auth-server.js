@@ -871,6 +871,10 @@ app.get('/signup', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'signup.html'));
 });
 
+app.get('/otp', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'otp.html'));
+});
+
 // OPTIONAL: block direct .html access
 app.get(/\.html$/, (req, res) => {
   return res.redirect(req.path.replace('.html', ''));
