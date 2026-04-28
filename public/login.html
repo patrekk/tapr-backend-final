@@ -3,47 +3,101 @@
 <head>
   <title>Login</title>
   <style>
-    body {
-      font-family: Arial;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-      background: #f5f5f5;
-    }
+:root {
+  --primary: #2B396D;
+  --bg: #F7F8FA;
+  --text: #0B0B0B;
+  --muted: #666;
+  --border: #E5E7EB;
+}
 
-    .box {
-      background: white;
-      padding: 30px;
-      border-radius: 10px;
-      width: 300px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-      text-align: center;
-    }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
-    input {
-      width: 100%;
-      padding: 10px;
-      margin-top: 10px;
-      box-sizing: border-box;
-    }
+body {
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(to bottom, #f7f8fa, #ffffff);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
 
-    button {
-      width: 100%;
-      padding: 12px;
-      margin-top: 15px;
-      background: black;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-  </style>
+/* MATCH LANDING CARD STYLE */
+.box {
+  background: white;
+  padding: 32px;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 380px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+  border: 1px solid var(--border);
+  text-align: center;
+}
+
+/* HEADLINE */
+h2 {
+  margin-bottom: 8px;
+  color: var(--text);
+}
+
+.sub {
+  font-size: 14px;
+  color: var(--muted);
+  margin-bottom: 20px;
+}
+
+/* INPUTS */
+input {
+  width: 100%;
+  padding: 14px;
+  margin-top: 12px;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+  background: white;
+}
+
+input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(43,57,109,0.2);
+  outline: none;
+}
+
+/* BUTTON (USE CTA STYLE) */
+button {
+  width: 100%;
+  padding: 14px;
+  margin-top: 20px;
+  background: var(--primary);
+  color: white;
+  border-radius: 12px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 10px 25px rgba(43,57,109,0.25);
+}
+
+button:hover {
+  transform: translateY(-1px);
+}
+.logo {
+  font-weight: 700;
+  font-size: 18px;
+  margin-bottom: 12px;
+  color: var(--primary);
+}
+</style>
 </head>
 <body>
 
 <div class="box">
-  <h2>Merchant Login</h2>
+  <div class="logo">Tapr</div>
+  <h2>Login</h2>
+  <p class="sub">Access your dashboard</p>
 
   <input id="email" placeholder="Email">
   <input id="password" type="password" placeholder="Password">
