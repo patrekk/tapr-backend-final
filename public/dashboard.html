@@ -362,6 +362,7 @@ button:hover {
 
   <script>
     const API = "https://tapr-backend-final-production.up.railway.app";
+    const PUBLIC_URL = "https://usetapr.com";
 
 function showPage(page, el) {
   document.getElementById("dashboardPage").style.display = "none";
@@ -509,8 +510,6 @@ if (data.length === 0) {
   });
 
   const data = await res.json();
-
-  const PUBLIC_URL = "https://tapr.ph";
 
   const url = `${PUBLIC_URL}/join/${data.slug}`;
 
