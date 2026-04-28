@@ -387,11 +387,11 @@ function showPage(page, el) {
     }
 
     if (!getToken()) {
-      window.location.href = "/login.html";
+      window.location.href = "/login";
     }
 
     function goScanner() {
-      window.location.href = "/scanner.html";
+      window.location.href = "/scanner";
     }
 
     async function loadStats() {
@@ -593,24 +593,6 @@ if (file) {
 
   await new Promise(resolve => {
     img.onload = () => {
-      if (img.width < 300 || img.height < 300) {
-        alert("Logo is too small. Use at least 300x300px for best quality.");
-      }
-
-      if (img.width !== img.height) {
-        alert("Recommended: use a square logo (1:1 ratio) for best display.");
-      }
-
-      resolve();
-    };
-  });
-}
-if (file) {
-  const img = new Image();
-  img.src = URL.createObjectURL(file);
-
-  await new Promise(resolve => {
-    img.onload = () => {
       let warning = "";
 
       if (img.width < 300 || img.height < 300) {
@@ -691,7 +673,7 @@ async function changePassword() {
 
 function logout() {
   localStorage.removeItem("token");
-  window.location.href = "/login.html";
+  window.location.href = "/login";
 }
 
 async function loadMerchantName() {

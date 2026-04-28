@@ -318,6 +318,7 @@ app.post('/send-otp', async (req, res) => {
     .maybeSingle();
 
 // 🔒 BLOCK CHECK (ADD THIS PART)
+const now = new Date();
 
 if (existing?.blocked_until) {
 
@@ -747,20 +748,8 @@ app.post('/scan', scanLimiter, verifySession, async (req, res) => {
       return res.json({ error: 'Customer not found' });
     }
 
-    // 🗓️ DAILY CHECK (core rule)
-    const today = new Date().toISOString().split('T')[0];
-
     // ⏱️ COOLDOWN CHECK (10 seconds)
     const now = new Date();
-
-    if (customer.last_scan_at) {
-      const lastScan = new Date(customer.last_scan_at);
-      const diffSeconds = (now - lastScan) / 1000;
-
-      if (diffSeconds < 10) {
-        return res.json({ error: "Wait a few seconds before scanning again" });
-      }
-    }
 
     // 🎯 APPLY CURRENT REWARD (important: reward from previous visit)
     const applied_discount = customer.pending_discount;
@@ -781,12 +770,16 @@ app.post('/scan', scanLimiter, verifySession, async (req, res) => {
     const next_index = visit % 5;
     const next_reward = LOOP[next_index];
 
+const localDate = new Date(
+  now.getTime() - now.getTimezoneOffset() * 60000
+).toISOString().split('T')[0];
+
 const insertData = {
   merchant_id: String(req.merchant.id),
   customer_id: customer.id,
   phone: customer.phone,
   scanned_at: now.toISOString(),
-  scan_date: now.toISOString().split('T')[0],
+  scan_date: localDate, // ✅ ADD THIS LINE
   result: {
     visit: customer.visit_count + 1,
     discount: customer.pending_discount
@@ -861,8 +854,6 @@ app.get('/test-live', (req, res) => {
 
 });
 
-app.use(express.static(path.join(__dirname, 'public')));
-
 // CLEAN ROUTES (NO .html)
 app.get('/login', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'login.html'));
@@ -885,9 +876,15 @@ app.get(/\.html$/, (req, res) => {
   return res.redirect(req.path.replace('.html', ''));
 });
 
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.get('/merchant/*', (req, res) => {
+  res.status(404).json({ error: "Not found" });
+});
+
 // fallback
 app.use((req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.status(404).sendFile(path.join(__dirname, 'public', '404.html'));
 });
 
 app.listen(PORT, '0.0.0.0', () => {

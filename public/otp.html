@@ -141,7 +141,10 @@ button:disabled {
 <script>
 const API = "https://tapr-backend-final-production.up.railway.app";
 const slug = getSlug();
-
+if (!slug) {
+  alert("Invalid session. Please try again.");
+  window.location.href = "/";
+}
 fetch(`${API}/merchant/${slug}`)
   .then(res => res.json())
   .then(data => {
@@ -193,7 +196,7 @@ async function verify() {
   btn.disabled = true;
 
   try {
-    const res = await fetch(`${API}/wallet/${getSlug()}`, {
+    const res = await fetch(`${API}/wallet/${slug}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"

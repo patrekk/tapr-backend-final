@@ -58,7 +58,7 @@
 
   <script>
     const API = "https://tapr-backend-final-production.up.railway.app";
-
+    let scannerInstance = null;
     function getToken() {
       return localStorage.getItem("token");
     }
@@ -79,40 +79,81 @@
     loadMerchant();
 
     async function startScanner() {
+      let isScanning = true;
       const status = document.getElementById("status");
 
-      const scanner = new Html5Qrcode("reader");
+      if (scannerInstance !== null) return;
 
-      await scanner.start(
-        { facingMode: "environment" },
-        { fps: 10, qrbox: 250 },
-        async (decodedText) => {
+      scannerInstance = new Html5Qrcode("reader");
+
+      try {
+
+  await scannerInstance.start(
+    { facingMode: "environment" },
+    { fps: 10, qrbox: 250 },
+    async (decodedText) => {
+
+        if (!isScanning) return;
+
+          isScanning = false;
           status.innerText = "Processing...";
 
-          const res = await fetch(`${API}/scan`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "authorization": getToken()
-            },
-            body: JSON.stringify({ token: decodedText })
-          });
+          let data;
 
-          const data = await res.json();
+try {
+  const res = await fetch(`${API}/scan`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "authorization": getToken()
+    },
+    body: JSON.stringify({ token: decodedText })
+  });
 
-if (data.error) {
-  status.innerText = `❌ ${data.error}`;
-} else {
-  status.innerText = `✅ ₱${data.applied_discount} DISCOUNT
+  data = await res.json();
+
+} catch (err) {
+  status.innerText = "❌ Network error. Try again.";
+  try { await scannerInstance.stop(); } catch(e) {}
+  scannerInstance = null;
+  return;
+}
+
+  if (data.error === "No session" || data.error === "Invalid session") {
+  try {
+    await scannerInstance.stop();
+  } catch (e) {}
+  scannerInstance = null;
+  window.location.href = "/login";
+  return;
+}
+
+  if (data.error) {
+    status.innerText = `❌ ${data.error}`;
+  } else {
+    status.innerText = `✅ ₱${data.applied_discount} DISCOUNT
 
 Visit ${data.visit}/5
 Next: ₱${data.next_reward}`;
-}
-        }
-      );
+  }
+
+try {
+  await scannerInstance.stop();
+} catch (e) {}
+scannerInstance = null;
+        } // closes callback
+      ); // closes start()
 
       status.innerText = "Camera ready";
+
+      } catch (err) {
+  status.innerText = "❌ Camera error. Allow camera access.";
+  scannerInstance = null;
+}
     }
+  
+
+    
   </script>
 
 </body>
