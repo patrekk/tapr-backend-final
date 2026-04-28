@@ -19,14 +19,18 @@
       padding: 20px;
       border-radius: 12px;
       box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-      width: 320px;
+      width: 100%;
+      max-width: 420px;
     }
 
     button {
       padding: 10px;
       width: 100%;
       margin-bottom: 10px;
-      background: black;
+      background: var(--primary);
+      border-radius: 12px;
+      padding: 14px;
+      font-weight: 600;
       color: white;
       border: none;
     }
@@ -44,7 +48,9 @@
 <body>
 
   <div class="container">
-    <h2>Tapr Scanner</h2>
+    <div class="logo">Tapr</div>
+    <h2>Scan Customer</h2>
+    <p class="sub">Apply reward instantly</p>
     <p id="merchantName">Loading...</p>
 
     <button onclick="startScanner()">Start Scanner</button>
@@ -129,12 +135,21 @@ try {
 }
 
   if (data.error) {
-    status.innerText = `❌ ${data.error}`;
+    if (data.error.toLowerCase().includes("duplicate") || 
+    data.error.toLowerCase().includes("already")) {
+    status.innerText = "❌ Already claimed today. Come back tomorrow.";
+    } else {
+      status.innerText = `❌ ${data.error}`;
+    }
   } else {
-    status.innerText = `✅ ₱${data.applied_discount} DISCOUNT
-
-Visit ${data.visit}/5
-Next: ₱${data.next_reward}`;
+    status.innerHTML = `
+    <div style="font-size:20px; font-weight:700; margin-bottom:6px;">
+    ₱${data.applied_discount} Applied
+    </div>
+    <div style="font-size:14px; color:#666;">
+    Visit ${data.visit}/5 → Next ₱${data.next_reward}
+    </div>
+`;
   }
 
 try {
