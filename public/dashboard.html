@@ -162,7 +162,7 @@ button:hover {
   width: 220px;
   background: white;
   border-right: 1px solid var(--border);
-  height: 100vh;
+  min-height: 100vh;
   padding: 20px;
   position: relative;
 }
@@ -205,12 +205,29 @@ button:hover {
   flex: 1;
   padding: 24px;
 }
+
+.brand-block {
+  margin-bottom: 30px;
+}
+
+.logo {
+  color: #2B396D; /* FIXED */
+  margin-bottom: 4px;
+}
+
+#merchantSidebarName {
+  font-size: 12px;
+  color: var(--muted);
+}
   </style>
 </head>
 <body>
 <div class="app">
 <div class="sidebar">
-  <h2 class="logo">Tapr</h2>
+  <div class="brand-block">
+    <h2 class="logo">Tapr</h2>
+    <p id="merchantSidebarName"></p>
+  </div>
 
   <div class="menu">
     <button onclick="showPage('dashboard', this)" class="nav active">Dashboard</button>
@@ -364,6 +381,11 @@ button:hover {
   <script>
     const API = "https://tapr-backend-final-production.up.railway.app";
     const PUBLIC_URL = "https://usetapr.com";
+
+    if (data.name) {
+    document.getElementById("merchantName").innerText = data.name;
+    document.getElementById("merchantSidebarName").innerText = data.name;
+    }
 
 function showPage(page, el) {
   document.getElementById("dashboardPage").style.display = "none";
