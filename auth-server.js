@@ -878,7 +878,7 @@ app.get(/\.html$/, (req, res) => {
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.get('/merchant/:rest(*)', (req, res) => {
+app.get(/^\/merchant\/.*/, (req, res) => {
   res.status(404).json({ error: "Not found" });
 });
 
