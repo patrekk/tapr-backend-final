@@ -793,8 +793,18 @@ const { error: insertError } = await supabase
 if (insertError) {
   console.log("❌ SCAN ERROR:", insertError);
 
+  const msg = insertError.message || "";
+
+  // ✅ ONLY map duplicate error (no assumptions about name)
+  if (msg.includes("duplicate key value")) {
+    return res.json({
+      error: "Already Claimed Today. Come Back Tomorrow"
+    });
+  }
+
+  // fallback (real error)
   return res.json({
-    error: insertError.message
+    error: msg
   });
 }
 
