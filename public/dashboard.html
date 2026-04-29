@@ -360,6 +360,7 @@ button:hover {
 </div>
 
   <div class="cards">
+    <div id="loopSection"></div>
     <div class="card">
       <h3 id="customers">0</h3>
       <p>Customers</p>
@@ -694,10 +695,12 @@ else {
   `;
 }
 
-// APPLY STATE
-stateBox.innerHTML = stateHTML;
+      // APPLY STATE
+      stateBox.innerHTML = stateHTML;
 
-stateBox.innerHTML += `
+      const loopBox = document.getElementById("loopSection");
+const shouldCollapse = total < 5;
+loopBox.innerHTML = `
   <div style="
     background:white;
     padding:16px;
@@ -705,24 +708,25 @@ stateBox.innerHTML += `
     margin-bottom:20px;
     border:1px solid var(--border);
   ">
-    <div style="font-weight:600; margin-bottom:6px;">
-  Loop Progress
-</div>
-
-<div style="font-size:12px; color:#777; margin-bottom:6px;">
-  Completion: ${completed} (${completionRate}%)
-</div>
-
-${dropIndex >= 0 && biggestDrop > 0 ? `
-  <div style="font-size:12px; color:#777; margin-bottom:10px;">
-    Biggest drop: Visit ${dropIndex + 1} → Visit ${dropIndex + 2}
+    <div 
+  style="display:flex; justify-content:space-between; cursor:pointer;"
+  onclick="toggleLoop()"
+>
+  <div style="font-weight:600;">Loop Progress</div>
+  <div style="font-size:12px; color:#777;">
+    ${shouldCollapse ? "Show" : "Hide"}
   </div>
-` : ""}
-
-    ${dropIndex >= 0 && biggestDrop > 0 ? `
-    <div style="font-size:12px; color:#777; margin-bottom:10px;">
-      Biggest drop: Visit ${dropIndex + 1} → Visit ${dropIndex + 2}
+</div>
+    
+<div id="loopContent" style="display:${shouldCollapse ? "none" : "block"};">
+    <div style="font-size:12px; color:#777; margin-bottom:6px;">
+      Completion: ${completed} (${completionRate}%)
     </div>
+<div id="loopContent" style="display:${shouldCollapse ? "none" : "block"};">
+    ${dropIndex >= 0 && biggestDrop > 0 ? `
+      <div style="font-size:12px; color:#777; margin-bottom:10px;">
+        Biggest drop: Visit ${dropIndex + 1} → Visit ${dropIndex + 2}
+      </div>
     ` : ""}
 
     ${loop.map((count, i) => `
@@ -1036,6 +1040,11 @@ function getContrastColor(hex) {
 function toggleSidebar() {
   const sidebar = document.getElementById("sidebar");
   sidebar.classList.toggle("collapsed");
+}
+
+function toggleLoop() {
+  const el = document.getElementById("loopContent");
+  el.style.display = el.style.display === "none" ? "block" : "none";
 }
 
     document.addEventListener("DOMContentLoaded", () => {
