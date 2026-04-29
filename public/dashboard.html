@@ -188,6 +188,9 @@ button:hover {
   font-weight: 500;
   color: var(--muted);
   transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .nav:hover {
@@ -197,7 +200,7 @@ button:hover {
 
 .nav.active {
   background: var(--primary);
-  color: white;
+  color: var(--on-primary);
 }
 
 /* MAIN */
@@ -239,6 +242,34 @@ button:hover {
 
 .icon {
   font-size: 18px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 24px;
+}
+
+.sidebar.collapsed .nav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 14px 0;
+}
+
+.menu-toggle {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: none;
+  background: #f3f4f6;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.menu-toggle:hover {
+  background: #e5e7eb;
 }
   </style>
 </head>
@@ -246,14 +277,7 @@ button:hover {
 <div class="app">
 <div class="sidebar collapsed" id="sidebar">
   <div style="margin-bottom: 20px;">
-  <button onclick="toggleSidebar()" style="
-    background: none;
-    border: none;
-    font-size: 20px;
-    cursor: pointer;
-  ">
-    ☰
-  </button>
+  <button onclick="toggleSidebar()" class="menu-toggle">☰</button>
 </div>
   <div class="brand-block">
     <h2 class="logo">Tapr</h2>
@@ -620,9 +644,11 @@ async function applyBranding() {
   const data = await res.json();
 
   if (data.hex_color) {
-    document.documentElement.style
-      .setProperty('--primary', data.hex_color);
-  }
+  document.documentElement.style.setProperty('--primary', data.hex_color);
+
+  const contrast = getContrastColor(data.hex_color);
+  document.documentElement.style.setProperty('--on-primary', contrast);
+}
 
   // 🔥 SHOW PAGE AFTER COLOR APPLIED
   document.body.style.visibility = "visible";
@@ -784,6 +810,16 @@ function animateNumber(id, value) {
       el.innerText = Math.floor(start);
     }
   }, 16);
+}
+
+function getContrastColor(hex) {
+  const r = parseInt(hex.substr(1,2),16);
+  const g = parseInt(hex.substr(3,2),16);
+  const b = parseInt(hex.substr(5,2),16);
+
+  const brightness = (r*299 + g*587 + b*114) / 1000;
+
+  return brightness > 150 ? "#000000" : "#ffffff";
 }
 
 function toggleSidebar() {
