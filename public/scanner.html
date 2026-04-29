@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <title>Tapr Scanner</title>
   <style>
     :root {
-    --primary: #2B396D;
+      --primary: #2B396D;
     }
 
     .logo {
@@ -29,7 +30,7 @@
       background: white;
       padding: 20px;
       border-radius: 12px;
-      box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
       width: 100%;
       max-width: 420px;
     }
@@ -62,6 +63,7 @@
     }
   </style>
 </head>
+
 <body>
 
   <div class="container">
@@ -110,55 +112,55 @@
 
       try {
 
-  await scannerInstance.start(
-    { facingMode: "environment" },
-    { fps: 10, qrbox: 250 },
-    async (decodedText) => {
+        await scannerInstance.start(
+          { facingMode: "environment" },
+          { fps: 10, qrbox: 250 },
+          async (decodedText) => {
 
-        if (!isScanning) return;
+            if (!isScanning) return;
 
-          isScanning = false;
-          status.innerText = "Processing...";
+            isScanning = false;
+            status.innerText = "Processing...";
 
-          let data;
+            let data;
 
-try {
-  const res = await fetch(`${API}/scan`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "authorization": getToken()
-    },
-    body: JSON.stringify({ token: decodedText })
-  });
+            try {
+              const res = await fetch(`${API}/scan`, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  "authorization": getToken()
+                },
+                body: JSON.stringify({ token: decodedText })
+              });
 
-  data = await res.json();
+              data = await res.json();
 
-} catch (err) {
-  status.innerText = "❌ Network error. Try again.";
-  try { await scannerInstance.stop(); } catch(e) {}
-  scannerInstance = null;
-  return;
-}
+            } catch (err) {
+              status.innerText = "❌ Network error. Try again.";
+              try { await scannerInstance.stop(); } catch (e) { }
+              scannerInstance = null;
+              return;
+            }
 
-  if (data.error === "No session" || data.error === "Invalid session") {
-  try {
-    await scannerInstance.stop();
-  } catch (e) {}
-  scannerInstance = null;
-  window.location.href = "/login";
-  return;
-}
+            if (data.error === "No session" || data.error === "Invalid session") {
+              try {
+                await scannerInstance.stop();
+              } catch (e) { }
+              scannerInstance = null;
+              window.location.href = "/login";
+              return;
+            }
 
-  if (data.error) {
-    if (data.error.toLowerCase().includes("duplicate") || 
-    data.error.toLowerCase().includes("already")) {
-    status.innerText = "❌ Already claimed today. Come back tomorrow.";
-    } else {
-      status.innerText = `❌ ${data.error}`;
-    }
-  } else {
-    status.innerHTML = `
+            if (data.error) {
+              if (data.error.toLowerCase().includes("duplicate") ||
+                data.error.toLowerCase().includes("already")) {
+                status.innerText = "❌ Already claimed today. Come back tomorrow.";
+              } else {
+                status.innerText = `❌ ${data.error}`;
+              }
+            } else {
+              status.innerHTML = `
     <div style="font-size:20px; font-weight:700; margin-bottom:6px;">
     ₱${data.applied_discount} Applied
     </div>
@@ -166,26 +168,27 @@ try {
     Visit ${data.visit}/5 → Next ₱${data.next_reward}
     </div>
 `;
-  }
+            }
 
-try {
-  await scannerInstance.stop();
-} catch (e) {}
-scannerInstance = null;
-        } // closes callback
-      ); // closes start()
+            try {
+              await scannerInstance.stop();
+            } catch (e) { }
+            scannerInstance = null;
+          } // closes callback
+        ); // closes start()
 
-      status.innerText = "Camera ready";
+        status.innerText = "Camera ready";
 
       } catch (err) {
-  status.innerText = "❌ Camera error. Allow camera access.";
-  scannerInstance = null;
-}
+        status.innerText = "❌ Camera error. Allow camera access.";
+        scannerInstance = null;
+      }
     }
-  
 
-    
+
+
   </script>
 
 </body>
+
 </html>

@@ -1,35 +1,35 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <title>Dashboard</title>
   <style>
-
-  body {
-  visibility: hidden;
-}
+    body {
+      visibility: hidden;
+    }
 
     :root {
-  --primary: #2B396D;
-  --bg: #F7F8FA;
-  --card: #FFFFFF;
-  --text: #0B0B0B;
-  --muted: #777;
-  --border: #E5E7EB;
-}
+      --primary: #2B396D;
+      --bg: #F7F8FA;
+      --card: #FFFFFF;
+      --text: #0B0B0B;
+      --muted: #777;
+      --border: #E5E7EB;
+    }
 
-.container {
-  max-width: 1100px;
-  margin: 0 auto;
-}
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
 
     body {
-  font-family: 'Inter', sans-serif;
-  margin: 0;
-  padding: 0;
-  background: var(--bg);
-  color: var(--text);
-}
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+    }
 
     h2 {
       margin-bottom: 10px;
@@ -42,524 +42,527 @@
     }
 
     .card {
-  flex: 1;
-  background: var(--card);
-  padding: 22px;
-  border-radius: 18px;
-  border: 1px solid var(--border);
-  text-align: left;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.05);
-}
+      flex: 1;
+      background: var(--card);
+      padding: 22px;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      text-align: left;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
+    }
 
-.card h3 {
-  font-size: 32px;
-  margin: 0;
-  color: var(--primary);
-}
+    .card h3 {
+      font-size: 32px;
+      margin: 0;
+      color: var(--primary);
+    }
 
-.card p {
-  font-size: 13px;
-  color: var(--muted);
-  margin-top: 6px;
-}
+    .card p {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 6px;
+    }
 
     .section {
-  background: var(--card);
-  padding: 20px;
-  border-radius: 16px;
-  border: 1px solid var(--border);
-  margin-bottom: 20px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.04);
-}
+      background: var(--card);
+      padding: 20px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      margin-bottom: 20px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+    }
 
     table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px;
-}
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
 
-th {
-  text-align: left;
-  padding: 10px;
-  font-size: 13px;
-  color: var(--muted);
-  border-bottom: 1px solid var(--border);
-}
+    th {
+      text-align: left;
+      padding: 10px;
+      font-size: 13px;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+    }
 
-td {
-  padding: 12px 10px;
-  border-bottom: 1px solid var(--border);
-  font-size: 14px;
-}
+    td {
+      padding: 12px 10px;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+    }
 
-tr:hover {
-  background: #f9fafb;
-}
+    tr:hover {
+      background: #f9fafb;
+    }
 
-button {
-  padding: 12px 16px;
-  background: var(--primary);
-  color: white;
-  border: none;
-  border-radius: 12px;
-  font-weight: 600;
-  cursor: pointer;
-}
+    button {
+      padding: 12px 16px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
 
-button.secondary {
-  background: white;
-  color: var(--text);
-  border: 1px solid var(--border);
-}
+    button.secondary {
+      background: white;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
 
-button:hover {
-  filter: brightness(0.9);
-}
+    button:hover {
+      filter: brightness(0.9);
+    }
 
     #qrBox {
-  text-align: center;
-  margin-top: 16px;
-  padding: 16px;
-  background: #fafafa;
-  border-radius: 12px;
-}
+      text-align: center;
+      margin-top: 16px;
+      padding: 16px;
+      background: #fafafa;
+      border-radius: 12px;
+    }
 
     #qrBox img {
       width: 200px;
     }
 
     #link {
-  font-size: 12px;
-  word-break: break-all;
-  color: var(--muted);
-  margin-top: 10px;
-}
+      font-size: 12px;
+      word-break: break-all;
+      color: var(--muted);
+      margin-top: 10px;
+    }
 
-.topbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-}
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
 
-.topbar h2 {
-  margin: 0;
-  font-size: 22px;
-}    
+    .topbar h2 {
+      margin: 0;
+      font-size: 22px;
+    }
 
-.section h3 {
-  margin-top: 0;
-  margin-bottom: 16px;
-  font-size: 16px;
-}
+    .section h3 {
+      margin-top: 0;
+      margin-bottom: 16px;
+      font-size: 16px;
+    }
 
-.app {
-  display: flex;
-}
+    .app {
+      display: flex;
+    }
 
-/* SIDEBAR */
-.sidebar {
-  width: 220px;
-  background: white;
-  border-right: 1px solid var(--border);
-  min-height: 100vh;
-  padding: 20px;
-  position: relative;
-}
+    /* SIDEBAR */
+    .sidebar {
+      width: 220px;
+      background: white;
+      border-right: 1px solid var(--border);
+      min-height: 100vh;
+      padding: 20px;
+      position: relative;
+    }
 
-.logo {
-  margin-bottom: 30px;
-  color: #2B396D;
-}
+    .logo {
+      margin-bottom: 30px;
+      color: #2B396D;
+    }
 
-.menu {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
+    .menu {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
 
-.nav {
-  background: none;
-  border: none;
-  text-align: left;
-  padding: 12px;
-  border-radius: 10px;
-  cursor: pointer;
-  font-weight: 500;
-  color: var(--muted);
-  transition: all 0.15s ease;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
+    .nav {
+      background: none;
+      border: none;
+      text-align: left;
+      padding: 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 500;
+      color: var(--muted);
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
 
-.nav:hover {
-  background: #f3f4f6;
-  color: var(--text);
-}
+    .nav:hover {
+      background: #f3f4f6;
+      color: var(--text);
+    }
 
-.nav.active {
-  background: var(--primary);
-  color: var(--on-primary);
-}
+    .nav.active {
+      background: var(--primary);
+      color: var(--on-primary);
+    }
 
-/* MAIN */
-.main {
-  flex: 1;
-  padding: 24px;
-}
+    /* MAIN */
+    .main {
+      flex: 1;
+      padding: 24px;
+    }
 
-.brand-block {
-  margin-bottom: 30px;
-}
+    .brand-block {
+      margin-bottom: 30px;
+    }
 
-.logo {
-  color: #2B396D; /* FIXED */
-  margin-bottom: 4px;
-}
+    .logo {
+      color: #2B396D;
+      /* FIXED */
+      margin-bottom: 4px;
+    }
 
-#merchantSidebarName {
-  font-size: 11px;
-  color: var(--muted);
-  opacity: 0.6;
-}
+    #merchantSidebarName {
+      font-size: 11px;
+      color: var(--muted);
+      opacity: 0.6;
+    }
 
-/* SIDEBAR COLLAPSE */
-.sidebar {
-  width: 220px;
-  transition: all 0.2s ease;
-}
+    /* SIDEBAR COLLAPSE */
+    .sidebar {
+      width: 220px;
+      transition: all 0.2s ease;
+    }
 
-.sidebar.collapsed {
-  width: 70px;
-}
+    .sidebar.collapsed {
+      width: 70px;
+    }
 
-.sidebar.collapsed .label,
-.sidebar.collapsed .logo,
-.sidebar.collapsed #merchantSidebarName {
-  display: none;
-}
+    .sidebar.collapsed .label,
+    .sidebar.collapsed .logo,
+    .sidebar.collapsed #merchantSidebarName {
+      display: none;
+    }
 
-.icon {
-  font-size: 18px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 24px;
-}
+    .icon {
+      font-size: 18px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 24px;
+    }
 
-.sidebar.collapsed .nav {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 14px 0;
-}
+    .sidebar.collapsed .nav {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 14px 0;
+    }
 
-.menu-toggle {
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  border: none;
-  background: #f3f4f6;
-  cursor: pointer;
-  font-size: 18px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+    .menu-toggle {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      border: none;
+      background: #f3f4f6;
+      cursor: pointer;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
-.menu-toggle:hover {
-  background: #e5e7eb;
-}
+    .menu-toggle:hover {
+      background: #e5e7eb;
+    }
 
-.menu-toggle-wrapper {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 20px;
-}
+    .menu-toggle-wrapper {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
 
-.sidebar:not(.collapsed) .menu-toggle-wrapper {
-  justify-content: flex-start;
-}
+    .sidebar:not(.collapsed) .menu-toggle-wrapper {
+      justify-content: flex-start;
+    }
 
-.menu-toggle {
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  border: none;
-  background: #f3f4f6;
-  cursor: pointer;
-  font-size: 18px;
-}
+    .menu-toggle {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      border: none;
+      background: #f3f4f6;
+      cursor: pointer;
+      font-size: 18px;
+    }
 
-.sidebar.collapsed .nav {
-  position: relative;
-}
+    .sidebar.collapsed .nav {
+      position: relative;
+    }
 
-.sidebar.collapsed .nav:hover::after {
-  content: attr(title);
-  position: absolute;
-  left: 70px;
-  background: #111;
-  color: white;
-  padding: 6px 10px;
-  border-radius: 6px;
-  font-size: 12px;
-  white-space: nowrap;
-}
+    .sidebar.collapsed .nav:hover::after {
+      content: attr(title);
+      position: absolute;
+      left: 70px;
+      background: #111;
+      color: white;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      white-space: nowrap;
+    }
   </style>
 </head>
+
 <body>
-<div class="app">
-<div class="sidebar collapsed" id="sidebar">
-  <div class="menu-toggle-wrapper">
-    <button onclick="toggleSidebar()" class="menu-toggle">☰</button>
-  </div>
-  <div class="brand-block">
-    <h2 class="logo">Tapr</h2>
-    <p id="merchantSidebarName"></p>
-  </div>
+  <div class="app">
+    <div class="sidebar collapsed" id="sidebar">
+      <div class="menu-toggle-wrapper">
+        <button onclick="toggleSidebar()" class="menu-toggle">☰</button>
+      </div>
+      <div class="brand-block">
+        <h2 class="logo">Tapr</h2>
+        <p id="merchantSidebarName"></p>
+      </div>
 
-  <div class="menu">
-    <button onclick="showPage('dashboard', this)" class="nav active" title="Dashboard">
-      <span class="icon">🏠</span>
-      <span class="label">Dashboard</span>
-    </button>
-    <button onclick="showPage('profile', this)" class="nav" title="Profile">
-      <span class="icon">👤</span>
-      <span class="label">Profile</span>
-    </button>
-    <button onclick="showPage('pass', this)" class="nav" title="Pass Customization">
-      <span class="icon">🎟</span>
-      <span class="label">Pass Customization</span>
-    </button>
-    <button onclick="showPage('qr', this)" class="nav" title="Store QR">
-      <span class="icon">🔳</span>
-      <span class="label">Store QR</span>
-    </button>
-  </div>
+      <div class="menu">
+        <button onclick="showPage('dashboard', this)" class="nav active" title="Dashboard">
+          <span class="icon">🏠</span>
+          <span class="label">Dashboard</span>
+        </button>
+        <button onclick="showPage('profile', this)" class="nav" title="Profile">
+          <span class="icon">👤</span>
+          <span class="label">Profile</span>
+        </button>
+        <button onclick="showPage('pass', this)" class="nav" title="Pass Customization">
+          <span class="icon">🎟</span>
+          <span class="label">Pass Customization</span>
+        </button>
+        <button onclick="showPage('qr', this)" class="nav" title="Store QR">
+          <span class="icon">🔳</span>
+          <span class="label">Store QR</span>
+        </button>
+      </div>
 
-  <div style="position:absolute; bottom:20px; left:20px; right:20px;">
-  <button onclick="logout()" class="nav" style="width:100%;">
-    Logout
-  </button>
-</div>
-</div>
-
-<div class="main">
-<div id="dashboardPage">
-<div id="dashboardState"></div>
-<div class="topbar">
-  <div>
-  <h2 id="pageTitle">Dashboard</h2>
-    <p id="pageSubtitle">
-      Your loyalty system is active and ready to scan customers.
-    </p>
-  </div>
-  <button onclick="goScanner()">Open Scanner</button>
-</div>
-
-  <div class="cards">
-    <div id="loopSection"></div>
-    <div class="card">
-      <h3 id="customers">0</h3>
-      <p>Customers</p>
-    </div>
-    <div class="card">
-      <h3 id="scans">0</h3>
-      <p>Visits</p>
-    </div>
-    <div class="card">
-      <h3 id="avg">0</h3>
-      <p>Avg Visits</p>
-    </div>
-  </div>
-
-  <div class="section">
-    <h3>Customers</h3>
-    <table>
-      <thead>
-        <tr>
-          <th>Phone</th>
-          <th>Name</th>
-          <th>Loop</th>
-          <th>Total</th>
-        </tr>
-      </thead>
-      <tbody id="customersTable"></tbody>
-    </table>
-  </div>
-
-  <div class="section">
-    <h3>Recent Scans</h3>
-    <table>
-      <thead>
-        <tr>
-          <th>Phone</th>
-          <th>Visit</th>
-          <th>Discount</th>
-          <th>Time</th>
-        </tr>
-      </thead>
-      <tbody id="logsTable"></tbody>
-    </table>
-  </div>
-
-</div> <!-- dashboardPage -->
-
-<div id="profilePage" style="display:none;">
-
-  <div class="section">
-    <h3>Business Profile</h3>
-
-    <div style="display:flex; gap:10px; margin-bottom:10px;">
-      <input id="nameInput" placeholder="Business Name">
-      <input id="emailInput" placeholder="Email">
-      <input id="colorInput" placeholder="#2B396D">
+      <div style="position:absolute; bottom:20px; left:20px; right:20px;">
+        <button onclick="logout()" class="nav" style="width:100%;">
+          Logout
+        </button>
+      </div>
     </div>
 
-    <div style="margin-bottom:10px;">
-      <input type="file" id="logoInput">
-      <p style="font-size:12px; color:#777; margin-top:6px;">
-      Recommended: square logo (1:1), at least 300x300px
-      </p>
-</div>
+    <div class="main">
+      <div id="dashboardPage">
+        <div id="dashboardState"></div>
+        <div class="topbar">
+          <div>
+            <h2 id="pageTitle">Dashboard</h2>
+            <p id="pageSubtitle">
+              Your loyalty system is active and ready to scan customers.
+            </p>
+          </div>
+          <button onclick="goScanner()">Open Scanner</button>
+        </div>
 
-<button onclick="saveProfile(event)">Save Changes</button>
-  </div>
+        <div class="cards">
+          <div id="loopSection"></div>
+          <div class="card">
+            <h3 id="customers">0</h3>
+            <p>Customers</p>
+          </div>
+          <div class="card">
+            <h3 id="scans">0</h3>
+            <p>Visits</p>
+          </div>
+          <div class="card">
+            <h3 id="avg">0</h3>
+            <p>Avg Visits</p>
+          </div>
+        </div>
 
-  <div class="section">
-    <h3>Change Password</h3>
+        <div class="section">
+          <h3>Customers</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Phone</th>
+                <th>Name</th>
+                <th>Loop</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody id="customersTable"></tbody>
+          </table>
+        </div>
 
-    <input type="password" id="newPassword" placeholder="New Password" style="margin-bottom:10px;">
-    <input type="password" id="confirmPassword" placeholder="Re-enter Password" style="margin-bottom:10px;">
+        <div class="section">
+          <h3>Recent Scans</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Phone</th>
+                <th>Visit</th>
+                <th>Discount</th>
+                <th>Time</th>
+              </tr>
+            </thead>
+            <tbody id="logsTable"></tbody>
+          </table>
+        </div>
 
-    <button onclick="changePassword()">Update Password</button>
-  </div>
+      </div> <!-- dashboardPage -->
 
-</div><!-- profilePage -->
+      <div id="profilePage" style="display:none;">
 
-<div id="passPage" style="display:none;">
+        <div class="section">
+          <h3>Business Profile</h3>
 
-  <div class="section">
+          <div style="display:flex; gap:10px; margin-bottom:10px;">
+            <input id="nameInput" placeholder="Business Name">
+            <input id="emailInput" placeholder="Email">
+            <input id="colorInput" placeholder="#2B396D">
+          </div>
 
-    <h3>Pass Customization</h3>
+          <div style="margin-bottom:10px;">
+            <input type="file" id="logoInput">
+            <p style="font-size:12px; color:#777; margin-top:6px;">
+              Recommended: square logo (1:1), at least 300x300px
+            </p>
+          </div>
 
-    <p style="font-size:13px; color:#777;">
+          <button onclick="saveProfile(event)">Save Changes</button>
+        </div>
 
-      Customize your loyalty pass design and rewards layout.
+        <div class="section">
+          <h3>Change Password</h3>
 
-    </p>
+          <input type="password" id="newPassword" placeholder="New Password" style="margin-bottom:10px;">
+          <input type="password" id="confirmPassword" placeholder="Re-enter Password" style="margin-bottom:10px;">
 
-    <button class="secondary" disabled>
+          <button onclick="changePassword()">Update Password</button>
+        </div>
 
-      Coming Soon
+      </div><!-- profilePage -->
 
-    </button>
+      <div id="passPage" style="display:none;">
 
-  </div>
+        <div class="section">
 
-</div>
+          <h3>Pass Customization</h3>
 
-<div id="qrPage" style="display:none;">
+          <p style="font-size:13px; color:#777;">
 
-  <div class="section">
-    <h3>Your Store QR</h3>
+            Customize your loyalty pass design and rewards layout.
 
-    <p style="font-size:13px; color:var(--muted); margin-bottom:16px;">
-      Let customers scan this to join your loyalty program.
-    </p>
+          </p>
 
-    <button onclick="generateQR()" class="secondary">
-      Generate QR
-    </button>
+          <button class="secondary" disabled>
 
-    <div id="qrBox"></div>
-    <p id="link"></p>
-  </div>
+            Coming Soon
 
-</div>
+          </button>
 
-  <script>
-    const API = "https://tapr-backend-final-production.up.railway.app";
-    const PUBLIC_URL = "https://usetapr.com";
+        </div>
 
-function showPage(page, el) {
-  document.getElementById("dashboardPage").style.display = "none";
-  document.getElementById("profilePage").style.display = "none";
-  document.getElementById("passPage").style.display = "none";
-  document.getElementById("qrPage").style.display = "none";
+      </div>
 
-  document.getElementById(page + "Page").style.display = "block";
+      <div id="qrPage" style="display:none;">
 
-  const titles = {
-    dashboard: "Dashboard",
-    profile: "Profile",
-    pass: "Pass Customization",
-    qr: "Store QR"
-  };
+        <div class="section">
+          <h3>Your Store QR</h3>
 
-  const subtitles = {
-    dashboard: "Your loyalty system is active and ready to scan customers.",
-    profile: "Manage your business details and branding.",
-    pass: "Customize how your loyalty pass looks to customers.",
-    qr: "Let customers scan this to join your loyalty program."
-  };
+          <p style="font-size:13px; color:var(--muted); margin-bottom:16px;">
+            Let customers scan this to join your loyalty program.
+          </p>
 
-document.getElementById("pageTitle").innerText = titles[page];
-document.getElementById("pageSubtitle").innerText = subtitles[page];
+          <button onclick="generateQR()" class="secondary">
+            Generate QR
+          </button>
 
-  document.querySelectorAll(".nav").forEach(btn => btn.classList.remove("active"));
-  el.classList.add("active");
+          <div id="qrBox"></div>
+          <p id="link"></p>
+        </div>
 
-  // 🔥 AUTO LOAD QR
+      </div>
 
-  if (page === "qr") {
+      <script>
+        const API = "https://tapr-backend-final-production.up.railway.app";
+        const PUBLIC_URL = "https://usetapr.com";
 
-    generateQR();}
-}
+        function showPage(page, el) {
+          document.getElementById("dashboardPage").style.display = "none";
+          document.getElementById("profilePage").style.display = "none";
+          document.getElementById("passPage").style.display = "none";
+          document.getElementById("qrPage").style.display = "none";
 
-    function getToken() {
-      return localStorage.getItem("token");
-    }
+          document.getElementById(page + "Page").style.display = "block";
 
-    if (!getToken()) {
-      window.location.href = "/login";
-    }
+          const titles = {
+            dashboard: "Dashboard",
+            profile: "Profile",
+            pass: "Pass Customization",
+            qr: "Store QR"
+          };
 
-    function goScanner() {
-      window.location.href = "/scanner";
-    }
+          const subtitles = {
+            dashboard: "Your loyalty system is active and ready to scan customers.",
+            profile: "Manage your business details and branding.",
+            pass: "Customize how your loyalty pass looks to customers.",
+            qr: "Let customers scan this to join your loyalty program."
+          };
 
-    async function loadStats() {
-      const res = await fetch(`${API}/merchant/stats`, {
-        headers: { authorization: getToken() }
-      });
-      const data = await res.json();
+          document.getElementById("pageTitle").innerText = titles[page];
+          document.getElementById("pageSubtitle").innerText = subtitles[page];
 
-      animateNumber("customers", data.total_customers ?? 0);
-      animateNumber("scans", data.total_visits ?? 0);
-      animateNumber("avg", data.avg_visits ?? 0);
-    }
+          document.querySelectorAll(".nav").forEach(btn => btn.classList.remove("active"));
+          el.classList.add("active");
 
-    async function loadCustomers() {
-      const res = await fetch(`${API}/merchant/customers`, {
-        headers: { authorization: getToken() }
-      });
-      const data = await res.json();
+          // 🔥 AUTO LOAD QR
 
-      const table = document.getElementById("customersTable");
-      const stateBox = document.getElementById("dashboardState");
-      table.innerHTML = "";
+          if (page === "qr") {
 
-      if (!Array.isArray(data)) {
-  console.log("Customers error:", data);
-  return;
-}
+            generateQR();
+          }
+        }
 
-if (data.length === 0) {
+        function getToken() {
+          return localStorage.getItem("token");
+        }
 
-  stateBox.innerHTML = `
+        if (!getToken()) {
+          window.location.href = "/login";
+        }
+
+        function goScanner() {
+          window.location.href = "/scanner";
+        }
+
+        async function loadStats() {
+          const res = await fetch(`${API}/merchant/stats`, {
+            headers: { authorization: getToken() }
+          });
+          const data = await res.json();
+
+          animateNumber("customers", data.total_customers ?? 0);
+          animateNumber("scans", data.total_visits ?? 0);
+          animateNumber("avg", data.avg_visits ?? 0);
+        }
+
+        async function loadCustomers() {
+          const res = await fetch(`${API}/merchant/customers`, {
+            headers: { authorization: getToken() }
+          });
+          const data = await res.json();
+
+          const table = document.getElementById("customersTable");
+          const stateBox = document.getElementById("dashboardState");
+          table.innerHTML = "";
+
+          if (!Array.isArray(data)) {
+            console.log("Customers error:", data);
+            return;
+          }
+
+          if (data.length === 0) {
+
+            stateBox.innerHTML = `
     <div style="
       background:#eef2ff;
       padding:20px;
@@ -582,7 +585,7 @@ if (data.length === 0) {
     </div>
   `;
 
-  table.innerHTML = `
+            table.innerHTML = `
     <tr>
       <td colspan="4" style="text-align:center; padding:30px; color:#777;">
         No customers yet.<br>
@@ -591,47 +594,47 @@ if (data.length === 0) {
     </tr>
   `;
 
-  return;
-}
+            return;
+          }
 
-const total = data.length;
+          const total = data.length;
 
-const loop = [0, 0, 0, 0, 0];
+          const loop = [0, 0, 0, 0, 0];
 
-const completed = loop[4]; // Visit 5
-const completionRate =
-  total > 0 ? Math.round((completed / total) * 100) : 0;
+          data.forEach(c => {
+            const v = c.visit_count || 0;
 
-let biggestDrop = 0;
-let dropIndex = -1;
+            if (v >= 1 && v <= 5) {
+              loop[v - 1]++;
+            }
+          });
 
-for (let i = 0; i < loop.length - 1; i++) {
-  const drop = loop[i] - loop[i + 1];
+          const completed = loop[4]; // Visit 5
+          const completionRate =
+            total > 0 ? Math.round((completed / total) * 100) : 0;
 
-  if (drop > biggestDrop) {
-    biggestDrop = drop;
-    dropIndex = i;
-  }
-}
+          let biggestDrop = 0;
+          let dropIndex = -1;
 
-data.forEach(c => {
-  const v = c.visit_count || 0;
+          for (let i = 0; i < loop.length - 1; i++) {
+            const drop = loop[i] - loop[i + 1];
 
-  if (v >= 1 && v <= 5) {
-    loop[v - 1]++;
-  }
-});
+            if (drop > biggestDrop) {
+              biggestDrop = drop;
+              dropIndex = i;
+            }
+          }
 
-const returning = data.filter(c => (c.total_visits || 0) > 1).length;
+          const returning = data.filter(c => (c.total_visits || 0) > 1).length;
 
-const retention =
-  total > 0 ? Math.round((returning / total) * 100) : 0;
+          const retention =
+            total > 0 ? Math.round((returning / total) * 100) : 0;
 
-let stateHTML = "";
+          let stateHTML = "";
 
-// STATE 2 — FIRST TRACTION
-if (total <= 5) {
-  stateHTML = `
+          // STATE 2 — FIRST TRACTION
+          if (total <= 5) {
+            stateHTML = `
     <div style="
       background:#eef2ff;
       padding:20px;
@@ -647,11 +650,11 @@ if (total <= 5) {
       </div>
     </div>
   `;
-}
+          }
 
-// STATE 3 — GROWTH
-else if (total <= 20) {
-  stateHTML = `
+          // STATE 3 — GROWTH
+          else if (total <= 20) {
+            stateHTML = `
     <div style="
       background:#ecfeff;
       padding:20px;
@@ -671,11 +674,11 @@ else if (total <= 20) {
       </div>
     </div>
   `;
-}
+          }
 
-// STATE 4 — STRONG
-else {
-  stateHTML = `
+          // STATE 4 — STRONG
+          else {
+            stateHTML = `
     <div style="
       background:#ecfdf5;
       padding:20px;
@@ -693,14 +696,14 @@ else {
       </div>
     </div>
   `;
-}
+          }
 
-      // APPLY STATE
-      stateBox.innerHTML = stateHTML;
+          // APPLY STATE
+          stateBox.innerHTML = stateHTML;
 
-      const loopBox = document.getElementById("loopSection");
-const shouldCollapse = total < 5;
-loopBox.innerHTML = `
+          const loopBox = document.getElementById("loopSection");
+          const shouldCollapse = total < 5;
+          loopBox.innerHTML = `
   <div style="
     background:white;
     padding:16px;
@@ -711,11 +714,21 @@ loopBox.innerHTML = `
     <div 
   style="display:flex; justify-content:space-between; cursor:pointer;"
   onclick="toggleLoop()"
->
-  <div style="font-weight:600;">Loop Progress</div>
-  <div style="font-size:12px; color:#777;">
-    ${shouldCollapse ? "Show" : "Hide"}
+  >
+  <div style="display:flex; justify-content:space-between; align-items:center;">
+  <div style="font-weight:600;">
+    Loop Progress
   </div>
+
+  <button onclick="toggleLoop()" style="
+    background:none;
+    border:none;
+    color: var(--primary);
+    font-size:12px;
+    cursor:pointer;
+  ">
+    Show
+  </button>
 </div>
     
 <div id="loopContent" style="display:${shouldCollapse ? "none" : "block"};">
@@ -748,8 +761,8 @@ loopBox.innerHTML = `
   </div>
 `;
 
-      data.forEach(c => {
-        table.innerHTML += `
+          data.forEach(c => {
+            table.innerHTML += `
           <tr>
             <td>${c.phone}</td>
             <td>${c.name || "-"}</td>
@@ -757,26 +770,26 @@ loopBox.innerHTML = `
             <td>${c.total_visits || 0}</td>
           </tr>
         `;
-      });
-    }
+          });
+        }
 
-    async function loadLogs() {
-  const res = await fetch(`${API}/merchant/scan-logs`, {
-    headers: { authorization: getToken() }
-  });
+        async function loadLogs() {
+          const res = await fetch(`${API}/merchant/scan-logs`, {
+            headers: { authorization: getToken() }
+          });
 
-  const data = await res.json();
+          const data = await res.json();
 
-  const table = document.getElementById("logsTable");
-  table.innerHTML = "";
+          const table = document.getElementById("logsTable");
+          table.innerHTML = "";
 
-  if (!Array.isArray(data)) {
-  console.log("Logs error:", data);
-  return;
-}
+          if (!Array.isArray(data)) {
+            console.log("Logs error:", data);
+            return;
+          }
 
-if (data.length === 0) {
-  table.innerHTML = `
+          if (data.length === 0) {
+            table.innerHTML = `
     <tr>
       <td colspan="4" style="text-align:center; padding:30px; color:#777;">
         No scans yet.<br>
@@ -784,29 +797,29 @@ if (data.length === 0) {
       </td>
     </tr>
   `;
-  return;
-}
+            return;
+          }
 
-  data.forEach(l => {
-  let visit = "-";
-  let discount = "-";
+          data.forEach(l => {
+            let visit = "-";
+            let discount = "-";
 
-  if (typeof l.result === "string") {
-  try {
-    const parsed = JSON.parse(l.result);
-    visit = parsed.visit ?? "-";
-    discount = parsed.discount ?? "-";
-  } catch {
-    visit = "-";
-    discount = "-";
-  }
-} else {
-  // ✅ already object (your current backend)
-  visit = l.result?.visit ?? "-";
-  discount = l.result?.discount ?? "-";
-}
+            if (typeof l.result === "string") {
+              try {
+                const parsed = JSON.parse(l.result);
+                visit = parsed.visit ?? "-";
+                discount = parsed.discount ?? "-";
+              } catch {
+                visit = "-";
+                discount = "-";
+              }
+            } else {
+              // ✅ already object (your current backend)
+              visit = l.result?.visit ?? "-";
+              discount = l.result?.discount ?? "-";
+            }
 
-  table.innerHTML += `
+            table.innerHTML += `
     <tr>
       <td>${l.phone}</td>
       <td>${visit}</td>
@@ -814,248 +827,249 @@ if (data.length === 0) {
       <td>${new Date(l.scanned_at).toLocaleTimeString()}</td>
     </tr>
   `;
-});
-}
+          });
+        }
 
-    async function generateQR() {
-  const btn = event?.target || document.querySelector("#qrPage button");
-  btn.disabled = true;
-  btn.style.opacity = "0.6";
+        async function generateQR() {
+          const btn = event?.target || document.querySelector("#qrPage button");
+          btn.disabled = true;
+          btn.style.opacity = "0.6";
 
-  const res = await fetch(`${API}/merchant/me`, {
-    headers: { authorization: getToken() }
-  });
+          const res = await fetch(`${API}/merchant/me`, {
+            headers: { authorization: getToken() }
+          });
 
-  const data = await res.json();
+          const data = await res.json();
 
-  const url = `${PUBLIC_URL}/join/${data.slug}`;
+          const url = `${PUBLIC_URL}/join/${data.slug}`;
 
-  document.getElementById("link").innerText = url;
+          document.getElementById("link").innerText = url;
 
-  document.getElementById("qrBox").innerHTML =
-    `<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${url}" />`;
+          document.getElementById("qrBox").innerHTML =
+            `<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${url}" />`;
 
-  btn.disabled = false;
-  btn.style.opacity = "1";
-}
+          btn.disabled = false;
+          btn.style.opacity = "1";
+        }
 
-async function loadProfile() {
-  const res = await fetch(`${API}/merchant/me`, {
-    headers: { authorization: getToken() }
-  });
+        async function loadProfile() {
+          const res = await fetch(`${API}/merchant/me`, {
+            headers: { authorization: getToken() }
+          });
 
-  const data = await res.json();
+          const data = await res.json();
 
-  if (data.name) document.getElementById("nameInput").value = data.name;
-  if (data.email) document.getElementById("emailInput").value = data.email;
-  if (data.hex_color) document.getElementById("colorInput").value = data.hex_color;
-}
+          if (data.name) document.getElementById("nameInput").value = data.name;
+          if (data.email) document.getElementById("emailInput").value = data.email;
+          if (data.hex_color) document.getElementById("colorInput").value = data.hex_color;
+        }
 
-async function applyBranding() {
-  const res = await fetch(`${API}/merchant/me`, {
-    headers: { authorization: getToken() }
-  });
+        async function applyBranding() {
+          const res = await fetch(`${API}/merchant/me`, {
+            headers: { authorization: getToken() }
+          });
 
-  const data = await res.json();
+          const data = await res.json();
 
-  if (data.hex_color) {
-  document.documentElement.style.setProperty('--primary', data.hex_color);
+          if (data.hex_color) {
+            document.documentElement.style.setProperty('--primary', data.hex_color);
 
-  const contrast = getContrastColor(data.hex_color);
-  document.documentElement.style.setProperty('--on-primary', contrast);
-}
+            const contrast = getContrastColor(data.hex_color);
+            document.documentElement.style.setProperty('--on-primary', contrast);
+          }
 
-  // 🔥 SHOW PAGE AFTER COLOR APPLIED
-  document.body.style.visibility = "visible";
-}
+          // 🔥 SHOW PAGE AFTER COLOR APPLIED
+          document.body.style.visibility = "visible";
+        }
 
-async function saveProfile(event) {
-  const btn = event.target;
-  btn.innerText = "Saving...";
-  btn.disabled = true;
+        async function saveProfile(event) {
+          const btn = event.target;
+          btn.innerText = "Saving...";
+          btn.disabled = true;
 
-  const name = document.getElementById("nameInput").value;
-  const email = document.getElementById("emailInput").value;
-  const color = document.getElementById("colorInput").value;
+          const name = document.getElementById("nameInput").value;
+          const email = document.getElementById("emailInput").value;
+          const color = document.getElementById("colorInput").value;
 
-  if (!name || !email) {
-  alert("Name and email required");
-  btn.innerText = "Save Changes";
-  btn.disabled = false;
-  return;
-}
+          if (!name || !email) {
+            alert("Name and email required");
+            btn.innerText = "Save Changes";
+            btn.disabled = false;
+            return;
+          }
 
-if (!/^\S+@\S+\.\S+$/.test(email)) {
-  alert("Invalid email");
-  btn.innerText = "Save Changes";
-  btn.disabled = false;
-  return;
-}
+          if (!/^\S+@\S+\.\S+$/.test(email)) {
+            alert("Invalid email");
+            btn.innerText = "Save Changes";
+            btn.disabled = false;
+            return;
+          }
 
-  if (!color || !color.startsWith("#")) {
-  alert("Enter valid hex color (e.g. #228B22)");
-  btn.innerText = "Save Changes";
-  btn.disabled = false;
-  return;
-}
+          if (!color || !color.startsWith("#")) {
+            alert("Enter valid hex color (e.g. #228B22)");
+            btn.innerText = "Save Changes";
+            btn.disabled = false;
+            return;
+          }
 
-  const formData = new FormData();
+          const formData = new FormData();
 
-formData.append("name", name);
-formData.append("email", email);
-formData.append("hex_color", color);
+          formData.append("name", name);
+          formData.append("email", email);
+          formData.append("hex_color", color);
 
-const file = document.getElementById("logoInput").files[0];
-if (file) {
-  const img = new Image();
-  img.src = URL.createObjectURL(file);
+          const file = document.getElementById("logoInput").files[0];
+          if (file) {
+            const img = new Image();
+            img.src = URL.createObjectURL(file);
 
-  await new Promise(resolve => {
-    img.onload = () => {
-      let warning = "";
+            await new Promise(resolve => {
+              img.onload = () => {
+                let warning = "";
 
-      if (img.width < 300 || img.height < 300) {
-        warning += "• Minimum size: 300x300px\n";
-      }
+                if (img.width < 300 || img.height < 300) {
+                  warning += "• Minimum size: 300x300px\n";
+                }
 
-      if (img.width !== img.height) {
-        warning += "• Use square (1:1 ratio)\n";
-      }
+                if (img.width !== img.height) {
+                  warning += "• Use square (1:1 ratio)\n";
+                }
 
-      if (warning) {
-        alert("Logo recommendation:\n\n" + warning);
-      }
+                if (warning) {
+                  alert("Logo recommendation:\n\n" + warning);
+                }
 
-      resolve();
-    };
-  });
+                resolve();
+              };
+            });
 
-  formData.append("logo", file);
-}
+            formData.append("logo", file);
+          }
 
-const res = await fetch(`${API}/merchant/update-profile`, {
-  method: "POST",
-  headers: {
-    authorization: getToken()
-  },
-  body: formData
-});
+          const res = await fetch(`${API}/merchant/update-profile`, {
+            method: "POST",
+            headers: {
+              authorization: getToken()
+            },
+            body: formData
+          });
 
-  const data = await res.json();
+          const data = await res.json();
 
-  if (data.success) {
-    alert("Saved!");
+          if (data.success) {
+            alert("Saved!");
 
-    document.documentElement.style
-      .setProperty('--primary', color);
+            document.documentElement.style
+              .setProperty('--primary', color);
 
-  } else {
-    alert("Failed to save");
-  }
+          } else {
+            alert("Failed to save");
+          }
 
-  btn.innerText = "Save Changes";
-  btn.disabled = false;
-}
+          btn.innerText = "Save Changes";
+          btn.disabled = false;
+        }
 
-async function changePassword() {
-  const pass1 = document.getElementById("newPassword").value;
-  const pass2 = document.getElementById("confirmPassword").value;
+        async function changePassword() {
+          const pass1 = document.getElementById("newPassword").value;
+          const pass2 = document.getElementById("confirmPassword").value;
 
-  if (!pass1 || pass1 !== pass2) {
-    alert("Passwords do not match");
-    return;
-  }
+          if (!pass1 || pass1 !== pass2) {
+            alert("Passwords do not match");
+            return;
+          }
 
-  const res = await fetch(`${API}/merchant/change-password`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      authorization: getToken()
-    },
-    body: JSON.stringify({
-      password: pass1
-    })
-  });
+          const res = await fetch(`${API}/merchant/change-password`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              authorization: getToken()
+            },
+            body: JSON.stringify({
+              password: pass1
+            })
+          });
 
-  const data = await res.json();
+          const data = await res.json();
 
-  if (data.success) {
-  alert("Password updated");
+          if (data.success) {
+            alert("Password updated");
 
-  document.getElementById("newPassword").value = "";
-  document.getElementById("confirmPassword").value = "";
+            document.getElementById("newPassword").value = "";
+            document.getElementById("confirmPassword").value = "";
 
-  } else {
-    alert("Failed to update password");
-  }
-}
+          } else {
+            alert("Failed to update password");
+          }
+        }
 
-function logout() {
-  localStorage.removeItem("token");
-  window.location.href = "/login";
-}
+        function logout() {
+          localStorage.removeItem("token");
+          window.location.href = "/login";
+        }
 
-async function loadMerchantName() {
-  const res = await fetch(`${API}/merchant/me`, {
-    headers: { authorization: getToken() }
-  });
+        async function loadMerchantName() {
+          const res = await fetch(`${API}/merchant/me`, {
+            headers: { authorization: getToken() }
+          });
 
-  const data = await res.json();
+          const data = await res.json();
 
-  if (data.name) {
-    const sidebar = document.getElementById("merchantSidebarName");
-    if (sidebar) {
-      sidebar.innerText = data.name;
-    }
-  }
-}
+          if (data.name) {
+            const sidebar = document.getElementById("merchantSidebarName");
+            if (sidebar) {
+              sidebar.innerText = data.name;
+            }
+          }
+        }
 
-function animateNumber(id, value) {
-  const el = document.getElementById(id);
-  let start = 0;
-  const duration = 400;
-  const step = value / (duration / 16);
+        function animateNumber(id, value) {
+          const el = document.getElementById(id);
+          let start = 0;
+          const duration = 400;
+          const step = value / (duration / 16);
 
-  const counter = setInterval(() => {
-    start += step;
-    if (start >= value) {
-      el.innerText = value;
-      clearInterval(counter);
-    } else {
-      el.innerText = Math.floor(start);
-    }
-  }, 16);
-}
+          const counter = setInterval(() => {
+            start += step;
+            if (start >= value) {
+              el.innerText = value;
+              clearInterval(counter);
+            } else {
+              el.innerText = Math.floor(start);
+            }
+          }, 16);
+        }
 
-function getContrastColor(hex) {
-  const r = parseInt(hex.substr(1,2),16);
-  const g = parseInt(hex.substr(3,2),16);
-  const b = parseInt(hex.substr(5,2),16);
+        function getContrastColor(hex) {
+          const r = parseInt(hex.substr(1, 2), 16);
+          const g = parseInt(hex.substr(3, 2), 16);
+          const b = parseInt(hex.substr(5, 2), 16);
 
-  const brightness = (r*299 + g*587 + b*114) / 1000;
+          const brightness = (r * 299 + g * 587 + b * 114) / 1000;
 
-  return brightness > 150 ? "#000000" : "#ffffff";
-}
+          return brightness > 150 ? "#000000" : "#ffffff";
+        }
 
-function toggleSidebar() {
-  const sidebar = document.getElementById("sidebar");
-  sidebar.classList.toggle("collapsed");
-}
+        function toggleSidebar() {
+          const sidebar = document.getElementById("sidebar");
+          sidebar.classList.toggle("collapsed");
+        }
 
-function toggleLoop() {
-  const el = document.getElementById("loopContent");
-  el.style.display = el.style.display === "none" ? "block" : "none";
-}
+        function toggleLoop() {
+          const el = document.getElementById("loopContent");
+          el.style.display = el.style.display === "none" ? "block" : "none";
+        }
 
-    document.addEventListener("DOMContentLoaded", () => {
-      applyBranding();
-      loadMerchantName();
-      loadStats();
-      loadCustomers();
-      loadProfile();
-      loadLogs();
-    });
-  </script>
-</div>
+        document.addEventListener("DOMContentLoaded", () => {
+          applyBranding();
+          loadMerchantName();
+          loadStats();
+          loadCustomers();
+          loadProfile();
+          loadLogs();
+        });
+      </script>
+    </div>
 </body>
+
 </html>

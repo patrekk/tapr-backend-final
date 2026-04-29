@@ -1,589 +1,584 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tapr – Turn Customers Into Regulars</title>
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tapr – Turn Customers Into Regulars</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
-<style>
-:root {
-  --primary: #2B396D;
-  --bg: #F7F8FA;
-  --text: #0B0B0B;
-  --muted: #666;
-  --card: #FFFFFF;
-  --border: #E5E7EB;
-}
+  <style>
+    :root {
+      --primary: #2B396D;
+      --bg: #F7F8FA;
+      --text: #0B0B0B;
+      --muted: #666;
+      --card: #FFFFFF;
+      --border: #E5E7EB;
+    }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-body {
-  font-family: 'Inter', sans-serif;
-  background: linear-gradient(to bottom, #f7f8fa, #ffffff);
-  color: var(--text);
-}
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(to bottom, #f7f8fa, #ffffff);
+      color: var(--text);
+    }
 
-/* CONTAINER */
-.container {
-  max-width: 1100px;
-  margin: auto;
-  padding: 24px;
-}
+    /* CONTAINER */
+    .container {
+      max-width: 1100px;
+      margin: auto;
+      padding: 24px;
+    }
 
-/* NAV */
-.nav {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  padding: 16px 24px;
-  background: rgba(255,255,255,0.6);
-  backdrop-filter: blur(10px);
-  z-index: 10;
-}
+    /* NAV */
+    .nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 16px 24px;
+      background: rgba(255, 255, 255, 0.6);
+      backdrop-filter: blur(10px);
+      z-index: 10;
+    }
 
-.nav-inner {
-  max-width: 1100px;
-  margin: auto;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
+    .nav-inner {
+      max-width: 1100px;
+      margin: auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
 
-.logo {
-  font-weight: 700;
-  font-size: 18px;
-}
+    .logo {
+      font-weight: 700;
+      font-size: 18px;
+    }
 
-.nav-btn {
-  padding: 10px 16px;
-  border-radius: 10px;
-  border: 1px solid #ddd;
-  background: white;
-  cursor: pointer;
-  font-weight: 500;
-}
+    .nav-btn {
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: 1px solid #ddd;
+      background: white;
+      cursor: pointer;
+      font-weight: 500;
+    }
 
-/* HERO */
-.hero {
-  text-align: center;
-  padding: 160px 20px 120px;
-  background: radial-gradient(circle at top, rgba(43,57,109,0.08), transparent 60%);
-}
+    /* HERO */
+    .hero {
+      text-align: center;
+      padding: 160px 20px 120px;
+      background: radial-gradient(circle at top, rgba(43, 57, 109, 0.08), transparent 60%);
+    }
 
-.hero h1 {
-  font-size: 40px;
-  line-height: 1.1;
-  max-width: 900px;
-  margin: 0 auto 24px;
-}
+    .hero h1 {
+      font-size: 40px;
+      line-height: 1.1;
+      max-width: 900px;
+      margin: 0 auto 24px;
+    }
 
-.hero p {
-  margin-top: 0;
-  margin-bottom: 32px;
-}
+    .hero p {
+      margin-top: 0;
+      margin-bottom: 32px;
+    }
 
-/* BUTTONS */
-.cta {
-  background: var(--primary);
-  color: white;
-  padding: 14px 22px;
-  border-radius: 12px; 
-  border: none;
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow: 0 10px 25px rgba(43,57,109,0.25);
-}
+    /* BUTTONS */
+    .cta {
+      background: var(--primary);
+      color: white;
+      padding: 14px 22px;
+      border-radius: 12px;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 10px 25px rgba(43, 57, 109, 0.25);
+    }
 
-.secondary {
-  background: #fff;
-  border: 1px solid #ddd;
-  padding: 14px 22px;
-  border-radius: 12px;
-  cursor: pointer;
-}
+    .secondary {
+      background: #fff;
+      border: 1px solid #ddd;
+      padding: 14px 22px;
+      border-radius: 12px;
+      cursor: pointer;
+    }
 
-/* SECTION */
-.section {
-  margin-top: 120px;
-}
+    /* SECTION */
+    .section {
+      margin-top: 120px;
+    }
 
-/* CENTER TEXT ONLY */
-.section h2,
-.section > p {
-  text-align: center;
-  max-width: 600px;
-  margin: auto;
-}
+    /* CENTER TEXT ONLY */
+    .section h2,
+    .section>p {
+      text-align: center;
+      max-width: 600px;
+      margin: auto;
+    }
 
-/* GRID */
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px,1fr));
-  gap: 20px;
-  margin-top: 30px;
-}
+    /* GRID */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-top: 30px;
+    }
 
-/* CARDS */
-.card {
-  background: white;
-  padding: 22px;
-  border-radius: 18px;
-  border: 1px solid #eee;
-  text-align: left;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-  transition: all 0.2s ease;
-}
+    /* CARDS */
+    .card {
+      background: white;
+      padding: 22px;
+      border-radius: 18px;
+      border: 1px solid #eee;
+      text-align: left;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+      transition: all 0.2s ease;
+    }
 
-.card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 20px 50px rgba(0,0,0,0.08);
-}
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
+    }
 
-/* TABLE FIX */
-.table {
-  margin-top: 30px;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  overflow: hidden;
-}
+    /* TABLE FIX */
+    .table {
+      margin-top: 30px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
 
-.row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-}
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
 
-.cell {
-  padding: 14px;
-  border-bottom: 1px solid var(--border);
-}
+    .cell {
+      padding: 14px;
+      border-bottom: 1px solid var(--border);
+    }
 
-.header {
-  background: #f0f2f7;
-  font-weight: 600;
-}
+    .header {
+      background: #f0f2f7;
+      font-weight: 600;
+    }
 
-.cta:hover {
-  transform: translateY(-2px);
-}
+    .cta:hover {
+      transform: translateY(-2px);
+    }
 
-.row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-}
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
 
-.cell {
-  padding: 16px 20px;
-  border-bottom: 1px solid var(--border);
-}
+    .cell {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+    }
 
-.row .cell:first-child {
-  border-right: 1px solid var(--border);
-}
+    .row .cell:first-child {
+      border-right: 1px solid var(--border);
+    }
 
-.header {
-  background: #f5f7fb;
-  font-weight: 600;
-}
+    .header {
+      background: #f5f7fb;
+      font-weight: 600;
+    }
 
-/* FINAL */
-.final {
-  margin-top: 140px;
-  text-align: center;
-  padding: 100px 20px 100px;
-}
+    /* FINAL */
+    .final {
+      margin-top: 140px;
+      text-align: center;
+      padding: 100px 20px 100px;
+    }
 
-.final h2 {
-    margin-bottom: 16px;
-}
+    .final h2 {
+      margin-bottom: 16px;
+    }
 
-.final p {
-    margin-bottom: 18px;
-    color: var(--muted);
-    font-size: 18px;
-}
+    .final p {
+      margin-bottom: 18px;
+      color: var(--muted);
+      font-size: 18px;
+    }
 
-.section h2 {
-  margin-bottom: 10px;
-}
+    .section h2 {
+      margin-bottom: 10px;
+    }
 
-.logo-strip img {
-  opacity: 0.7;
-  filter: grayscale(100%);
-  transition: all 0.2s ease;
-}
+    .logo-strip img {
+      opacity: 0.7;
+      filter: grayscale(100%);
+      transition: all 0.2s ease;
+    }
 
-.logo-strip img:hover {
-  opacity: 1;
-  filter: grayscale(0%);
-  transform: scale(1.05);
-}
-</style>
+    .logo-strip img:hover {
+      opacity: 1;
+      filter: grayscale(0%);
+      transform: scale(1.05);
+    }
+  </style>
 </head>
 
 <body>
 
-<!-- NAV -->
-<div class="nav">
-  <div class="nav-inner">
-    <div class="logo">Tapr</div>
-    <button class="nav-btn" onclick="window.location.href='/login'">
-      Login
-    </button>
-  </div>
-</div>
-
-<!-- HERO -->
-<div class="hero container">
-
-  <p style="font-size:12px; color:#888; letter-spacing:1px; text-transform:uppercase;">
-    Customer Retention System
-  </p>
-  <h1>
-  Stop losing customers after their first visit<br>
-  <span style="color:var(--primary)">
-    Turn them into repeat revenue
-  </span>
-</h1>
-
-  <p style="margin-top:18px; font-size:18px; color:#555; max-width:600px; margin:auto;">
-    Most businesses lose 70% of customers after one visit.  
-    Tapr gives them a reason to come back — automatically.
-  </p>
-
-  <div style="margin-top:30px; display:flex; justify-content:center; gap:10px; flex-wrap:wrap;">
-    <button class="cta" onclick="window.location.href='/signup'">
-      Start Free → Get Repeat Customers This Week
-    </button>
-
-    <button class="secondary" onclick="document.getElementById('demoSection').scrollIntoView({behavior:'smooth'})">
-      See How It Works
-    </button>
+  <!-- NAV -->
+  <div class="nav">
+    <div class="nav-inner">
+      <div class="logo">Tapr</div>
+      <button class="nav-btn" onclick="window.location.href='/login'">
+        Login
+      </button>
+    </div>
   </div>
 
-  <p style="margin-top:20px; font-size:13px; color:#777;">
-    No app. No logins. Customer just scan and come back.
+  <!-- HERO -->
+  <div class="hero container">
+
+    <p style="font-size:12px; color:#888; letter-spacing:1px; text-transform:uppercase;">
+      Customer Retention System
+    </p>
+    <h1>
+      Stop losing customers after their first visit<br>
+      <span style="color:var(--primary)">
+        Turn them into repeat revenue
+      </span>
+    </h1>
+
+    <p style="margin-top:18px; font-size:18px; color:#555; max-width:600px; margin:auto;">
+      Most businesses lose 70% of customers after one visit.
+      Tapr gives them a reason to come back — automatically.
     </p>
 
-  <div style="margin-top:50px;">
-    <img 
-      src="https://placehold.co/900x500?text=Tapr+Dashboard"
-      style="width:100%; max-width:800px; margin:auto; display:block; border-radius:20px;"
-    >
-  </div>
+    <div style="margin-top:30px; display:flex; justify-content:center; gap:10px; flex-wrap:wrap;">
+      <button class="cta" onclick="window.location.href='/signup'">
+        Start Free → Get Repeat Customers This Week
+      </button>
 
-</div>
-
-<!-- PAIN -->
-<div class="section container">
-  <h2>You're losing customers every single day</h2>
-  <p>
-    They visit once… then disappear.  
-    Not because your business is bad —  
-    but because nothing pulls them back.
-  </p>
-</div>
-
-<!-- SOLUTION -->
-<div class="section container">
-  <h2>Turn one-time customers into repeat revenue</h2>
-
-  <p style="text-align:center; color:#666; margin-top:10px;">
-    It takes less than 10 seconds for a customer to start coming back.
-  </p>
-
-  <div class="grid">
-    <div class="card">
-      <h3>1. Customer scans</h3>
-      <p>They join instantly. No app, no friction.</p>
+      <button class="secondary" onclick="document.getElementById('demoSection').scrollIntoView({behavior:'smooth'})">
+        See How It Works
+      </button>
     </div>
 
-    <div class="card">
-      <h3>2. Progress builds</h3>
-      <p>Every visit moves them closer to a reward.</p>
+    <p style="margin-top:20px; font-size:13px; color:#777;">
+      No app. No logins. Customer just scan and come back.
+    </p>
+
+    <div style="margin-top:50px;">
+      <img src="https://placehold.co/900x500?text=Tapr+Dashboard"
+        style="width:100%; max-width:800px; margin:auto; display:block; border-radius:20px;">
     </div>
 
-    <div class="card">
-      <h3>3. They return</h3>
-      <p>Customers come back to complete what they started.</p>
+  </div>
+
+  <!-- PAIN -->
+  <div class="section container">
+    <h2>You're losing customers every single day</h2>
+    <p>
+      They visit once… then disappear.
+      Not because your business is bad —
+      but because nothing pulls them back.
+    </p>
+  </div>
+
+  <!-- SOLUTION -->
+  <div class="section container">
+    <h2>Turn one-time customers into repeat revenue</h2>
+
+    <p style="text-align:center; color:#666; margin-top:10px;">
+      It takes less than 10 seconds for a customer to start coming back.
+    </p>
+
+    <div class="grid">
+      <div class="card">
+        <h3>1. Customer scans</h3>
+        <p>They join instantly. No app, no friction.</p>
+      </div>
+
+      <div class="card">
+        <h3>2. Progress builds</h3>
+        <p>Every visit moves them closer to a reward.</p>
+      </div>
+
+      <div class="card">
+        <h3>3. They return</h3>
+        <p>Customers come back to complete what they started.</p>
+      </div>
     </div>
   </div>
-</div>
 
-<div class="container" style="text-align:center; margin-top:30px;">
-  Businesses using Tapr see more repeat visits within days
-</div>
-
-<div style="display:flex; justify-content:space-between; max-width: 600px; margin: 20px auto 0; text-align: center;">
-
-  <div style="flex: 1;">
-    <div style="font-size:28px; font-weight:700;">+30%</div>
-    <div style="font-size:13px; color:#666;">Repeat visits</div>
+  <div class="container" style="text-align:center; margin-top:30px;">
+    Businesses using Tapr see more repeat visits within days
   </div>
 
-  <div style="flex: 1;">
-    <div style="font-size:28px; font-weight:700;">2–3 days</div>
-    <div style="font-size:13px; color:#666;">To see results</div>
+  <div style="display:flex; justify-content:space-between; max-width: 600px; margin: 20px auto 0; text-align: center;">
+
+    <div style="flex: 1;">
+      <div style="font-size:28px; font-weight:700;">+30%</div>
+      <div style="font-size:13px; color:#666;">Repeat visits</div>
+    </div>
+
+    <div style="flex: 1;">
+      <div style="font-size:28px; font-weight:700;">2–3 days</div>
+      <div style="font-size:13px; color:#666;">To see results</div>
+    </div>
+
+    <div style="flex: 1;">
+      <div style="font-size:28px; font-weight:700;">0 apps</div>
+      <div style="font-size:13px; color:#666;">Customers install nothing</div>
+    </div>
+
   </div>
 
-  <div style="flex: 1;">
-    <div style="font-size:28px; font-weight:700;">0 apps</div>
-    <div style="font-size:13px; color:#666;">Customers install nothing</div>
-  </div>
-
-</div>
-
-<p style="
+  <p style="
   font-size:12px;
   color:#999;
   margin-top:12px;
   text-align:center;
   margin-bottom: 10px;
 ">
-  Based on early merchants using Tapr
-</p>
+    Based on early merchants using Tapr
+  </p>
 
-<div style="text-align:center; margin-top:60px;">
+  <div style="text-align:center; margin-top:60px;">
 
-  <div style="
+    <div style="
     font-size: 16px;
     color:#555; 
     font-weight: 6000;
     margin-bottom:2px;
     margin-top: 100px;
   ">
-    Trusted by local businesses in Davao
-  </div>
+      Trusted by local businesses in Davao
+    </div>
 
-  <div class="logo-strip" style="
+    <div class="logo-strip" style="
     display:flex;
     justify-content:center;
     align-items:center;
     gap:40px;
     flex-wrap:wrap;
   ">
-    <img src="images/feral.png" style="width:260px;">
-    <img src="images/otso.png" style="width:260px;">
-  </div>
-
-</div>
-
-<!-- REAL DEMO -->
-<div class="section container">
-  <h2>See what your customers see</h2>
-
-<p style="margin-bottom:12px; color:#666;">
-  Try it yourself — no real number needed
-</p>
-
-  <div style="max-width:420px; margin:40px auto;">
-
-    <!-- STEP 1 -->
-    <div id="demoStep1" style="text-align:center;">
-      <input 
-        id="demoInput"
-        placeholder="Type anything to continue"
-        style="width:100%; padding:12px; border-radius:10px; border:1px solid #ddd; margin-bottom:12px;"
-      >
-
-      <button class="cta" onclick="startDemo()" style="width:100%;">
-        Get Started
-      </button>
-
-      <p style="font-size:13px; color:#666; margin-top:12px; text-align:center;">
-  This is exactly what your customers see after scanning
-</p>
+      <img src="images/feral.png" style="width:260px;">
+      <img src="images/otso.png" style="width:260px;">
     </div>
 
-    <!-- STEP 2 -->
-    <div id="demoStep2" style="display:none; text-align:center;">
-      <h3 style="margin-bottom:6px;">Welcome 👋</h3>
-      <p id="demoVisit" style="color:#666;">Visit 1 of 5</p>
+  </div>
 
-      <div style="height:10px; background:#eee; border-radius:10px; margin:12px 0;">
-        <div id="demoBar" style="width:20%; height:100%; background:var(--primary); border-radius:10px;"></div>
+  <!-- REAL DEMO -->
+  <div class="section container">
+    <h2>See what your customers see</h2>
+
+    <p style="margin-bottom:12px; color:#666;">
+      Try it yourself — no real number needed
+    </p>
+
+    <div style="max-width:420px; margin:40px auto;">
+
+      <!-- STEP 1 -->
+      <div id="demoStep1" style="text-align:center;">
+        <input id="demoInput" placeholder="Type anything to continue"
+          style="width:100%; padding:12px; border-radius:10px; border:1px solid #ddd; margin-bottom:12px;">
+
+        <button class="cta" onclick="startDemo()" style="width:100%;">
+          Get Started
+        </button>
+
+        <p style="font-size:13px; color:#666; margin-top:12px; text-align:center;">
+          This is exactly what your customers see after scanning
+        </p>
       </div>
 
-      <p style="font-size:12px; color:#888; margin-top:8px;">
-        Imagine this after every visit
+      <!-- STEP 2 -->
+      <div id="demoStep2" style="display:none; text-align:center;">
+        <h3 style="margin-bottom:6px;">Welcome 👋</h3>
+        <p id="demoVisit" style="color:#666;">Visit 1 of 5</p>
+
+        <div style="height:10px; background:#eee; border-radius:10px; margin:12px 0;">
+          <div id="demoBar" style="width:20%; height:100%; background:var(--primary); border-radius:10px;"></div>
+        </div>
+
+        <p style="font-size:12px; color:#888; margin-top:8px;">
+          Imagine this after every visit
+        </p>
+
+        <p id="demoText" style="font-size:13px; color:#666;">
+          Customers come back to complete rewards
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- WHY -->
+  <div id="demoSection" class="section container">
+    <h2>Why it works</h2>
+
+    <div class="grid">
+      <div class="card">
+        <h3>People finish what they start</h3>
+        <p>Progress creates a natural urge to return.</p>
+      </div>
+
+      <div class="card">
+        <h3>Small rewards drive habits</h3>
+        <p>Even simple incentives increase repeat visits.</p>
+      </div>
+
+      <div class="card">
+        <h3>Always on their phone</h3>
+        <p>No cards to lose. No apps to install.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCAN -->
+  <div class="section container">
+    <div style="max-width:600px; margin:auto; text-align:center;">
+      <h3>Scan this now</h3>
+      <p>See exactly what your customers will experience</p>
+
+      <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://usetapr.com/signup"
+        style="display:block; margin:20px auto;">
+    </div>
+  </div>
+
+  <!-- TABLE -->
+  <div class="section container">
+    <h2>Why most loyalty systems fail</h2>
+
+    <div class="table">
+      <div class="row header">
+        <div class="cell">Stamp Cards</div>
+        <div class="cell">Tapr</div>
+      </div>
+
+      <div class="row">
+        <div class="cell">Lost or forgotten</div>
+        <div class="cell">Always on phone</div>
+      </div>
+
+      <div class="row">
+        <div class="cell">Manual tracking</div>
+        <div class="cell">Automatic</div>
+      </div>
+
+      <div class="row">
+        <div class="cell">No data</div>
+        <div class="cell">Real customer tracking</div>
+      </div>
+
+      <div class="row">
+        <div class="cell">Low return rate</div>
+        <div class="cell">Built for repeat visits</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROOF -->
+  <div class="section container">
+    <h2>Businesses are already seeing results</h2>
+
+    <div class="grid">
+
+      <div class="card">
+        <p style="font-weight:600; margin-bottom:8px;">
+          “We saw repeat customers in 3 days.”
+        </p>
+        <p style="color:#666; font-size:14px;">
+          No app, no explaining — customers just scanned and came back.
+        </p>
+        <p style="color:#999; font-size:12px; margin-top:10px;">
+          — JD Talento, Owner of OTSO Street Cafe
+        </p>
+      </div>
+
+      <div class="card">
+        <p style="font-weight:600; margin-bottom:8px;">
+          “Customers actually ask about their progress now.”
+        </p>
+        <p style="color:#666; font-size:14px;">
+          It turned visits into something they want to complete.
+        </p>
+        <p style="color:#999; font-size:12px; margin-top:10px;">
+          — Julyvir Ongcay, Barista at 508
+        </p>
+      </div>
+
+      <div class="card">
+        <p style="font-weight:600; margin-bottom:8px;">
+          “We stopped using stamp cards completely.”
+        </p>
+        <p style="color:#666; font-size:14px;">
+          Everything is automatic — no more manual tracking.
+        </p>
+        <p style="color:#999; font-size:12px; margin-top:10px;">
+          — Abel Olita, Owner of Feral Studios
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- FINAL -->
+  <div class="final container">
+    <h2>Every day without this = customers you lose for good</h2>
+
+    <p>
+      You’re already paid to get those customers - don't lose them after one visit.
     </p>
 
-      <p id="demoText" style="font-size:13px; color:#666;">
-        Customers come back to complete rewards
-      </p>
-    </div>
+    <button class="cta" onclick="window.location.href='/signup'">
+      Start Free → Get Repeat Customers This Week
+    </button>
 
-  </div>
-</div>
-
-<!-- WHY -->
-<div id="demoSection" class="section container">
-  <h2>Why it works</h2>
-
-  <div class="grid">
-    <div class="card">
-      <h3>People finish what they start</h3>
-      <p>Progress creates a natural urge to return.</p>
-    </div>
-
-    <div class="card">
-      <h3>Small rewards drive habits</h3>
-      <p>Even simple incentives increase repeat visits.</p>
-    </div>
-
-    <div class="card">
-      <h3>Always on their phone</h3>
-      <p>No cards to lose. No apps to install.</p>
-    </div>
-  </div>
-</div>
-
-<!-- SCAN -->
-<div class="section container">
-  <div style="max-width:600px; margin:auto; text-align:center;">
-    <h3>Scan this now</h3>
-    <p>See exactly what your customers will experience</p>
-
-    <img 
-      src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://usetapr.com/signup"
-      style="display:block; margin:20px auto;"
-    >
-  </div>
-</div>
-
-<!-- TABLE -->
-<div class="section container">
-  <h2>Why most loyalty systems fail</h2>
-
-  <div class="table">
-    <div class="row header">
-      <div class="cell">Stamp Cards</div>
-      <div class="cell">Tapr</div>
-    </div>
-
-    <div class="row">
-      <div class="cell">Lost or forgotten</div>
-      <div class="cell">Always on phone</div>
-    </div>
-
-    <div class="row">
-      <div class="cell">Manual tracking</div>
-      <div class="cell">Automatic</div>
-    </div>
-
-    <div class="row">
-      <div class="cell">No data</div>
-      <div class="cell">Real customer tracking</div>
-    </div>
-
-    <div class="row">
-      <div class="cell">Low return rate</div>
-      <div class="cell">Built for repeat visits</div>
-    </div>
-  </div>
-</div>
-
-<!-- PROOF -->
-<div class="section container">
-  <h2>Businesses are already seeing results</h2>
-
-  <div class="grid">
-
-    <div class="card">
-      <p style="font-weight:600; margin-bottom:8px;">
-        “We saw repeat customers in 3 days.”
-      </p>
-      <p style="color:#666; font-size:14px;">
-        No app, no explaining — customers just scanned and came back.
-      </p>
-      <p style="color:#999; font-size:12px; margin-top:10px;">
-        — JD Talento, Owner of OTSO Street Cafe
-        </p>
-    </div>
-
-    <div class="card">
-      <p style="font-weight:600; margin-bottom:8px;">
-        “Customers actually ask about their progress now.”
-      </p>
-      <p style="color:#666; font-size:14px;">
-        It turned visits into something they want to complete.
-      </p>
-      <p style="color:#999; font-size:12px; margin-top:10px;">
-        — Julyvir Ongcay, Barista at 508
-        </p>
-    </div>
-
-    <div class="card">
-      <p style="font-weight:600; margin-bottom:8px;">
-        “We stopped using stamp cards completely.”
-      </p>
-      <p style="color:#666; font-size:14px;">
-        Everything is automatic — no more manual tracking.
-      </p>
-      <p style="color:#999; font-size:12px; margin-top:10px;">
-        — Abel Olita, Owner of Feral Studios
-        </p>
-    </div>
-
-  </div>
-</div>
-
-<!-- FINAL -->
-<div class="final container">
-  <h2>Every day without this = customers you lose for good</h2>
-
-  <p>
-    You’re already paid to get those customers - don't lose them after one visit.
-  </p>
-
-  <button class="cta" onclick="window.location.href='/signup'">
-    Start Free → Get Repeat Customers This Week
-  </button>
-
-  <p style="margin-top:12px; font-size:13px; color:#777;">
-    Free to start. No commitment.
+    <p style="margin-top:12px; font-size:13px; color:#777;">
+      Free to start. No commitment.
     </p>
-</div>
+  </div>
 
-<script>
-function startDemo() {
-let input = document.getElementById("demoInput").value;
+  <script>
+    function startDemo() {
+      let input = document.getElementById("demoInput").value;
 
-if (!input) {
-  input = "demo";
-}
+      if (!input) {
+        input = "demo";
+      }
 
-  document.getElementById("demoStep1").style.display = "none";
-  document.getElementById("demoStep2").style.display = "block";
+      document.getElementById("demoStep1").style.display = "none";
+      document.getElementById("demoStep2").style.display = "block";
 
-  const bar = document.getElementById("demoBar");
-  const visit = document.getElementById("demoVisit");
-  const text = document.getElementById("demoText");
+      const bar = document.getElementById("demoBar");
+      const visit = document.getElementById("demoVisit");
+      const text = document.getElementById("demoText");
 
-  let step = 1;
+      let step = 1;
 
-  const interval = setInterval(() => {
-    step++;
+      const interval = setInterval(() => {
+        step++;
 
-    bar.style.width = (step * 20) + "%";
-    visit.innerText = "Visit " + step + " of 5";
+        bar.style.width = (step * 20) + "%";
+        visit.innerText = "Visit " + step + " of 5";
 
-    if (step === 5) {
-      text.innerText = "🎉 Reward unlocked — this is why customers come back";
-      clearInterval(interval);
+        if (step === 5) {
+          text.innerText = "🎉 Reward unlocked — this is why customers come back";
+          clearInterval(interval);
+        }
+
+      }, 600);
     }
 
-  }, 600);
-}
-
-</script>
+  </script>
 
 </body>
+
 </html>

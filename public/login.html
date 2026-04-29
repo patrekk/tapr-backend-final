@@ -1,144 +1,148 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <title>Login</title>
   <style>
-:root {
-  --primary: #2B396D;
-  --bg: #F7F8FA;
-  --text: #0B0B0B;
-  --muted: #666;
-  --border: #E5E7EB;
-}
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: 'Inter', sans-serif;
-  background: linear-gradient(to bottom, #f7f8fa, #ffffff);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-}
-
-/* MATCH LANDING CARD STYLE */
-.box {
-  background: white;
-  padding: 32px;
-  border-radius: 16px;
-  width: 100%;
-  max-width: 380px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-  border: 1px solid var(--border);
-  text-align: center;
-}
-
-/* HEADLINE */
-h2 {
-  margin-bottom: 6px;
-  color: var(--text);
-  font-size: 26px;
-}
-
-.sub {
-  font-size: 15px;
-  color: var(--muted);
-  margin-bottom: 24px;
-}
-
-/* INPUTS */
-input {
-  width: 100%;
-  padding: 14px;
-  margin-top: 12px;
-  border-radius: 12px;
-  border: 1px solid #ddd;
-  font-size: 14px;
-  background: white;
-}
-
-input:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 2px rgba(43,57,109,0.2);
-  outline: none;
-}
-
-/* BUTTON (USE CTA STYLE) */
-button {
-  width: 100%;
-  padding: 14px;
-  margin-top: 20px;
-  background: var(--primary);
-  color: white;
-  border-radius: 12px;
-  border: none;
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow: 0 10px 25px rgba(43,57,109,0.25);
-}
-
-button:hover {
-  transform: translateY(-1px);
-}
-.logo {
-  font-weight: 700;
-  font-size: 28px;
-  margin-bottom: 18px;
-  color: var(--primary);
-}
-</style>
-</head>
-<body>
-
-<div class="box">
-  <div class="logo">Tapr</div>
-  <h2>Login</h2>
-  <p class="sub">Access your dashboard</p>
-
-  <input id="email" placeholder="Email">
-  <input id="password" type="password" placeholder="Password">
-
-  <button onclick="login()">Login</button>
-</div>
-
-<script>
-const API = "https://tapr-backend-final-production.up.railway.app";
-
-async function login() {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-
-  const res = await fetch(`${API}/merchant/login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password })
-  });
-
-  let data;
-    try {
-      data = await res.json();
-    } catch (e) {
-      alert("Server error. Please try again.");
-      return;
+    :root {
+      --primary: #2B396D;
+      --bg: #F7F8FA;
+      --text: #0B0B0B;
+      --muted: #666;
+      --border: #E5E7EB;
     }
 
-  if (data.error) {
-    alert(data.error);
-    return;
-  }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-  // 🔥 CRITICAL
-  localStorage.setItem("token", data.token);
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(to bottom, #f7f8fa, #ffffff);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
 
-  // 🔥 REDIRECT AFTER TOKEN SAVED
-  window.location.href = "/dashboard";
-}
-</script>
+    /* MATCH LANDING CARD STYLE */
+    .box {
+      background: white;
+      padding: 32px;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 380px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+      border: 1px solid var(--border);
+      text-align: center;
+    }
+
+    /* HEADLINE */
+    h2 {
+      margin-bottom: 6px;
+      color: var(--text);
+      font-size: 26px;
+    }
+
+    .sub {
+      font-size: 15px;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    /* INPUTS */
+    input {
+      width: 100%;
+      padding: 14px;
+      margin-top: 12px;
+      border-radius: 12px;
+      border: 1px solid #ddd;
+      font-size: 14px;
+      background: white;
+    }
+
+    input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(43, 57, 109, 0.2);
+      outline: none;
+    }
+
+    /* BUTTON (USE CTA STYLE) */
+    button {
+      width: 100%;
+      padding: 14px;
+      margin-top: 20px;
+      background: var(--primary);
+      color: white;
+      border-radius: 12px;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 10px 25px rgba(43, 57, 109, 0.25);
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    .logo {
+      font-weight: 700;
+      font-size: 28px;
+      margin-bottom: 18px;
+      color: var(--primary);
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="box">
+    <div class="logo">Tapr</div>
+    <h2>Login</h2>
+    <p class="sub">Access your dashboard</p>
+
+    <input id="email" placeholder="Email">
+    <input id="password" type="password" placeholder="Password">
+
+    <button onclick="login()">Login</button>
+  </div>
+
+  <script>
+    const API = "https://tapr-backend-final-production.up.railway.app";
+
+    async function login() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      const res = await fetch(`${API}/merchant/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+      });
+
+      let data;
+      try {
+        data = await res.json();
+      } catch (e) {
+        alert("Server error. Please try again.");
+        return;
+      }
+
+      if (data.error) {
+        alert(data.error);
+        return;
+      }
+
+      // 🔥 CRITICAL
+      localStorage.setItem("token", data.token);
+
+      // 🔥 REDIRECT AFTER TOKEN SAVED
+      window.location.href = "/dashboard";
+    }
+  </script>
 
 </body>
+
 </html>
