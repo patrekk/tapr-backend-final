@@ -597,6 +597,10 @@ const total = data.length;
 
 const loop = [0, 0, 0, 0, 0];
 
+const completed = loop[4]; // Visit 5
+const completionRate =
+  total > 0 ? Math.round((completed / total) * 100) : 0;
+
 let biggestDrop = 0;
 let dropIndex = -1;
 
@@ -702,8 +706,18 @@ stateBox.innerHTML += `
     border:1px solid var(--border);
   ">
     <div style="font-weight:600; margin-bottom:6px;">
-      Loop Progress
-    </div>
+  Loop Progress
+</div>
+
+<div style="font-size:12px; color:#777; margin-bottom:6px;">
+  Completion: ${completed} (${completionRate}%)
+</div>
+
+${dropIndex >= 0 && biggestDrop > 0 ? `
+  <div style="font-size:12px; color:#777; margin-bottom:10px;">
+    Biggest drop: Visit ${dropIndex + 1} → Visit ${dropIndex + 2}
+  </div>
+` : ""}
 
     ${dropIndex >= 0 && biggestDrop > 0 ? `
     <div style="font-size:12px; color:#777; margin-bottom:10px;">
@@ -714,7 +728,7 @@ stateBox.innerHTML += `
     ${loop.map((count, i) => `
       <div style="margin-bottom:8px;">
         <div style="font-size:12px; color:#666; margin-bottom:4px;">
-          Visit ${i + 1}
+          Visit ${i + 1} (${count})
         </div>
 
         <div style="height:8px; background:#eee; border-radius:6px;">
