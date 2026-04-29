@@ -430,8 +430,8 @@
             <thead>
               <tr>
                 <th>Phone</th>
+                <th>Customer</th>
                 <th>Visit</th>
-                <th>Discount</th>
                 <th>Time</th>
               </tr>
             </thead>
@@ -860,13 +860,13 @@
             }
 
             table.innerHTML += `
-    <tr>
-      <td>${l.phone}</td>
-      <td>${visit}</td>
-      <td>₱${discount}</td>
-      <td>${new Date(l.scanned_at).toLocaleTimeString()}</td>
-    </tr>
-  `;
+  <tr>
+    <td>${l.phone}</td>
+    <td>${l.name || "-"}</td>
+    <td>${visit} • ₱${discount}</td>
+    <td>${new Date(l.scanned_at).toLocaleTimeString()}</td>
+  </tr>
+`;
           });
         }
 
