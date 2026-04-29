@@ -251,11 +251,11 @@ button:hover {
 </div>
 <div class="topbar">
   <div>
-  <h2 id="merchantName">Dashboard</h2>
-  <p style="font-size:13px; color:var(--muted); margin-top:4px;">
-    Your loyalty system is active and ready to scan customers.
-  </p>
-</div>
+  <h2 id="pageTitle">Dashboard</h2>
+    <p id="pageSubtitle">
+      Your loyalty system is active and ready to scan customers.
+    </p>
+  </div>
   <button onclick="goScanner()">Open Scanner</button>
 </div>
 
@@ -390,6 +390,23 @@ function showPage(page, el) {
   document.getElementById("qrPage").style.display = "none";
 
   document.getElementById(page + "Page").style.display = "block";
+
+  const titles = {
+    dashboard: "Dashboard",
+    profile: "Profile",
+    pass: "Pass Customization",
+    qr: "Store QR"
+  };
+
+  const subtitles = {
+    dashboard: "Your loyalty system is active and ready to scan customers.",
+    profile: "Manage your business details and branding.",
+    pass: "Customize how your loyalty pass looks to customers.",
+    qr: "Let customers scan this to join your loyalty program."
+  };
+
+document.getElementById("pageTitle").innerText = titles[page];
+document.getElementById("pageSubtitle").innerText = subtitles[page];
 
   document.querySelectorAll(".nav").forEach(btn => btn.classList.remove("active"));
   el.classList.add("active");
@@ -703,13 +720,11 @@ async function loadMerchantName() {
   const data = await res.json();
 
   if (data.name) {
-  document.getElementById("merchantName").innerText = data.name;
-
-  const sidebar = document.getElementById("merchantSidebarName");
-  if (sidebar) {
-    sidebar.innerText = data.name;
+    const sidebar = document.getElementById("merchantSidebarName");
+    if (sidebar) {
+      sidebar.innerText = data.name;
+    }
   }
-}
 }
 
 function animateNumber(id, value) {
