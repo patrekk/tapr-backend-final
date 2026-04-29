@@ -656,7 +656,12 @@ app.get('/merchant/customers', verifySession, async (req, res) => {
 app.get('/merchant/scan-logs', verifySession, async (req, res) => {
   const { data } = await supabase
     .from('scan_logs')
-    .select('*')
+    .select(`
+      phone,
+      scanned_at,
+      result,
+      customers ( name )
+    `)
     .eq('merchant_id', req.merchant.id)
     .order('scanned_at', { ascending: false });
 
