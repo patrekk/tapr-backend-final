@@ -595,6 +595,11 @@ if (data.length === 0) {
 
 const total = data.length;
 
+const returning = data.filter(c => (c.total_visits || 0) > 1).length;
+
+const retention =
+  total > 0 ? Math.round((returning / total) * 100) : 0;
+
 let stateHTML = "";
 
 // STATE 2 — FIRST TRACTION
@@ -626,12 +631,16 @@ else if (total <= 20) {
       border-radius:12px;
       margin-bottom:20px;
     ">
-      <div style="font-weight:600; margin-bottom:6px;">
-        📈 Building momentum
+      <div style="font-size:13px; color:#555;">
+        ${returning} returning customers (${retention}%)
+        <br><br>
+        Focus on getting your first repeat visit.
       </div>
 
       <div style="font-size:13px; color:#555;">
-        You’re growing. Customers are starting to return.
+        ${returning} returning customers (${retention}%)
+        <br><br>
+        Customers are starting to come back. Keep pushing daily scans.
       </div>
     </div>
   `;
@@ -651,7 +660,9 @@ else {
       </div>
 
       <div style="font-size:13px; color:#555;">
-        You’ve built a solid returning customer base.
+        ${returning} returning customers (${retention}%)
+        <br><br>
+        Your retention system is working. You’re building real repeat revenue.
       </div>
     </div>
   `;
