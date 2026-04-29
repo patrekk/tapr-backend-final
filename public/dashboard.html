@@ -702,60 +702,75 @@
           stateBox.innerHTML = stateHTML;
 
           const loopBox = document.getElementById("loopSection");
-          const shouldCollapse = total < 5;
-          loopBox.innerHTML = `
-  <div style="
-    background:white;
-    padding:16px;
-    border-radius:12px;
-    margin-bottom:20px;
-    border:1px solid var(--border);
-  ">
-    <div style="display:flex; justify-content:space-between;">
-  <div style="display:flex; justify-content:space-between; align-items:center;">
-  <div style="font-weight:600;">
-    Loop Progress
-  </div>
 
-  <button onclick="toggleLoop()" style="
-    background:none;
-    border:none;
-    color: var(--primary);
-    font-size:12px;
-    cursor:pointer;
-  ">
-    Show
-  </button>
-</div>
+          const shouldCollapse = total < 5;
+
+          loopBox.innerHTML = `
+<div style="
+  background:var(--card);
+  padding:16px;
+  border-radius:16px;
+  border:1px solid var(--border);
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+">
+
+  <!-- HEADER -->
+  <div style="display:flex; justify-content:space-between; align-items:center;">
     
-<div id="loopContent" style="display:${shouldCollapse ? "none" : "block"};">
-    <div style="font-size:12px; color:#777; margin-bottom:6px;">
-      Completion: ${completed} (${completionRate}%)
+    <div>
+      <div style="font-weight:600; font-size:14px;">
+        Loop
+      </div>
+      <div style="font-size:12px; color:var(--muted);">
+        ${completed}/5 • ${completionRate}%
+      </div>
     </div>
 
+    <button onclick="toggleLoop()" style="
+      background:none;
+      border:none;
+      color:var(--primary);
+      font-size:12px;
+      cursor:pointer;
+    ">
+      ${shouldCollapse ? "Show" : "Hide"}
+    </button>
+
+  </div>
+
+  <!-- COLLAPSIBLE CONTENT -->
+  <div id="loopContent" style="display:${shouldCollapse ? "none" : "block"};">
+    
     ${dropIndex >= 0 && biggestDrop > 0 ? `
-      <div style="font-size:12px; color:#777; margin-bottom:10px;">
-        Biggest drop: Visit ${dropIndex + 1} → Visit ${dropIndex + 2}
+      <div style="font-size:12px; color:var(--muted); margin-bottom:10px;">
+        Drop at Visit ${dropIndex + 1} → ${dropIndex + 2}
       </div>
     ` : ""}
 
     ${loop.map((count, i) => `
       <div style="margin-bottom:8px;">
-        <div style="font-size:12px; color:#666; margin-bottom:4px;">
-          Visit ${i + 1} (${count})
+        
+        <div style="display:flex; justify-content:space-between; font-size:12px; color:#666;">
+          <span>Visit ${i + 1}</span>
+          <span>${count}</span>
         </div>
 
-        <div style="height:8px; background:#eee; border-radius:6px;">
+        <div style="height:6px; background:#eee; border-radius:6px;">
           <div style="
-            width: ${total ? (count / total) * 100 : 0}%;
+            width:${total ? (count / total) * 100 : 0}%;
             height:100%;
-            background: var(--primary);
+            background:var(--primary);
             border-radius:6px;
           "></div>
         </div>
+
       </div>
     `).join("")}
+
   </div>
+</div>
 `;
 
           data.forEach(c => {
