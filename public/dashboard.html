@@ -595,6 +595,16 @@ if (data.length === 0) {
 
 const total = data.length;
 
+const loop = [0, 0, 0, 0, 0];
+
+data.forEach(c => {
+  const v = c.visit_count || 0;
+
+  if (v >= 1 && v <= 5) {
+    loop[v - 1]++;
+  }
+});
+
 const returning = data.filter(c => (c.total_visits || 0) > 1).length;
 
 const retention =
@@ -670,6 +680,37 @@ else {
 
 // APPLY STATE
 stateBox.innerHTML = stateHTML;
+
+stateBox.innerHTML += `
+  <div style="
+    background:white;
+    padding:16px;
+    border-radius:12px;
+    margin-bottom:20px;
+    border:1px solid var(--border);
+  ">
+    <div style="font-weight:600; margin-bottom:10px;">
+      Loop Progress
+    </div>
+
+    ${loop.map((count, i) => `
+      <div style="margin-bottom:8px;">
+        <div style="font-size:12px; color:#666; margin-bottom:4px;">
+          Visit ${i + 1}
+        </div>
+
+        <div style="height:8px; background:#eee; border-radius:6px;">
+          <div style="
+            width: ${total ? (count / total) * 100 : 0}%;
+            height:100%;
+            background: var(--primary);
+            border-radius:6px;
+          "></div>
+        </div>
+      </div>
+    `).join("")}
+  </div>
+`;
 
       data.forEach(c => {
         table.innerHTML += `
