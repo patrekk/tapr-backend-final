@@ -711,10 +711,7 @@
     margin-bottom:20px;
     border:1px solid var(--border);
   ">
-    <div 
-  style="display:flex; justify-content:space-between; cursor:pointer;"
-  onclick="toggleLoop()"
-  >
+    <div style="display:flex; justify-content:space-between;">
   <div style="display:flex; justify-content:space-between; align-items:center;">
   <div style="font-weight:600;">
     Loop Progress
@@ -735,7 +732,7 @@
     <div style="font-size:12px; color:#777; margin-bottom:6px;">
       Completion: ${completed} (${completionRate}%)
     </div>
-<div id="loopContent" style="display:${shouldCollapse ? "none" : "block"};">
+
     ${dropIndex >= 0 && biggestDrop > 0 ? `
       <div style="font-size:12px; color:#777; margin-bottom:10px;">
         Biggest drop: Visit ${dropIndex + 1} → Visit ${dropIndex + 2}
