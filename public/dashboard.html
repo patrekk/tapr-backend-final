@@ -723,12 +723,14 @@ function animateNumber(id, value) {
   }, 16);
 }
 
-    applyBranding();    
-    loadMerchantName();
-    loadStats();
-    loadCustomers();
-    loadProfile();
-    loadLogs();
+    document.addEventListener("DOMContentLoaded", () => {
+      applyBranding();
+      loadMerchantName();
+      loadStats();
+      loadCustomers();
+      loadProfile();
+      loadLogs();
+    });
   </script>
 </div>
 </body>
