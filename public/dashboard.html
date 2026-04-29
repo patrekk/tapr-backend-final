@@ -220,21 +220,63 @@ button:hover {
   color: var(--muted);
   opacity: 0.6;
 }
+
+/* SIDEBAR COLLAPSE */
+.sidebar {
+  width: 220px;
+  transition: all 0.2s ease;
+}
+
+.sidebar.collapsed {
+  width: 70px;
+}
+
+.sidebar.collapsed .label,
+.sidebar.collapsed .logo,
+.sidebar.collapsed #merchantSidebarName {
+  display: none;
+}
+
+.icon {
+  font-size: 18px;
+}
   </style>
 </head>
 <body>
 <div class="app">
-<div class="sidebar">
+<div class="sidebar collapsed" id="sidebar">
+  <div style="margin-bottom: 20px;">
+  <button onclick="toggleSidebar()" style="
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+  ">
+    ☰
+  </button>
+</div>
   <div class="brand-block">
     <h2 class="logo">Tapr</h2>
     <p id="merchantSidebarName"></p>
   </div>
 
   <div class="menu">
-    <button onclick="showPage('dashboard', this)" class="nav active">Dashboard</button>
-<button onclick="showPage('profile', this)" class="nav">Profile</button>
-<button onclick="showPage('pass', this)" class="nav">Pass Customization</button>
-<button onclick="showPage('qr', this)" class="nav">Store QR</button>
+    <button onclick="showPage('dashboard', this)" class="nav active">
+      <span class="icon">🏠</span>
+      <span class="label">Dashboard</span>
+    </button>
+    <button onclick="showPage('profile', this)" class="nav">
+      <span class="icon">👤</span>
+      <span class="label">Profile</span>
+    </button>
+    <button onclick="showPage('pass', this)" class="nav">
+      <span class="icon">🎟</span>
+      <span class="label">Pass Customization</span>
+    </button>
+    <button onclick="showPage('qr', this)" class="nav">
+      <span class="icon">🔳</span>
+      <span class="label">Store QR</span>
+    </button>
   </div>
 
   <div style="position:absolute; bottom:20px; left:20px; right:20px;">
@@ -742,6 +784,11 @@ function animateNumber(id, value) {
       el.innerText = Math.floor(start);
     }
   }, 16);
+}
+
+function toggleSidebar() {
+  const sidebar = document.getElementById("sidebar");
+  sidebar.classList.toggle("collapsed");
 }
 
     document.addEventListener("DOMContentLoaded", () => {
