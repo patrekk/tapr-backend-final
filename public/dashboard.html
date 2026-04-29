@@ -593,17 +593,72 @@ if (data.length === 0) {
   return;
 }
 
-stateBox.innerHTML = `
-  <div style="
-    background:#ecfdf5;
-    padding:16px;
-    border-radius:12px;
-    margin-bottom:20px;
-    font-size:13px;
-  ">
-    ✅ Your system is live. Customers are already scanning.
-  </div>
-`;
+const total = data.length;
+
+let stateHTML = "";
+
+// STATE 2 — FIRST TRACTION
+if (total <= 5) {
+  stateHTML = `
+    <div style="
+      background:#eef2ff;
+      padding:20px;
+      border-radius:12px;
+      margin-bottom:20px;
+    ">
+      <div style="font-weight:600; margin-bottom:6px;">
+        🚀 First customers coming in
+      </div>
+
+      <div style="font-size:13px; color:#555;">
+        You’re getting started. Now focus on getting them to come back.
+      </div>
+    </div>
+  `;
+}
+
+// STATE 3 — GROWTH
+else if (total <= 20) {
+  stateHTML = `
+    <div style="
+      background:#ecfeff;
+      padding:20px;
+      border-radius:12px;
+      margin-bottom:20px;
+    ">
+      <div style="font-weight:600; margin-bottom:6px;">
+        📈 Building momentum
+      </div>
+
+      <div style="font-size:13px; color:#555;">
+        You’re growing. Customers are starting to return.
+      </div>
+    </div>
+  `;
+}
+
+// STATE 4 — STRONG
+else {
+  stateHTML = `
+    <div style="
+      background:#ecfdf5;
+      padding:20px;
+      border-radius:12px;
+      margin-bottom:20px;
+    ">
+      <div style="font-weight:600; margin-bottom:6px;">
+        🔥 Strong repeat system
+      </div>
+
+      <div style="font-size:13px; color:#555;">
+        You’ve built a solid returning customer base.
+      </div>
+    </div>
+  `;
+}
+
+// APPLY STATE
+stateBox.innerHTML = stateHTML;
 
       data.forEach(c => {
         table.innerHTML += `
