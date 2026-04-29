@@ -597,6 +597,18 @@ const total = data.length;
 
 const loop = [0, 0, 0, 0, 0];
 
+let biggestDrop = 0;
+let dropIndex = -1;
+
+for (let i = 0; i < loop.length - 1; i++) {
+  const drop = loop[i] - loop[i + 1];
+
+  if (drop > biggestDrop) {
+    biggestDrop = drop;
+    dropIndex = i;
+  }
+}
+
 data.forEach(c => {
   const v = c.visit_count || 0;
 
@@ -689,9 +701,15 @@ stateBox.innerHTML += `
     margin-bottom:20px;
     border:1px solid var(--border);
   ">
-    <div style="font-weight:600; margin-bottom:10px;">
+    <div style="font-weight:600; margin-bottom:6px;">
       Loop Progress
     </div>
+
+    ${dropIndex >= 0 && biggestDrop > 0 ? `
+    <div style="font-size:12px; color:#777; margin-bottom:10px;">
+      Biggest drop: Visit ${dropIndex + 1} → Visit ${dropIndex + 2}
+    </div>
+    ` : ""}
 
     ${loop.map((count, i) => `
       <div style="margin-bottom:8px;">
