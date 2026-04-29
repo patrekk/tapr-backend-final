@@ -702,8 +702,13 @@ async function loadMerchantName() {
   const data = await res.json();
 
   if (data.name) {
-    document.getElementById("merchantName").innerText = data.name;
+  document.getElementById("merchantName").innerText = data.name;
+
+  const sidebar = document.getElementById("merchantSidebarName");
+  if (sidebar) {
+    sidebar.innerText = data.name;
   }
+}
 }
 
 function animateNumber(id, value) {
