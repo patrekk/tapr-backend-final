@@ -271,33 +271,69 @@ button:hover {
 .menu-toggle:hover {
   background: #e5e7eb;
 }
+
+.menu-toggle-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.sidebar:not(.collapsed) .menu-toggle-wrapper {
+  justify-content: flex-start;
+}
+
+.menu-toggle {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: none;
+  background: #f3f4f6;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.sidebar.collapsed .nav {
+  position: relative;
+}
+
+.sidebar.collapsed .nav:hover::after {
+  content: attr(title);
+  position: absolute;
+  left: 70px;
+  background: #111;
+  color: white;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  white-space: nowrap;
+}
   </style>
 </head>
 <body>
 <div class="app">
 <div class="sidebar collapsed" id="sidebar">
-  <div style="margin-bottom: 20px;">
-  <button onclick="toggleSidebar()" class="menu-toggle">☰</button>
-</div>
+  <div class="menu-toggle-wrapper">
+    <button onclick="toggleSidebar()" class="menu-toggle">☰</button>
+  </div>
   <div class="brand-block">
     <h2 class="logo">Tapr</h2>
     <p id="merchantSidebarName"></p>
   </div>
 
   <div class="menu">
-    <button onclick="showPage('dashboard', this)" class="nav active">
+    <button onclick="showPage('dashboard', this)" class="nav active" title="Dashboard">
       <span class="icon">🏠</span>
       <span class="label">Dashboard</span>
     </button>
-    <button onclick="showPage('profile', this)" class="nav">
+    <button onclick="showPage('profile', this)" class="nav" title="Profile">
       <span class="icon">👤</span>
       <span class="label">Profile</span>
     </button>
-    <button onclick="showPage('pass', this)" class="nav">
+    <button onclick="showPage('pass', this)" class="nav" title="Pass Customization">
       <span class="icon">🎟</span>
       <span class="label">Pass Customization</span>
     </button>
-    <button onclick="showPage('qr', this)" class="nav">
+    <button onclick="showPage('qr', this)" class="nav" title="Store QR">
       <span class="icon">🔳</span>
       <span class="label">Store QR</span>
     </button>
@@ -604,8 +640,8 @@ if (data.length === 0) {
 
     async function generateQR() {
   const btn = event?.target || document.querySelector("#qrPage button");
-  btn.innerText = "Generating...";
   btn.disabled = true;
+  btn.style.opacity = "0.6";
 
   const res = await fetch(`${API}/merchant/me`, {
     headers: { authorization: getToken() }
@@ -620,8 +656,8 @@ if (data.length === 0) {
   document.getElementById("qrBox").innerHTML =
     `<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${url}" />`;
 
-  btn.innerText = "Generate QR";
   btn.disabled = false;
+  btn.style.opacity = "1";
 }
 
 async function loadProfile() {
