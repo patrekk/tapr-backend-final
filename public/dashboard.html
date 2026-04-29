@@ -16,6 +16,17 @@
       --text: #0B0B0B;
       --muted: #777;
       --border: #E5E7EB;
+      --space-1: 6px;
+      --space-2: 10px;
+      --space-3: 16px;
+      --space-4: 24px;
+
+      --text-sm: 12px;
+      --text-md: 14px;
+      --text-lg: 18px;
+      --text-xl: 28px;
+
+      --radius: 16px;
     }
 
     .container {
@@ -44,33 +55,34 @@
     .card {
       flex: 1;
       background: var(--card);
-      padding: 22px;
-      border-radius: 18px;
+      padding: var(--space-3);
+      border-radius: var(--radius);
       border: 1px solid var(--border);
-      text-align: left;
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
-      min-height: 110px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
     }
 
     .card h3 {
-      font-size: 32px;
+      font-size: var(--text-xl);
       margin: 0;
       color: var(--primary);
     }
 
     .card p {
-      font-size: 13px;
+      font-size: var(--text-sm);
       color: var(--muted);
-      margin-top: 6px;
+      margin-top: var(--space-1);
     }
 
     .section {
       background: var(--card);
-      padding: 20px;
-      border-radius: 16px;
+      padding: var(--space-3);
+      border-radius: var(--radius);
       border: 1px solid var(--border);
-      margin-bottom: 20px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+      margin-bottom: var(--space-4);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
     }
 
     table {
@@ -80,17 +92,14 @@
     }
 
     th {
-      text-align: left;
       padding: 10px;
-      font-size: 13px;
+      font-size: var(--text-sm);
       color: var(--muted);
-      border-bottom: 1px solid var(--border);
     }
 
     td {
-      padding: 12px 10px;
-      border-bottom: 1px solid var(--border);
-      font-size: 14px;
+      padding: 10px;
+      font-size: var(--text-sm);
     }
 
     tr:hover {
@@ -98,11 +107,12 @@
     }
 
     button {
-      padding: 12px 16px;
+      padding: 10px 14px;
       background: var(--primary);
       color: white;
       border: none;
-      border-radius: 12px;
+      border-radius: 10px;
+      font-size: var(--text-sm);
       font-weight: 600;
       cursor: pointer;
     }
@@ -144,14 +154,12 @@
     }
 
     .topbar h2 {
-      margin: 0;
-      font-size: 22px;
+      font-size: var(--text-lg);
     }
 
     .section h3 {
-      margin-top: 0;
-      margin-bottom: 16px;
-      font-size: 16px;
+      font-size: var(--text-md);
+      margin-bottom: var(--space-2);
     }
 
     .app {
