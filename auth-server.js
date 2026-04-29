@@ -146,15 +146,15 @@ async function updateWalletObject(customer, merchant) {
 
   const updatedObject = {
     textModulesData: [
-  {
-    header: "Progress",
-    body: getProgressText(customer.visit_count)
-  },
-  {
-    header: "Reward",
-    body: getRewardText(customer.visit_count, customer.pending_discount)
-  }
-]
+      {
+        header: "Progress",
+        body: getProgressText(customer.visit_count)
+      },
+      {
+        header: "Reward",
+        body: getRewardText(customer.visit_count, customer.pending_discount)
+      }
+    ]
   };
 
   const res = await fetch(
@@ -210,45 +210,45 @@ async function createWalletObject(customer, merchant) {
   const objectId = `${ISSUER_ID}.${customer.wallet_id}`;
 
   const object = {
-  id: objectId,
-  classId: CLASS_ID,
-  state: "ACTIVE",
+    id: objectId,
+    classId: CLASS_ID,
+    state: "ACTIVE",
 
-  accountId: String(customer.phone),
-  accountName: String(merchant.name || "Tapr"),
+    accountId: String(customer.phone),
+    accountName: String(merchant.name || "Tapr"),
 
-  // 🔥 REQUIRED: CARD TITLE
-  cardTitle: {
-    defaultValue: {
-      language: "en-US",
-      value: merchant.name || "Tapr"
-    }
-  },
+    // 🔥 REQUIRED: CARD TITLE
+    cardTitle: {
+      defaultValue: {
+        language: "en-US",
+        value: merchant.name || "Tapr"
+      }
+    },
 
-  // 🔥 REQUIRED: HEADER (THIS FIXES CURRENT ERROR)
-  header: {
-    defaultValue: {
-      language: "en-US",
-      value: customer.name || "Tapr User"
-    }
-  },
+    // 🔥 REQUIRED: HEADER (THIS FIXES CURRENT ERROR)
+    header: {
+      defaultValue: {
+        language: "en-US",
+        value: customer.name || "Tapr User"
+      }
+    },
 
-  barcode: {
-    type: "QR_CODE",
-    value: generateCustomerToken(customer, merchant)
-  },
+    barcode: {
+      type: "QR_CODE",
+      value: generateCustomerToken(customer, merchant)
+    },
 
-  textModulesData: [
-  {
-    header: "Progress",
-    body: getProgressText(customer.visit_count)
-  },
-  {
-    header: "Reward",
-    body: getRewardText(customer.visit_count, customer.pending_discount)
-  }
-]
-};
+    textModulesData: [
+      {
+        header: "Progress",
+        body: getProgressText(customer.visit_count)
+      },
+      {
+        header: "Reward",
+        body: getRewardText(customer.visit_count, customer.pending_discount)
+      }
+    ]
+  };
 
   const accessToken = await getAccessToken();
 
@@ -317,29 +317,29 @@ app.post('/send-otp', async (req, res) => {
     .eq('phone', phone)
     .maybeSingle();
 
-// 🔒 BLOCK CHECK (ADD THIS PART)
-const now = new Date();
+  // 🔒 BLOCK CHECK (ADD THIS PART)
+  const now = new Date();
 
-if (existing?.blocked_until) {
+  if (existing?.blocked_until) {
 
-  const blocked = new Date(existing.blocked_until);
+    const blocked = new Date(existing.blocked_until);
 
-  if (now < blocked) {
+    if (now < blocked) {
 
-    return res.json({ error: "Too many attempts. Try again later." });
+      return res.json({ error: "Too many attempts. Try again later." });
+
+    }
 
   }
-
-}
 
   if (existing) {
-  const expires = new Date(existing.expires_at);
+    const expires = new Date(existing.expires_at);
 
-  // if OTP still valid → block resend
-  if (now < expires) {
-    return res.json({ error: "Wait before requesting another code" });
+    // if OTP still valid → block resend
+    if (now < expires) {
+      return res.json({ error: "Wait before requesting another code" });
+    }
   }
-}
 
   // 🔥 STEP 2: GENERATE CODE (ONLY AFTER CHECK)
   const code = Math.floor(100000 + Math.random() * 900000).toString();
@@ -374,72 +374,72 @@ app.post('/wallet/:slug', async (req, res) => {
   if (!merchant) return res.json({ error: 'Invalid merchant' });
 
   // 🔐 GET OTP (by phone only first)
-const { data: otpRecord } = await supabase
-  .from('otp_codes')
-  .select('*')
-  .eq('phone', phone)
-  .maybeSingle();
+  const { data: otpRecord } = await supabase
+    .from('otp_codes')
+    .select('*')
+    .eq('phone', phone)
+    .maybeSingle();
 
-if (otpRecord?.blocked_until) {
-  const blocked = new Date(otpRecord.blocked_until);
+  if (otpRecord?.blocked_until) {
+    const blocked = new Date(otpRecord.blocked_until);
 
-  if (now < blocked) {
-    return res.json({ error: "Too many attempts. Try again later." });
+    if (now < blocked) {
+      return res.json({ error: "Too many attempts. Try again later." });
+    }
   }
-}
 
-if (!otpRecord) {
-  return res.json({ error: "No OTP found" });
-}
+  if (!otpRecord) {
+    return res.json({ error: "No OTP found" });
+  }
 
-// 🔒 CHECK LOCK
-if (otpRecord.locked) {
-  return res.json({ error: "Too many attempts. Request a new code." });
-}
+  // 🔒 CHECK LOCK
+  if (otpRecord.locked) {
+    return res.json({ error: "Too many attempts. Request a new code." });
+  }
 
-// ⏳ CHECK EXPIRY
-if (new Date() > new Date(otpRecord.expires_at)) {
-  return res.json({ error: "OTP expired" });
-}
+  // ⏳ CHECK EXPIRY
+  if (new Date() > new Date(otpRecord.expires_at)) {
+    return res.json({ error: "OTP expired" });
+  }
 
-// ❌ WRONG CODE
-if (otpRecord.code !== otp) {
+  // ❌ WRONG CODE
+  if (otpRecord.code !== otp) {
 
-  const newAttempts = (otpRecord.attempts || 0) + 1;
+    const newAttempts = (otpRecord.attempts || 0) + 1;
 
-  // 🔒 LOCK AFTER 5 ATTEMPTS
-  if (newAttempts >= 5) {
+    // 🔒 LOCK AFTER 5 ATTEMPTS
+    if (newAttempts >= 5) {
 
-  const blockTime = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+      const blockTime = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
 
+      await supabase
+        .from('otp_codes')
+        .update({
+          attempts: newAttempts,
+          locked: true,
+          blocked_until: blockTime.toISOString()
+        })
+        .eq('id', otpRecord.id);
+
+      return res.json({ error: "Too many attempts. Try again later." });
+    }
+
+    // 🔁 UPDATE ATTEMPTS
+    await supabase
+      .from('otp_codes')
+      .update({
+        attempts: newAttempts
+      })
+      .eq('id', otpRecord.id);
+
+    return res.json({ error: "Invalid OTP" });
+  }
+
+  // ✅ CORRECT OTP → DELETE
   await supabase
     .from('otp_codes')
-    .update({
-      attempts: newAttempts,
-      locked: true,
-      blocked_until: blockTime.toISOString()
-    })
+    .delete()
     .eq('id', otpRecord.id);
-
-  return res.json({ error: "Too many attempts. Try again later." });
-}
-
-  // 🔁 UPDATE ATTEMPTS
-  await supabase
-    .from('otp_codes')
-    .update({
-      attempts: newAttempts
-    })
-    .eq('id', otpRecord.id);
-
-  return res.json({ error: "Invalid OTP" });
-}
-
-// ✅ CORRECT OTP → DELETE
-await supabase
-  .from('otp_codes')
-  .delete()
-  .eq('id', otpRecord.id);
 
   let { data: customer } = await supabase
     .from('customers')
@@ -481,18 +481,18 @@ await supabase
   }
 
   try {
-  const objectId = await createWalletObject(customer, merchant);
-  const saveJWT = generateSaveJWT(objectId);
+    const objectId = await createWalletObject(customer, merchant);
+    const saveJWT = generateSaveJWT(objectId);
 
-  res.json({
-    saveJWT,
-    existing: isExisting
-  });
+    res.json({
+      saveJWT,
+      existing: isExisting
+    });
 
-} catch (err) {
-  console.log("WALLET ERROR:", err);
-  res.json({ error: 'wallet_failed' });
-}
+  } catch (err) {
+    console.log("WALLET ERROR:", err);
+    res.json({ error: 'wallet_failed' });
+  }
 });
 
 // ---------- MERCHANT ROUTES ----------
@@ -521,58 +521,58 @@ app.post(
   upload.single('logo'),
   async (req, res) => {
 
-  const { name, email, hex_color } = req.body;
+    const { name, email, hex_color } = req.body;
 
-let logo_url = null;
+    let logo_url = null;
 
-if (req.file) {
-  const file = req.file;
+    if (req.file) {
+      const file = req.file;
 
-  const filePath = `logos/${req.merchant.id}_${Date.now()}.png`;
+      const filePath = `logos/${req.merchant.id}_${Date.now()}.png`;
 
-  const { error: uploadError } = await supabase.storage
-    .from('logos')
-    .upload(filePath, file.buffer, {
-      contentType: file.mimetype
-    });
+      const { error: uploadError } = await supabase.storage
+        .from('logos')
+        .upload(filePath, file.buffer, {
+          contentType: file.mimetype
+        });
 
-  if (uploadError) {
-    console.log("UPLOAD ERROR:", uploadError);
-    return res.json({ error: "upload_failed" });
-  }
+      if (uploadError) {
+        console.log("UPLOAD ERROR:", uploadError);
+        return res.json({ error: "upload_failed" });
+      }
 
-  const { data } = supabase.storage
-    .from('logos')
-    .getPublicUrl(filePath);
+      const { data } = supabase.storage
+        .from('logos')
+        .getPublicUrl(filePath);
 
-  logo_url = data.publicUrl;
-}
+      logo_url = data.publicUrl;
+    }
 
-  const { error } = await supabase
+    const { error } = await supabase
 
-    .from('merchants')
+      .from('merchants')
 
-    .update({
-      name,
-      email,
-      hex_color,
-      ...(logo_url && {logo_url})
+      .update({
+        name,
+        email,
+        hex_color,
+        ...(logo_url && { logo_url })
 
-    })
+      })
 
-    .eq('id', req.merchant.id);
+      .eq('id', req.merchant.id);
 
-  if (error) {
+    if (error) {
 
-    console.log("UPDATE PROFILE ERROR:", error);
+      console.log("UPDATE PROFILE ERROR:", error);
 
-    return res.json({ error: "update_failed" });
+      return res.json({ error: "update_failed" });
 
-  }
+    }
 
-  res.json({ success: true });
+    res.json({ success: true });
 
-});
+  });
 
 // 🔧 CHANGE PASSWORD
 
@@ -656,7 +656,12 @@ app.get('/merchant/customers', verifySession, async (req, res) => {
 app.get('/merchant/scan-logs', verifySession, async (req, res) => {
   const { data } = await supabase
     .from('scan_logs')
-    .select('*')
+    .select(`
+      phone,
+      scanned_at,
+      result,
+      customers ( name )
+    `)
     .eq('merchant_id', req.merchant.id)
     .order('scanned_at', { ascending: false });
 
@@ -692,8 +697,8 @@ app.post('/merchant/login', async (req, res) => {
 
   const valid = merchant
 
-  ? await bcrypt.compare(password, merchant.password)
-  : false;
+    ? await bcrypt.compare(password, merchant.password)
+    : false;
 
   if (!merchant || !valid) {
     return res.json({ error: 'Invalid credentials' });
@@ -753,7 +758,7 @@ app.post('/scan', scanLimiter, verifySession, async (req, res) => {
 
     // 🎯 APPLY CURRENT REWARD (important: reward from previous visit)
     const applied_discount = customer.pending_discount;
-    
+
 
     // 🔁 NEXT VISIT CALCULATION
     let visit = customer.visit_count + 1;
@@ -770,70 +775,70 @@ app.post('/scan', scanLimiter, verifySession, async (req, res) => {
     const next_index = visit % 5;
     const next_reward = LOOP[next_index];
 
-const localDate = new Date(
-  now.getTime() - now.getTimezoneOffset() * 60000
-).toISOString().split('T')[0];
+    const localDate = new Date(
+      now.getTime() - now.getTimezoneOffset() * 60000
+    ).toISOString().split('T')[0];
 
-const insertData = {
-  merchant_id: String(req.merchant.id),
-  customer_id: customer.id,
-  phone: customer.phone,
-  scanned_at: now.toISOString(),
-  scan_date: localDate, // ✅ ADD THIS LINE
-  result: {
-    visit: customer.visit_count + 1,
-    discount: customer.pending_discount
-  }
-};
+    const insertData = {
+      merchant_id: String(req.merchant.id),
+      customer_id: customer.id,
+      phone: customer.phone,
+      scanned_at: now.toISOString(),
+      scan_date: localDate, // ✅ ADD THIS LINE
+      result: {
+        visit: customer.visit_count + 1,
+        discount: customer.pending_discount
+      }
+    };
 
-const { error: insertError } = await supabase
-  .from('scan_logs')
-  .insert([insertData]);
+    const { error: insertError } = await supabase
+      .from('scan_logs')
+      .insert([insertData]);
 
-if (insertError) {
-  console.log("❌ SCAN ERROR:", insertError);
+    if (insertError) {
+      console.log("❌ SCAN ERROR:", insertError);
 
-  const msg = insertError.message || "";
+      const msg = insertError.message || "";
 
-  // ✅ ONLY map duplicate error (no assumptions about name)
-  if (msg.includes("duplicate key value")) {
-    return res.json({
-      error: "Already Claimed Today. Come Back Tomorrow"
-    });
-  }
+      // ✅ ONLY map duplicate error (no assumptions about name)
+      if (msg.includes("duplicate key value")) {
+        return res.json({
+          error: "Already Claimed Today. Come Back Tomorrow"
+        });
+      }
 
-  // fallback (real error)
-  return res.json({
-    error: msg
-  });
-}
+      // fallback (real error)
+      return res.json({
+        error: msg
+      });
+    }
 
-// 💾 UPDATE CUSTOMER (ONLY AFTER INSERT SUCCESS)
-const { data: updated, error } = await supabase
-  .from('customers')
-  .update({
-    visit_count: visit,
-    total_visits: (customer.total_visits || 0) + 1,
-    pending_discount: next_reward,
-    last_scan_at: now.toISOString()
-  })
-  .eq('id', customer.id)
-  .select()
-  .single();
+    // 💾 UPDATE CUSTOMER (ONLY AFTER INSERT SUCCESS)
+    const { data: updated, error } = await supabase
+      .from('customers')
+      .update({
+        visit_count: visit,
+        total_visits: (customer.total_visits || 0) + 1,
+        pending_discount: next_reward,
+        last_scan_at: now.toISOString()
+      })
+      .eq('id', customer.id)
+      .select()
+      .single();
 
-if (error) {
-  console.log("SCAN UPDATE ERROR:", error);
-  return res.json({ error: 'Update failed' });
-}
+    if (error) {
+      console.log("SCAN UPDATE ERROR:", error);
+      return res.json({ error: 'Update failed' });
+    }
 
     console.log("🚀 START WALLET UPDATE");
 
-  try {
-  await updateWalletObject(updated, req.merchant);
-  console.log("✅ WALLET UPDATED");
-} catch (err) {
-  console.log("❌ WALLET UPDATE ERROR:", err.message);
-}
+    try {
+      await updateWalletObject(updated, req.merchant);
+      console.log("✅ WALLET UPDATED");
+    } catch (err) {
+      console.log("❌ WALLET UPDATE ERROR:", err.message);
+    }
 
     console.log("TRYING TO LOG SCAN:", {
       merchant_id: req.merchant.id,

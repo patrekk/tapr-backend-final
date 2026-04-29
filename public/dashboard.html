@@ -430,7 +430,7 @@
             <thead>
               <tr>
                 <th>Phone</th>
-                <th>Customer</th>
+                <th>Name</th>
                 <th>Visit</th>
                 <th>Time</th>
               </tr>
@@ -862,7 +862,7 @@
             table.innerHTML += `
   <tr>
     <td>${l.phone}</td>
-    <td>${l.name || "-"}</td>
+    <td>${l.customers?.name || "-"}</td>
     <td>${visit} • ₱${discount}</td>
     <td>${new Date(l.scanned_at).toLocaleTimeString()}</td>
   </tr>
