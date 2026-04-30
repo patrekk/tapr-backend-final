@@ -194,12 +194,13 @@
       width: 220px;
       background: white;
       border-right: 1px solid var(--border);
-      min-height: 100vh;
+      height: 100vh;
       padding: 20px;
       position: relative;
       display: flex;
       flex-direction: column;
       transition: all 0.2s ease;
+      box-sizing: border-box;
     }
 
     .logo {
@@ -231,16 +232,29 @@
       display: flex;
       align-items: center;
       gap: 10px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .nav.active::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 20%;
+      height: 60%;
+      width: 3px;
+      background: var(--primary);
+      border-radius: 2px;
     }
 
     .nav:hover {
-      background: #f3f4f6;
-      color: var(--text);
+      background: rgba(0, 0, 0, 0.05);
+      transform: translateX(2px);
     }
 
     .nav.active {
-      background: var(--primary);
-      color: var(--on-primary);
+      background: rgba(0, 0, 0, 0.04);
+      color: var(--text);
     }
 
     /* MAIN */
@@ -282,8 +296,9 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      width: 18px;
-      height: 18px;
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
     }
 
     .icon svg {
@@ -297,6 +312,11 @@
       justify-content: center;
       align-items: center;
       padding: 10px 0;
+    }
+
+    .sidebar.collapsed .icon {
+      width: 22px;
+      height: 22px;
     }
 
     .menu-toggle {
