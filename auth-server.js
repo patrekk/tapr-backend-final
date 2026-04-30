@@ -660,7 +660,7 @@ app.get('/merchant/scan-logs', verifySession, async (req, res) => {
       phone,
       scanned_at,
       result,
-      customers ( name )
+      customers!scan_logs_customer_id_fkey ( name )
     `)
     .eq('merchant_id', req.merchant.id)
     .order('scanned_at', { ascending: false });
