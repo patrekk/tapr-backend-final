@@ -260,8 +260,8 @@
       content: "";
       position: absolute;
       left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
+      bottom: 6px;
+      transform: translateX(-50%);
       width: 5px;
       height: 5px;
       background: var(--primary);
@@ -359,6 +359,10 @@
       cursor: pointer;
     }
 
+    .sidebar.collapsed .nav .icon svg {
+      display: block;
+    }
+
     .icon {
       font-size: 18px;
       display: flex;
@@ -382,6 +386,7 @@
       width: 40px;
       height: 40px;
       padding: 0;
+      position: relative;
     }
 
     .menu-toggle {
@@ -443,7 +448,7 @@
       z-index: 20;
     }
 
-    .sidebar.collapsed .nav:hover::after {
+    .sidebar.collapsed .nav:not(.active):hover::after {
       opacity: 1;
       transform: translateY(-50%) scale(1);
     }
