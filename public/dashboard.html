@@ -150,6 +150,11 @@
       filter: brightness(0.9);
     }
 
+    button:focus-visible {
+      outline: 2px solid var(--primary);
+      outline-offset: 2px;
+    }
+
     #qrBox {
       text-align: center;
       margin-top: 16px;
@@ -200,7 +205,7 @@
       position: sticky;
       display: flex;
       flex-direction: column;
-      transition: all 0.2s ease;
+      transition: width 0.2 ease;
       box-sizing: border-box;
       top: 0;
       z-index: 10;
@@ -231,7 +236,9 @@
       cursor: pointer;
       font-weight: 500;
       color: var(--muted);
-      transition: all 0.15s ease;
+      transition: background 0.15s ease,
+        color 0.15s ease,
+        transform 0.08 ease;
       display: flex;
       align-items: center;
       gap: 10px;
@@ -260,8 +267,17 @@
       border-radius: 50%;
     }
 
+    .nav:focus-visible {
+      outline: 2px solid var(--primary);
+      outline-offset: 2px;
+    }
+
+    .nav:active {
+      transform: scale(0.97);
+    }
+
     .nav:hover {
-      background: rgba(0, 0, 0, 0.05);
+      background: #f9fafb;
       transform: translateX(2px);
     }
 
@@ -298,10 +314,19 @@
       width: 64px;
     }
 
-    .sidebar.collapsed .label,
     .sidebar.collapsed .logo,
     .sidebar.collapsed #merchantSidebarName {
       display: none;
+    }
+
+    .label {
+      transition: opacity 0.15s ease;
+    }
+
+    .sidebar.collapsed .label {
+      opacity: 0;
+      pointer-events: none;
+      width: 0;
     }
 
     .icon {
@@ -651,8 +676,13 @@
           document.getElementById("pageTitle").innerText = titles[page];
           document.getElementById("pageSubtitle").innerText = subtitles[page];
 
-          document.querySelectorAll(".nav").forEach(btn => btn.classList.remove("active"));
+          document.querySelectorAll(".nav").forEach(btn => {
+            btn.classList.remove("active");
+            btn.setAttribute("aria-current", "false");
+          });
+
           el.classList.add("active");
+          el.setAttribute("aria-current", "true");
 
           // 🔥 AUTO LOAD QR
 
@@ -1201,6 +1231,9 @@
         function toggleSidebar() {
           const sidebar = document.getElementById("sidebar");
           sidebar.classList.toggle("collapsed");
+
+          const isCollapsed = sidebar.classList.contains("collapsed");
+          localStorage.setItem("sidebarCollapsed", isCollapsed);
         }
 
         function toggleLoop() {
@@ -1215,6 +1248,36 @@
           loadCustomers();
           loadProfile();
           loadLogs();
+
+          const saved = localStorage.getItem("sidebarCollapsed");
+
+          if (saved === "true") {
+            document.getElementById("sidebar").classList.add("collapsed");
+          }
+        });
+
+        document.addEventListener("keydown", (e) => {
+          const navs = Array.from(document.querySelectorAll(".nav"));
+          const activeIndex = navs.findIndex(n => n.classList.contains("active"));
+
+          if (e.key === "ArrowDown") {
+            e.preventDefault();
+            const next = navs[(activeIndex + 1) % navs.length];
+            next.focus();
+          }
+
+          if (e.key === "ArrowUp") {
+            e.preventDefault();
+            const prev = navs[(activeIndex - 1 + navs.length) % navs.length];
+            prev.focus();
+          }
+
+          if (e.key === "Enter") {
+            const focused = document.activeElement;
+            if (focused.classList.contains("nav")) {
+              focused.click();
+            }
+          }
         });
       </script>
     </div>
