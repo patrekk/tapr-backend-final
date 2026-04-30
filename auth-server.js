@@ -667,7 +667,9 @@ app.get('/merchant/scan-logs', verifySession, async (req, res) => {
 
   if (error) {
     console.log("SCAN LOGS ERROR:", error);
-    return res.json([]);
+    return res.status(500).json({
+      error: "failed_to_load_scan_logs"
+    });
   }
 
   res.json(data);
