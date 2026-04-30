@@ -261,7 +261,7 @@
       position: absolute;
       left: 50%;
       top: 50%;
-      transform: translate(-50%, 10px);
+      transform: translate(-50%, -50px);
       width: 5px;
       height: 5px;
       background: var(--primary);
@@ -418,10 +418,10 @@
       position: relative;
     }
 
-    .sidebar.collapsed .nav:hover::after {
-      content: attr(title);
+    .sidebar.collapsed .nav::after {
+      content: attr(data-label);
       position: absolute;
-      left: 64px;
+      left: calc(100% + 8px);
       top: 50%;
       transform: translateY(-50%);
       background: #111;
@@ -430,7 +430,15 @@
       border-radius: 6px;
       font-size: 12px;
       white-space: nowrap;
-      z-index: 10;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.15s ease, transform 0.15s ease;
+      z-index: 20;
+    }
+
+    .sidebar.collapsed .nav:hover::after {
+      opacity: 1;
+      transform: translateY(-50%) scale(1);
     }
   </style>
 </head>
@@ -487,7 +495,7 @@
       </div>
 
       <div class="menu">
-        <button onclick="showPage('dashboard', this)" class="nav active" title="Dashboard">
+        <button onclick="showPage('dashboard', this)" class="nav active" data-label="Dashboard">
           <span class="icon">
             <svg viewBox="0 0 24 24">
               <use href="#icon-dashboard"></use>
@@ -495,7 +503,7 @@
           </span>
           <span class="label">Dashboard</span>
         </button>
-        <button onclick="showPage('profile', this)" class="nav" title="Profile">
+        <button onclick="showPage('profile', this)" class="nav" data-label="Profile">
           <span class="icon">
             <svg viewBox="0 0 24 24">
               <use href="#icon-profile"></use>
@@ -503,7 +511,7 @@
           </span>
           <span class="label">Profile</span>
         </button>
-        <button onclick="showPage('pass', this)" class="nav" title="Pass Customization">
+        <button onclick="showPage('pass', this)" class="nav" data-label="Pass Customization">
           <span class="icon">
             <svg viewBox="0 0 24 24">
               <use href="#icon-pass"></use>
@@ -511,7 +519,7 @@
           </span>
           <span class="label">Pass Customization</span>
         </button>
-        <button onclick="showPage('qr', this)" class="nav" title="Store QR">
+        <button onclick="showPage('qr', this)" class="nav" data-label="Store QR">
           <span class="icon">
             <svg viewBox="0 0 24 24">
               <use href="#icon-qr"></use>
@@ -522,7 +530,7 @@
       </div>
 
       <div class="menu-footer">
-        <button onclick="logout()" class="nav" style="width:100%;">
+        <button onclick="logout()" class="nav" style="width:100%;" data-label="Logout">
           <span class="icon">
             <svg viewBox="0 0 24 24">
               <use href="#icon-logout"></use>
