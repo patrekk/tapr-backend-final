@@ -187,6 +187,7 @@
 
     .app {
       display: flex;
+      align-items: stretch;
     }
 
     /* SIDEBAR */
@@ -196,11 +197,13 @@
       border-right: 1px solid var(--border);
       height: 100vh;
       padding: 20px;
-      position: relative;
+      position: sticky;
       display: flex;
       flex-direction: column;
       transition: all 0.2s ease;
       box-sizing: border-box;
+      top: 0;
+      z-index: 10;
     }
 
     .logo {
@@ -245,6 +248,16 @@
       width: 3px;
       background: var(--primary);
       border-radius: 2px;
+    }
+
+    .sidebar.collapsed .nav.active::before {
+      left: 50%;
+      transform: translateX(-50%);
+      width: 4px;
+      height: 4px;
+      top: auto;
+      bottom: 6px;
+      border-radius: 50%;
     }
 
     .nav:hover {
