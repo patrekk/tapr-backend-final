@@ -261,7 +261,7 @@
       position: absolute;
       left: 50%;
       top: 50%;
-      transform: translate(-50%, -50px);
+      transform: translate(-50%, -50%);
       width: 5px;
       height: 5px;
       background: var(--primary);
@@ -352,6 +352,11 @@
       opacity: 0;
       pointer-events: none;
       width: 0;
+      overflow: hidden;
+    }
+
+    .sidebar.collapsed .nav {
+      cursor: pointer;
     }
 
     .icon {
@@ -374,7 +379,9 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      padding: 8px;
+      width: 40px;
+      height: 40px;
+      padding: 0;
     }
 
     .menu-toggle {
