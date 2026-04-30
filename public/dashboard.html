@@ -275,17 +275,20 @@
       background: transparent;
     }
 
-    .sidebar.collapsed .nav.active::after {
+    .sidebar.collapsed .nav .icon {
+      position: relative;
+      width: 24px;
+      height: 24px;
+    }
+
+    .sidebar.collapsed .nav.active .icon::after {
       content: "";
       position: absolute;
-      width: 28px;
-      height: 28px;
-      background: var(--primary);
-      opacity: 0.12;
+      inset: -8px;
+      /* expands 24px icon to 40px box */
       border-radius: 12px;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.08);
+      /* or your primary color with opacity */
       z-index: -1;
     }
 
