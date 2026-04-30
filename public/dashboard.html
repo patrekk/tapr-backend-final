@@ -256,18 +256,6 @@
       border-radius: 2px;
     }
 
-    .sidebar.collapsed .nav.active::before {
-      content: "";
-      position: absolute;
-      left: 50%;
-      bottom: 6px;
-      transform: translateX(-50%);
-      width: 5px;
-      height: 5px;
-      background: var(--primary);
-      border-radius: 50%;
-    }
-
     .nav:focus-visible {
       outline: 2px solid var(--primary);
       outline-offset: 2px;
@@ -287,7 +275,7 @@
     }
 
     .nav.active {
-      color: var(--text);
+      color: var(--primary);
     }
 
     .sidebar:not(.collapsed) .nav.active {
@@ -303,7 +291,8 @@
       position: absolute;
       width: 40px;
       height: 40px;
-      background: rgba(0, 0, 0, 0.06);
+      background: var(--primary);
+      opacity: 0.12;
       border-radius: 12px;
       left: 50%;
       top: 50%;
