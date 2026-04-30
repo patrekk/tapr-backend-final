@@ -275,20 +275,16 @@
       background: transparent;
     }
 
-    .sidebar.collapsed .nav .icon {
-      position: relative;
-      width: 24px;
-      height: 24px;
-    }
-
-    .sidebar.collapsed .nav.active .icon::after {
+    .sidebar.collapsed .nav.active::before {
       content: "";
       position: absolute;
-      inset: -8px;
-      /* expands 24px icon to 40px box */
+      width: 40px;
+      height: 40px;
       border-radius: 12px;
       background: rgba(0, 0, 0, 0.08);
-      /* or your primary color with opacity */
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
       z-index: -1;
     }
 
@@ -343,6 +339,7 @@
       width: 40px;
       height: 40px;
       padding: 0;
+      position: relative;
     }
 
     .sidebar.collapsed .nav .icon svg {
@@ -365,15 +362,6 @@
       height: 20px;
       stroke: currentColor;
       display: block;
-    }
-
-    .sidebar.collapsed .nav {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      width: 40px;
-      height: 40px;
-      padding: 0;
     }
 
     .menu-toggle {
@@ -411,10 +399,6 @@
       background: #f3f4f6;
       cursor: pointer;
       font-size: 18px;
-    }
-
-    .sidebar.collapsed .nav {
-      position: relative;
     }
 
     .sidebar.collapsed .nav::after {
