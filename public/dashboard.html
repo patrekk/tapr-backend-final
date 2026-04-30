@@ -245,17 +245,6 @@
       position: relative;
     }
 
-    .nav.active::before {
-      content: "";
-      position: absolute;
-      left: 0;
-      top: 20%;
-      height: 60%;
-      width: 3px;
-      background: var(--primary);
-      border-radius: 2px;
-    }
-
     .nav:focus-visible {
       outline: 2px solid var(--primary);
       outline-offset: 2px;
@@ -289,8 +278,8 @@
     .sidebar.collapsed .nav.active::after {
       content: "";
       position: absolute;
-      width: 40px;
-      height: 40px;
+      width: 28px;
+      height: 28px;
       background: var(--primary);
       opacity: 0.12;
       border-radius: 12px;
