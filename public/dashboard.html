@@ -257,12 +257,14 @@
     }
 
     .sidebar.collapsed .nav.active::before {
+      content: "";
+      position: absolute;
       left: 50%;
-      transform: translateX(-50%);
+      top: 50%;
+      transform: translate(-50%, 10px);
       width: 5px;
       height: 5px;
-      top: auto;
-      bottom: 4px;
+      background: var(--primary);
       border-radius: 50%;
     }
 
@@ -277,12 +279,36 @@
 
     .nav:hover {
       background: #f9fafb;
+      transform: translateX(2px);
+    }
+
+    .sidebar.collapsed .nav:hover {
       transform: none;
     }
 
     .nav.active {
-      background: rgba(0, 0, 0, 0.04);
       color: var(--text);
+    }
+
+    .sidebar:not(.collapsed) .nav.active {
+      background: rgba(0, 0, 0, 0.04);
+    }
+
+    .sidebar.collapsed .nav.active {
+      background: transparent;
+    }
+
+    .sidebar.collapsed .nav.active::after {
+      content: "";
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      background: rgba(0, 0, 0, 0.06);
+      border-radius: 12px;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      z-index: -1;
     }
 
     /* MAIN */
