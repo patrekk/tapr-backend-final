@@ -654,16 +654,21 @@ app.get('/merchant/customers', verifySession, async (req, res) => {
 
 // Scan logs
 app.get('/merchant/scan-logs', verifySession, async (req, res) => {
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('scan_logs')
     .select(`
-      phone,
-      scanned_at,
-      result,
-      customers ( name )
-    `)
+    phone,
+    scanned_at,
+    result,
+    customers ( name )
+  `)
     .eq('merchant_id', req.merchant.id)
     .order('scanned_at', { ascending: false });
+
+  if (error) {
+    console.log("SCAN LOGS ERROR:", error);
+    return res.json([]);
+  }
 
   res.json(data);
 });
