@@ -444,10 +444,23 @@
 
     @media (max-width: 767px) {
       .sidebar {
-        min-height: 100dvh;
-        height: auto;
-        overflow: visible;
-        position: relative;
+        height: 100dvh;
+        /* ← CRITICAL */
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        /* ← prevent sidebar scroll */
+      }
+
+      .menu {
+        flex: 1;
+        overflow-y: auto;
+        /* ← ONLY this scrolls */
+      }
+
+      .menu-footer {
+        flex-shrink: 0;
+        /* ← NEVER pushed off */
       }
 
       .main {
