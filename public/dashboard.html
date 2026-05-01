@@ -200,16 +200,16 @@
       width: 220px;
       background: white;
       border-right: 1px solid var(--border);
-      min-height: 100dvh;
-      overflow-y: hidden;
       padding: 20px;
-      position: sticky;
       display: flex;
       flex-direction: column;
-      transition: width 0.2 ease;
       box-sizing: border-box;
-      top: 0;
       z-index: 10;
+
+      /* REMOVE THESE FROM BASE */
+      /* height */
+      /* overflow-y */
+      /* position */
     }
 
     .logo {
@@ -426,6 +426,34 @@
     .sidebar.collapsed .nav:not(.active):hover::after {
       opacity: 1;
       transform: translateY(-50%) scale(1);
+    }
+
+    @media (min-width: 768px) {
+      .sidebar {
+        height: 100vh;
+        position: sticky;
+        top: 0;
+        overflow: hidden;
+      }
+
+      .main {
+        height: 100vh;
+        overflow-y: auto;
+      }
+    }
+
+    @media (max-width: 767px) {
+      .sidebar {
+        min-height: 100dvh;
+        height: auto;
+        overflow: visible;
+        position: relative;
+      }
+
+      .main {
+        height: auto;
+        overflow: visible;
+      }
     }
   </style>
 </head>
