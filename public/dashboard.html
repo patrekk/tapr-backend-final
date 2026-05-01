@@ -444,37 +444,39 @@
     }
 
     @media (max-width: 767px) {
+
+      .app {
+        display: block;
+      }
+
       .sidebar {
-        height: 100dvh;
-        /* ← CRITICAL */
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
         position: fixed;
         top: 0;
-        width: 220px;
-        height: 100dvh;
-        z-index: 1000;
         left: 0;
-        /* ← prevent sidebar scroll */
+        width: 64px;
+        /* match collapsed */
+        height: 100vh;
+        overflow: hidden;
+        z-index: 1000;
       }
 
       .menu {
-        flex: 1;
-        min-height: 0;
-        /* ← ONLY this scrolls */
+        height: calc(100vh - 120px);
+        /* reserve space for header/footer */
+        overflow: hidden;
       }
 
       .menu-footer {
-        flex-shrink: 0;
-        /* ← NEVER pushed off */
+        position: absolute;
+        bottom: 20px;
+        left: 12px;
+        right: 12px;
       }
 
       .main {
-        height: auto;
-        overflow: visible;
-        margin-left: 220px;
+        margin-left: 64px;
       }
+
     }
   </style>
 </head>
