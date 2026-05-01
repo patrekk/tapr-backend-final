@@ -98,15 +98,22 @@
     @media (max-width: 768px) {
       body {
         align-items: center;
-        padding: 24px;
-        height: auto;
+        padding: 0;
+        /* 🔥 critical fix */
       }
 
       .box {
         max-width: none;
         width: 100%;
-        padding: 28px 20px;
-        border-radius: 20px;
+        min-height: 100vh;
+        /* 🔥 makes it feel full screen */
+        border-radius: 0;
+        /* 🔥 removes floating card look */
+        padding: 32px 20px;
+
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
       }
 
       h2 {
