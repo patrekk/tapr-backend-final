@@ -720,6 +720,47 @@ app.post('/merchant/login', async (req, res) => {
   res.json({ token });
 });
 
+// ---------- MERCHANT SIGNUP ----------
+app.post('/merchant/signup', async (req, res) => {
+  const { name, email, password } = req.body;
+
+  if (!name || !email || !password) {
+    return res.json({ error: "Missing fields" });
+  }
+
+  const { data: existing } = await supabase
+    .from('merchants')
+    .select('id')
+    .eq('email', email)
+    .maybeSingle();
+
+  if (existing) {
+    return res.json({ error: "Email already in use" });
+  }
+
+  const hashed = await bcrypt.hash(password, 10);
+
+  const slug = generateSlug(name);
+
+  const { data, error } = await supabase
+    .from('merchants')
+    .insert([{
+      name,
+      email,
+      password: hashed,
+      slug
+    }])
+    .select()
+    .single();
+
+  if (error) {
+    console.log("SIGNUP ERROR:", error);
+    return res.json({ error: "Signup failed" });
+  }
+
+  res.json({ success: true });
+});
+
 // ---------- SCAN ROUTE ----------
 
 const scanLimiter = rateLimit({
