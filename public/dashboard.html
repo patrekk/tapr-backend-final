@@ -50,6 +50,7 @@
       display: flex;
       gap: 16px;
       margin-bottom: 24px;
+      flex-wrap: wrap;
     }
 
     .card {
@@ -114,14 +115,14 @@
 
     th {
       text-align: left;
-      padding: 10px;
+      padding: var(--space-2);
       font-size: var(--text-sm);
       color: var(--muted);
     }
 
     td {
       text-align: left;
-      padding: 10px;
+      padding: var(--space-2);
       font-size: var(--text-sm);
     }
 
@@ -179,6 +180,8 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 24px;
+      gap: var(--space-3);
+      flex-wrap: wrap;
     }
 
     .topbar h2 {
@@ -217,13 +220,15 @@
       height: 28px;
       width: auto;
       display: block;
+      margin-bottom: var(--space-2);
     }
 
     .menu {
       display: flex;
       flex-direction: column;
       gap: 10px;
-      flex: none;
+      flex: 1;
+      min-height: 0;
     }
 
     .menu-footer {
@@ -298,7 +303,7 @@
     }
 
     .brand-block {
-      margin-bottom: 30px;
+      margin-bottom: var(--space-4);
     }
 
     #merchantSidebarName {
@@ -389,16 +394,6 @@
 
     .sidebar:not(.collapsed) .menu-toggle-wrapper {
       justify-content: flex-start;
-    }
-
-    .menu-toggle {
-      width: 36px;
-      height: 36px;
-      border-radius: 8px;
-      border: none;
-      background: #f3f4f6;
-      cursor: pointer;
-      font-size: 18px;
     }
 
     .sidebar.collapsed .nav::after {
@@ -940,7 +935,7 @@
 <div style="
   display:flex;
   flex-direction:column;
-  gap:10px;
+  gap:var(--space-2);
 ">
 
   <!-- HEADER -->
