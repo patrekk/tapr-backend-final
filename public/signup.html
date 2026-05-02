@@ -103,37 +103,42 @@
       color: red;
       text-align: center;
     }
+
+    .logo {
+      height: 28px;
+      width: auto;
+      display: block;
+    }
   </style>
 </head>
 
 <body>
 
   <div class="box">
-    <div style="margin-bottom: 16px; font-weight: 700; font-size: 28px; color: #2B396D;">
-      Tapr
-    </div>
-    <h1>Start getting repeat customers</h1>
-    <p class="sub">Set up your loyalty system in under 2 minutes</p>
+    <img src="/images/logo.png" class="logo">
+  </div>
+  <h1>Start getting repeat customers</h1>
+  <p class="sub">Set up your loyalty system in under 2 minutes</p>
 
-    <div class="value">
-      ✔ Turn 1-time visitors into regulars
-      <br>
-      ✔ No app required
-      <br>
-      ✔ Free early access
-    </div>
+  <div class="value">
+    ✔ Turn 1-time visitors into regulars
+    <br>
+    ✔ No app required
+    <br>
+    ✔ Free early access
+  </div>
 
-    <input id="name" placeholder="Business Name">
-    <input id="email" placeholder="Email">
-    <input id="password" type="password" placeholder="Password">
+  <input id="name" placeholder="Business Name">
+  <input id="email" placeholder="Email">
+  <input id="password" type="password" placeholder="Password">
 
-    <button onclick="signup(event)" id="signupBtn">
-      Create Account
-    </button>
+  <button onclick="signup(event)" id="signupBtn">
+    Create Account
+  </button>
 
-    <p id="status"></p>
+  <p id="status"></p>
 
-    <p class="trust">No setup fees • No contracts</p>
+  <p class="trust">No setup fees • No contracts</p>
 
   </div>
 
