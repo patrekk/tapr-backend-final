@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Start with Tapr</title>
@@ -30,7 +31,8 @@
       border-radius: 18px;
       width: 100%;
       max-width: 380px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      text-align: center;
     }
 
     h1 {
@@ -64,7 +66,7 @@
     input:focus {
       border-color: var(--primary);
       outline: none;
-      box-shadow: 0 0 0 2px rgba(43,57,109,0.2);
+      box-shadow: 0 0 0 2px rgba(43, 57, 109, 0.2);
     }
 
     button {
@@ -101,104 +103,107 @@
       color: red;
       text-align: center;
     }
-
   </style>
 </head>
+
 <body>
 
-<div class="box">
+  <div class="box">
+    <div style="margin-bottom: 16px; font-weight: 700; font-size: 18px; color: #2B396D;">
+      Tapr
+    </div>
+    <h1>Start getting repeat customers</h1>
+    <p class="sub">Set up your loyalty system in under 2 minutes</p>
 
-  <h1>Start getting repeat customers</h1>
-  <p class="sub">Set up your loyalty system in under 2 minutes</p>
+    <div class="value">
+      ✔ Turn 1-time visitors into regulars
+      <br>
+      ✔ No app required
+      <br>
+      ✔ Free early access
+    </div>
 
-  <div class="value">
-    ✔ Turn 1-time visitors into regulars  
-    <br>
-    ✔ No app required  
-    <br>
-    ✔ Free early access
+    <input id="name" placeholder="Business Name">
+    <input id="email" placeholder="Email">
+    <input id="password" type="password" placeholder="Password">
+
+    <button onclick="signup(event)" id="signupBtn">
+      Create Account
+    </button>
+
+    <p id="status"></p>
+
+    <p class="trust">No setup fees • No contracts</p>
+
   </div>
 
-  <input id="name" placeholder="Business Name">
-  <input id="email" placeholder="Email">
-  <input id="password" type="password" placeholder="Password">
+  <script>
+    const API = "https://tapr-backend-final-production.up.railway.app";
 
-  <button onclick="signup(event)" id="signupBtn">
-    Create Account
-  </button>
+    async function signup(event) {
+      const btn = document.getElementById("signupBtn");
+      btn.innerText = "Creating...";
+      btn.disabled = true;
 
-  <p id="status"></p>
+      const name = document.getElementById("name").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
 
-  <p class="trust">No setup fees • No contracts</p>
+      // 🔒 BASIC VALIDATION
+      if (!name || !email || !password) {
+        showError("Fill all fields");
+        resetBtn();
+        return;
+      }
 
-</div>
+      if (!/^\S+@\S+\.\S+$/.test(email)) {
+        showError("Enter a valid email");
+        resetBtn();
+        return;
+      }
 
-<script>
-const API = "https://tapr-backend-final-production.up.railway.app";
+      if (password.length < 6) {
+        showError("Password must be at least 6 characters");
+        resetBtn();
+        return;
+      }
 
-async function signup(event) {
-  const btn = document.getElementById("signupBtn");
-  btn.innerText = "Creating...";
-  btn.disabled = true;
+      try {
+        const res = await fetch(`${API}/merchant/signup`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ name, email, password })
+        });
 
-  const name = document.getElementById("name").value.trim();
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value;
+        const data = await res.json();
 
-  // 🔒 BASIC VALIDATION
-  if (!name || !email || !password) {
-    showError("Fill all fields");
-    resetBtn();
-    return;
-  }
+        if (data.error) {
+          showError(data.error);
+          resetBtn();
+          return;
+        }
 
-  if (!/^\S+@\S+\.\S+$/.test(email)) {
-    showError("Enter a valid email");
-    resetBtn();
-    return;
-  }
+        // 🔥 SUCCESS FLOW
+        window.location.href = "/login";
 
-  if (password.length < 6) {
-    showError("Password must be at least 6 characters");
-    resetBtn();
-    return;
-  }
+      } catch {
+        showError("Something went wrong");
+        resetBtn();
+      }
 
-  try {
-    const res = await fetch(`${API}/merchant/signup`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ name, email, password })
-    });
+      function showError(msg) {
+        document.getElementById("status").innerText = msg;
+      }
 
-    const data = await res.json();
-
-    if (data.error) {
-      showError(data.error);
-      resetBtn();
-      return;
+      function resetBtn() {
+        btn.innerText = "Create Account";
+        btn.disabled = false;
+      }
     }
-
-    // 🔥 SUCCESS FLOW
-    window.location.href = "/login";
-
-  } catch {
-    showError("Something went wrong");
-    resetBtn();
-  }
-
-  function showError(msg) {
-    document.getElementById("status").innerText = msg;
-  }
-
-  function resetBtn() {
-    btn.innerText = "Create Account";
-    btn.disabled = false;
-  }
-}
-</script>
+  </script>
 
 </body>
+
 </html>
