@@ -232,6 +232,25 @@ async function createWalletObject(customer, merchant) {
     accountId: String(customer.phone),
     accountName: String(merchant.name || "Tapr"),
 
+    // 🎨 BRANDING
+    hexBackgroundColor: merchant.hex_color || "#2B396D",
+
+    logo: merchant.logo_url
+      ? {
+        sourceUri: {
+          uri: merchant.logo_url
+        }
+      }
+      : undefined,
+
+    heroImage: merchant.logo_url
+      ? {
+        sourceUri: {
+          uri: merchant.logo_url
+        }
+      }
+      : undefined,
+
     // 🔥 REQUIRED: CARD TITLE
     cardTitle: {
       defaultValue: {
