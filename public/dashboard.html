@@ -410,6 +410,75 @@
       }
     }
 
+    .loop-card {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+    }
+
+    .loop-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .loop-title {
+      font-size: var(--text-sm);
+      font-weight: 600;
+    }
+
+    .loop-sub {
+      font-size: var(--text-sm);
+      color: var(--muted);
+    }
+
+    .loop-bar {
+      height: 6px;
+      background: #eee;
+      border-radius: 6px;
+    }
+
+    .loop-bar-fill {
+      height: 100%;
+      background: var(--primary);
+      border-radius: 6px;
+    }
+
+    .loop-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: var(--text-sm);
+      color: var(--muted);
+    }
+
+    .state-box {
+      padding: var(--space-3);
+      border-radius: var(--radius);
+      margin-bottom: var(--space-4);
+    }
+
+    .state-title {
+      font-weight: 600;
+      margin-bottom: var(--space-1);
+    }
+
+    .state-text {
+      font-size: var(--text-sm);
+      color: var(--muted);
+    }
+
+    .state-blue {
+      background: #eef2ff;
+    }
+
+    .state-cyan {
+      background: #ecfeff;
+    }
+
+    .state-green {
+      background: #ecfdf5;
+    }
+
     @media (max-width: 767px) {
 
       .app {
@@ -838,13 +907,8 @@
           // STATE 2 — FIRST TRACTION
           if (total <= 5) {
             stateHTML = `
-    <div style="
-      background:#eef2ff;
-      padding:20px;
-      border-radius:12px;
-      margin-bottom:20px;
-    ">
-      <div style="font-weight:600; margin-bottom:6px;">
+    <div class="state-box state-blue">
+      <div class="state-title">
         🚀 First customers coming in
       </div>
 
@@ -858,13 +922,8 @@
           // STATE 3 — GROWTH
           else if (total <= 20) {
             stateHTML = `
-    <div style="
-      background:#ecfeff;
-      padding:20px;
-      border-radius:12px;
-      margin-bottom:20px;
-    ">
-      <div style="font-size:13px; color:#555;">
+    <div class="state-box state-cyan">
+      <div class="state-text">
         ${returning} returning customers (${retention}%)
         <br><br>
         Focus on getting your first repeat visit.
@@ -882,13 +941,8 @@
           // STATE 4 — STRONG
           else {
             stateHTML = `
-    <div style="
-      background:#ecfdf5;
-      padding:20px;
-      border-radius:12px;
-      margin-bottom:20px;
-    ">
-      <div style="font-weight:600; margin-bottom:6px;">
+    <div class="state-box state-green">
+      <div class="state-title">
         🔥 Strong repeat system
       </div>
 
@@ -909,66 +963,44 @@
           const shouldCollapse = total < 5;
 
           loopBox.innerHTML = `
-<div style="
-  display:flex;
-  flex-direction:column;
-  gap:var(--space-2);
-">
+<div class="loop-card">
 
-  <!-- HEADER -->
-  <div style="display:flex; justify-content:space-between; align-items:center;">
-    
+  <div class="loop-header">
     <div>
-      <div style="font-weight:600; font-size:13px;">
-        Loop
-      </div>
-      <div style="font-size:12px; color:var(--muted);">
-        ${completionRate}% completion
-      </div>
+      <div class="loop-title">Loop</div>
+      <div class="loop-sub">${completionRate}% completion</div>
     </div>
 
-    <button onclick="toggleLoop()" style="
-      background:none;
-      border:none;
-      color:var(--primary);
-      font-size:12px;
-      cursor:pointer;
-    ">
+    <button onclick="toggleLoop()" class="secondary">
       ${shouldCollapse ? "Show" : "Hide"}
     </button>
-
   </div>
 
-  <!-- COLLAPSIBLE CONTENT -->
   <div id="loopContent" style="display:${shouldCollapse ? "none" : "block"};">
     
     ${dropIndex >= 0 && biggestDrop > 0 ? `
-      <div style="font-size:12px; color:var(--muted); margin-bottom:10px;">
+      <div class="loop-sub">
         Drop at Visit ${dropIndex + 1} → ${dropIndex + 2}
       </div>
     ` : ""}
 
     ${loop.map((count, i) => `
-      <div style="margin-bottom:8px;">
-        
-        <div style="display:flex; justify-content:space-between; font-size:12px; color:#666;">
+      <div>
+
+        <div class="loop-row">
           <span>Visit ${i + 1}</span>
           <span>${count}</span>
         </div>
 
-        <div style="height:6px; background:#eee; border-radius:6px;">
-          <div style="
-            width:${total ? (count / total) * 100 : 0}%;
-            height:100%;
-            background:var(--primary);
-            border-radius:6px;
-          "></div>
+        <div class="loop-bar">
+          <div class="loop-bar-fill" style="width:${total ? (count / total) * 100 : 0}%"></div>
         </div>
 
       </div>
     `).join("")}
 
   </div>
+
 </div>
 `;
 
