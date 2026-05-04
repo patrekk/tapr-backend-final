@@ -227,6 +227,8 @@
       display: flex;
       flex-direction: column;
       gap: 10px;
+      flex: 1;
+      min-height: 0;
     }
 
     .menu-footer {
@@ -396,12 +398,15 @@
 
     @media (min-width: 768px) {
       .sidebar {
+        height: 100vh;
         position: sticky;
         top: 0;
+        overflow: hidden;
       }
 
       .main {
-        flex: 1;
+        height: 100vh;
+        overflow-y: auto;
       }
     }
 
@@ -493,6 +498,13 @@
 
       .sidebar {
         overflow-y: auto;
+      }
+
+      .menu-footer {
+        position: absolute;
+        bottom: 20px;
+        left: 12px;
+        right: 12px;
       }
 
       .main {
