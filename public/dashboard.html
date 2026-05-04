@@ -298,10 +298,8 @@
 
     /* MAIN */
     .main {
-      margin-left: 64px;
+      flex: 1;
       padding: 24px;
-      height: 100vh;
-      overflow-y: auto;
     }
 
     .brand-block {
@@ -400,15 +398,12 @@
 
     @media (min-width: 768px) {
       .sidebar {
-        height: 100vh;
         position: sticky;
         top: 0;
-        overflow: hidden;
       }
 
       .main {
-        height: 100vh;
-        overflow-y: auto;
+        flex: 1;
       }
     }
 
