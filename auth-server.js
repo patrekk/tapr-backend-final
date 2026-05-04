@@ -72,10 +72,14 @@ function getProgressText(visit) {
   let text = "";
 
   for (let i = 1; i <= total; i++) {
-    if (i <= visit) {
-      text += `✔ ${i}  `;
+    if (i < 5) {
+      if (i <= visit) {
+        text += "● ";
+      } else {
+        text += "○ ";
+      }
     } else {
-      text += `○ ${i}  `;
+      text += "🎁";
     }
   }
 
@@ -147,12 +151,23 @@ async function updateWalletObject(customer, merchant) {
   const updatedObject = {
     textModulesData: [
       {
-        header: "Progress",
-        body: getProgressText(customer.visit_count)
+        id: "reward",
+        header: "🔥 Reward",
+        body: getRewardText(
+          customer.visit_count,
+          customer.pending_discount
+        )
       },
       {
-        header: "Reward",
-        body: getRewardText(customer.visit_count, customer.pending_discount)
+        id: "progress",
+        header: "🎁 Progress",
+        body: getProgressText(customer.visit_count) +
+          `\nVisit ${customer.visit_count} of 5`
+      },
+      {
+        id: "status",
+        header: "💬 Status",
+        body: `${5 - customer.visit_count} visits away from ₱50`
       }
     ]
   };
@@ -240,12 +255,23 @@ async function createWalletObject(customer, merchant) {
 
     textModulesData: [
       {
-        header: "Progress",
-        body: getProgressText(customer.visit_count)
+        id: "reward",
+        header: "🔥 Reward",
+        body: getRewardText(
+          customer.visit_count,
+          customer.pending_discount
+        )
       },
       {
-        header: "Reward",
-        body: getRewardText(customer.visit_count, customer.pending_discount)
+        id: "progress",
+        header: "🎁 Progress",
+        body: getProgressText(customer.visit_count) +
+          `\nVisit ${customer.visit_count} of 5`
+      },
+      {
+        id: "status",
+        header: "💬 Status",
+        body: `${5 - customer.visit_count} visits away from ₱50`
       }
     ]
   };
