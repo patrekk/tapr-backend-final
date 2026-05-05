@@ -735,7 +735,11 @@ app.post(
           ...(email && { email }),
           ...(hex_color && { hex_color }),
           ...(logo_url && { logo_url }),
-          ...(hero_url && { hero_url })
+          ...(hero_url && { hero_url }),
+          info,
+          instagram,
+          facebook,
+          progress_style
         });
 
       } catch (err) {
