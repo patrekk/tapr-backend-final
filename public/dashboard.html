@@ -811,7 +811,7 @@
         }
 
         async function loadStats() {
-          const res = await fetch(`${API}/merchant/stats`, {
+          const res = fetch(`${API}/merchant/stats`, {
             headers: { authorization: getToken() }
           });
           const data = await res.json();

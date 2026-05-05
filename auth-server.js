@@ -145,18 +145,27 @@ async function updateWalletObject(customer, merchant) {
   const objectId = `${ISSUER_ID}.${customer.wallet_id}`;
   const accessToken = await getAccessToken();
 
+  // ✅ helper (added, not replacing anything)
+  function normalizeUrl(url) {
+    if (!url) return null;
+    if (!url.startsWith("http")) {
+      return "https://" + url;
+    }
+    return url;
+  }
+
   const links = [];
 
   if (merchant.instagram) {
     links.push({
-      uri: merchant.instagram,
+      uri: normalizeUrl(merchant.instagram), // ✅ FIXED
       description: "Instagram"
     });
   }
 
   if (merchant.facebook) {
     links.push({
-      uri: merchant.facebook,
+      uri: normalizeUrl(merchant.facebook), // ✅ FIXED
       description: "Facebook"
     });
   }
@@ -184,7 +193,8 @@ async function updateWalletObject(customer, merchant) {
       {
         id: "progress",
         header: "🎁 Progress",
-        body: getProgressText(customer.visit_count) +
+        body:
+          getProgressText(customer.visit_count) +
           `\nVisit ${customer.visit_count} of 5`
       }
     ],
@@ -662,15 +672,16 @@ app.post(
       .from('merchants')
 
       .update({
-        name,
-        email,
-        hex_color,
-        info,
-        instagram,
-        facebook,
-        progress_style,
+        ...(name && { name }),
+        ...(email && { email }),
+        ...(hex_color && { hex_color }),
         ...(logo_url && { logo_url }),
-        ...(hero_url && { hero_url })
+        ...(hero_url && { hero_url }),
+
+        ...(info && { info }),
+        ...(instagram && { instagram }),
+        ...(facebook && { facebook }),
+        ...(progress_style && { progress_style })
       })
 
       .eq('id', req.merchant.id);
