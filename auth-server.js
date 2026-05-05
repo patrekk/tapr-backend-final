@@ -69,18 +69,18 @@ function getRewardText(visit, pending) {
 
 function getProgressText(visit) {
   const total = 5;
-
   let stamps = "";
 
   for (let i = 1; i <= total; i++) {
     if (i < total) {
-      stamps += i <= visit ? "🟡 " : "⚪ ";
+      stamps += i <= visit ? "● " : "○ ";
     } else {
       stamps += "🎁";
     }
   }
 
-  return stamps.trim();
+  // spacing hack for visual centering
+  return `   ${stamps.trim()}`;
 }
 
 function generateSlug(name) {
@@ -270,6 +270,13 @@ async function createWalletObject(customer, merchant) {
     header: {
       defaultValue: {
         language: "en-US",
+        value: customer.name || "Tapr User"
+      }
+    },
+
+    subheader: {
+      defaultValue: {
+        language: "en-US",
         value: `🔥 ${getRewardText(customer.visit_count, customer.pending_discount)}`
       }
     },
@@ -281,15 +288,6 @@ async function createWalletObject(customer, merchant) {
       }
     },
 
-    linksModuleData: {
-      uris: [
-        {
-          uri: `https://usetapr.com/join/${merchant.slug}`,
-          description: "View Store"
-        }
-      ]
-    },
-
     barcode: {
       type: "QR_CODE",
       value: generateCustomerToken(customer, merchant)
@@ -298,7 +296,7 @@ async function createWalletObject(customer, merchant) {
     textModulesData: [
       {
         id: "reward",
-        header: "🔥 Reward",
+        header: "Reward",
         body: getRewardText(
           customer.visit_count,
           customer.pending_discount
@@ -306,7 +304,7 @@ async function createWalletObject(customer, merchant) {
       },
       {
         id: "progress",
-        header: "🎁 Progress",
+        header: "Progress",
         body: getProgressText(customer.visit_count) +
           `\nVisit ${customer.visit_count} of 5`
       },
