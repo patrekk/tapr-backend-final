@@ -1263,6 +1263,12 @@
 
           if (data.success) {
             alert("Pass updated!");
+
+            const color = document.getElementById("colorInput")?.value;
+            if (color) {
+              document.documentElement.style.setProperty('--primary', color);
+            }
+
           } else {
             alert("Failed");
           }
