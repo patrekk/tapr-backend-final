@@ -579,15 +579,20 @@ app.get('/merchant/me', verifySession, async (req, res) => {
 app.post(
   '/merchant/update-profile',
   verifySession,
-  upload.single('logo'),
+  upload.fields([
+    { name: 'logo', maxCount: 1 },
+    { name: 'hero', maxCount: 1 }
+  ]),
   async (req, res) => {
 
     const { name, email, hex_color } = req.body;
 
     let logo_url = null;
+    let hero_url = null;
 
-    if (req.file) {
-      const file = req.file;
+    // 🔹 LOGO
+    if (req.files?.logo?.[0]) {
+      const file = req.files.logo[0];
 
       const filePath = `logos/${req.merchant.id}_${Date.now()}.png`;
 
@@ -598,7 +603,7 @@ app.post(
         });
 
       if (uploadError) {
-        console.log("UPLOAD ERROR:", uploadError);
+        console.log("LOGO UPLOAD ERROR:", uploadError);
         return res.json({ error: "upload_failed" });
       }
 
@@ -607,6 +612,30 @@ app.post(
         .getPublicUrl(filePath);
 
       logo_url = data.publicUrl;
+    }
+
+    // 🔹 HERO
+    if (req.files?.hero?.[0]) {
+      const file = req.files.hero[0];
+
+      const filePath = `heroes/${req.merchant.id}_${Date.now()}.png`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('heroes')
+        .upload(filePath, file.buffer, {
+          contentType: file.mimetype
+        });
+
+      if (uploadError) {
+        console.log("HERO UPLOAD ERROR:", uploadError);
+        return res.json({ error: "upload_failed" });
+      }
+
+      const { data } = supabase.storage
+        .from('heroes')
+        .getPublicUrl(filePath);
+
+      hero_url = data.publicUrl;
     }
 
     const { error } = await supabase

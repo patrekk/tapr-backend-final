@@ -688,6 +688,13 @@
             </p>
           </div>
 
+          <div style="margin-bottom:10px;">
+            <input type="file" id="heroInput">
+            <p style="font-size:12px; color:#777; margin-top:6px;">
+              Recommended: hero image (3:1 ratio), 1032x336px
+            </p>
+          </div>
+
           <button onclick="saveProfile(event)">Save Changes</button>
         </div>
 
@@ -1181,6 +1188,37 @@
             });
 
             formData.append("logo", file);
+          }
+
+          const heroFile = document.getElementById("heroInput").files[0];
+
+          if (heroFile) {
+            const img = new Image();
+            img.src = URL.createObjectURL(heroFile);
+
+            await new Promise(resolve => {
+              img.onload = () => {
+                let warning = "";
+
+                const ratio = img.width / img.height;
+
+                if (img.width < 1000) {
+                  warning += "• Recommended width: 1000px+\n";
+                }
+
+                if (ratio < 2.5 || ratio > 3.5) {
+                  warning += "• Use ~3:1 ratio (e.g. 1032x336)\n";
+                }
+
+                if (warning) {
+                  alert("Hero image recommendation:\n\n" + warning);
+                }
+
+                resolve();
+              };
+            });
+
+            formData.append("hero", heroFile);
           }
 
           const res = await fetch(`${API}/merchant/update-profile`, {
