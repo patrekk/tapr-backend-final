@@ -270,7 +270,14 @@ async function createWalletObject(customer, merchant) {
     header: {
       defaultValue: {
         language: "en-US",
-        value: customer.name || "Tapr User"
+        value: `🔥 ${getRewardText(customer.visit_count, customer.pending_discount)}`
+      }
+    },
+
+    subheader: {
+      defaultValue: {
+        language: "en-US",
+        value: getProgressText(customer.visit_count)
       }
     },
 
