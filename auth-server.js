@@ -252,6 +252,8 @@ async function updateWalletObject(customer, merchant) {
   if (!res.ok) {
     console.log("WALLET PATCH ERROR:", data);
   }
+
+  console.log("MERCHANT IN WALLET:", merchant);
 }
 
 function getContrastColor(hex) {
