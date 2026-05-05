@@ -231,14 +231,6 @@ async function getAccessToken() {
 async function createWalletObject(customer, merchant) {
   const objectId = `${ISSUER_ID}.${customer.wallet_id}`;
 
-  const bg = merchant.hex_color || "#2B396D";
-  const contrast = getContrastColor(bg);
-
-  const finalBg =
-    contrast === "#FFFFFF"
-      ? bg
-      : "#1a1a1a";
-
   const object = {
     id: objectId,
     classId: CLASS_ID,
@@ -248,7 +240,7 @@ async function createWalletObject(customer, merchant) {
     accountName: String(merchant.name || "Tapr"),
 
     // 🎨 BRANDING
-    hexBackgroundColor: finalBg,
+    hexBackgroundColor: merchant.hex_color || "#2B396D",
 
     logo: merchant.logo_url
       ? {
