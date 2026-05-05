@@ -702,11 +702,11 @@ app.post(
       try {
         await updateWalletObject(customer, {
           ...req.merchant,
-          name,
-          email,
-          hex_color,
+          ...(name && { name }),
+          ...(email && { email }),
+          ...(hex_color && { hex_color }),
           ...(logo_url && { logo_url }),
-          ...(hero_url && { hero_url }) // 🔥 ADD THIS LINE
+          ...(hero_url && { hero_url })
         });
 
       } catch (err) {

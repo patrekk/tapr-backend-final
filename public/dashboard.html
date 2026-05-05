@@ -1227,7 +1227,6 @@
           const info = document.getElementById("infoInput").value;
           const instagram = document.getElementById("instagramInput").value;
           const facebook = document.getElementById("facebookInput").value;
-          const color = document.getElementById("colorInput")?.value;
           const filled = document.getElementById("filledInput").value || "●";
           const empty = document.getElementById("emptyInput").value || "○";
           const reward = document.getElementById("rewardInput").value || "🎁";
@@ -1235,9 +1234,6 @@
           formData.append("info", info);
           formData.append("instagram", instagram);
           formData.append("facebook", facebook);
-          if (color) {
-            formData.append("hex_color", color);
-          }
           formData.append("progress_style", JSON.stringify({
             filled,
             empty,
@@ -1263,12 +1259,6 @@
 
           if (data.success) {
             alert("Pass updated!");
-
-            const color = document.getElementById("colorInput")?.value;
-            if (color) {
-              document.documentElement.style.setProperty('--primary', color);
-            }
-
           } else {
             alert("Failed");
           }
