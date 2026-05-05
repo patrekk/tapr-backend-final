@@ -220,7 +220,7 @@ async function updateWalletObject(customer, merchant) {
         id: "progress",
         header: "🎁 Progress",
         body:
-          getProgressText(customer.visit_count) +
+          getProgressText(customer.visit_count, merchant.progress_style) +
           `\nVisit ${customer.visit_count} of 5`
       },
       ...(merchant.info ? [{
