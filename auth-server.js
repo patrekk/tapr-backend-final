@@ -82,6 +82,8 @@ function getProgressText(visit, progressStyleRaw) {
         ? JSON.parse(progressStyleRaw)
         : progressStyleRaw;
 
+      console.log("PARSED STYLE:", parsed); // ✅ HERE
+
       style = {
         filled: parsed.filled !== undefined ? parsed.filled : "●",
         empty: parsed.empty !== undefined ? parsed.empty : "○",
