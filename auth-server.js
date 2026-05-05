@@ -646,7 +646,8 @@ app.post(
         name,
         email,
         hex_color,
-        ...(logo_url && { logo_url })
+        ...(logo_url && { logo_url }),
+        ...(hero_url && { hero_url })
 
       })
 
@@ -770,7 +771,7 @@ app.get('/merchant/:slug', async (req, res) => {
 
   const { data: merchant } = await supabase
     .from('merchants')
-    .select('name, hex_color, logo_url')
+    .select('name, hex_color, logo_url, hero_url')
     .eq('slug', slug)
     .single();
 
