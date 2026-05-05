@@ -145,7 +145,33 @@ async function updateWalletObject(customer, merchant) {
   const objectId = `${ISSUER_ID}.${customer.wallet_id}`;
   const accessToken = await getAccessToken();
 
+  const links = [];
+
+  if (merchant.instagram) {
+    links.push({
+      uri: merchant.instagram,
+      description: "Instagram"
+    });
+  }
+
+  if (merchant.facebook) {
+    links.push({
+      uri: merchant.facebook,
+      description: "Facebook"
+    });
+  }
+
   const updatedObject = {
+    hexBackgroundColor: merchant.hex_color || "#2B396D",
+
+    logo: merchant.logo_url
+      ? { sourceUri: { uri: merchant.logo_url } }
+      : undefined,
+
+    heroImage: merchant.hero_url
+      ? { sourceUri: { uri: merchant.hero_url } }
+      : undefined,
+
     textModulesData: [
       {
         id: "reward",
@@ -160,13 +186,12 @@ async function updateWalletObject(customer, merchant) {
         header: "🎁 Progress",
         body: getProgressText(customer.visit_count) +
           `\nVisit ${customer.visit_count} of 5`
-      },
-      {
-        id: "status",
-        header: "💬 Status",
-        body: `${5 - customer.visit_count} visits away from ₱50`
       }
-    ]
+    ],
+
+    ...(links.length > 0 && {
+      linksModuleData: { uris: links }
+    })
   };
 
   const res = await fetch(
@@ -274,20 +299,6 @@ async function createWalletObject(customer, merchant) {
       }
     },
 
-    subheader: {
-      defaultValue: {
-        language: "en-US",
-        value: `🔥 ${getRewardText(customer.visit_count, customer.pending_discount)}`
-      }
-    },
-
-    subheader: {
-      defaultValue: {
-        language: "en-US",
-        value: getProgressText(customer.visit_count)
-      }
-    },
-
     barcode: {
       type: "QR_CODE",
       value: generateCustomerToken(customer, merchant)
@@ -307,11 +318,6 @@ async function createWalletObject(customer, merchant) {
         header: "Progress",
         body: getProgressText(customer.visit_count) +
           `\nVisit ${customer.visit_count} of 5`
-      },
-      {
-        id: "status",
-        header: "💬 Status",
-        body: `${5 - customer.visit_count} visits away from ₱50`
       }
     ]
   };
@@ -659,11 +665,30 @@ app.post(
       .eq('id', req.merchant.id);
 
     if (error) {
-
       console.log("UPDATE PROFILE ERROR:", error);
-
       return res.json({ error: "update_failed" });
+    }
 
+    // 🔥 SYNC ALL CUSTOMER PASSES (INSERT HERE)
+
+    const { data: customers } = await supabase
+      .from('customers')
+      .select('*')
+      .eq('merchant_id', req.merchant.id);
+
+    for (const customer of customers || []) {
+      try {
+        await updateWalletObject(customer, {
+          ...req.merchant,
+          name,
+          email,
+          hex_color,
+          ...(logo_url && { logo_url })
+        });
+
+      } catch (err) {
+        console.log("SYNC ERROR:", err.message);
+      }
     }
 
     res.json({ success: true });
