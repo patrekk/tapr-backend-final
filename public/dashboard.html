@@ -688,13 +688,6 @@
             </p>
           </div>
 
-          <div style="margin-bottom:10px;">
-            <input type="file" id="heroInput">
-            <p style="font-size:12px; color:#777; margin-top:6px;">
-              Recommended: hero image (3:1 ratio), 1032x336px
-            </p>
-          </div>
-
           <button onclick="saveProfile(event)">Save Changes</button>
         </div>
 
@@ -712,21 +705,31 @@
       <div id="passPage" style="display:none;">
 
         <div class="section">
-
           <h3>Pass Customization</h3>
 
-          <p style="font-size:13px; color:#777;">
+          <div style="margin-bottom:10px;">
+            <input type="file" id="passHeroInput">
+            <p style="font-size:12px; color:#777;">
+              Hero image (3:1 ratio recommended)
+            </p>
+          </div>
 
-            Customize your loyalty pass design and rewards layout.
+          <!-- INFO -->
+          <textarea id="infoInput" placeholder="Store info (optional)"
+            style="width:100%; margin-bottom:10px;"></textarea>
 
-          </p>
+          <!-- SOCIALS -->
+          <input id="instagramInput" placeholder="Instagram URL" style="margin-bottom:10px;">
+          <input id="facebookInput" placeholder="Facebook URL" style="margin-bottom:10px;">
 
-          <button class="secondary" disabled>
+          <!-- PROGRESS STYLE -->
+          <div style="margin-bottom:10px;">
+            <input id="filledInput" placeholder="Filled (●)" maxlength="2">
+            <input id="emptyInput" placeholder="Empty (○)" maxlength="2">
+            <input id="rewardInput" placeholder="Reward (🎁)" maxlength="2">
+          </div>
 
-            Coming Soon
-
-          </button>
-
+          <button onclick="savePass(event)">Save Pass</button>
         </div>
 
       </div>
@@ -1190,37 +1193,6 @@
             formData.append("logo", file);
           }
 
-          const heroFile = document.getElementById("heroInput").files[0];
-
-          if (heroFile) {
-            const img = new Image();
-            img.src = URL.createObjectURL(heroFile);
-
-            await new Promise(resolve => {
-              img.onload = () => {
-                let warning = "";
-
-                const ratio = img.width / img.height;
-
-                if (img.width < 1000) {
-                  warning += "• Recommended width: 1000px+\n";
-                }
-
-                if (ratio < 2.5 || ratio > 3.5) {
-                  warning += "• Use ~3:1 ratio (e.g. 1032x336)\n";
-                }
-
-                if (warning) {
-                  alert("Hero image recommendation:\n\n" + warning);
-                }
-
-                resolve();
-              };
-            });
-
-            formData.append("hero", heroFile);
-          }
-
           const res = await fetch(`${API}/merchant/update-profile`, {
             method: "POST",
             headers: {
@@ -1242,6 +1214,57 @@
           }
 
           btn.innerText = "Save Changes";
+          btn.disabled = false;
+        }
+
+        async function savePass(event) {
+          const btn = event.target;
+          btn.innerText = "Saving...";
+          btn.disabled = true;
+
+          const formData = new FormData();
+
+          const info = document.getElementById("infoInput").value;
+          const instagram = document.getElementById("instagramInput").value;
+          const facebook = document.getElementById("facebookInput").value;
+
+          const filled = document.getElementById("filledInput").value || "●";
+          const empty = document.getElementById("emptyInput").value || "○";
+          const reward = document.getElementById("rewardInput").value || "🎁";
+
+          formData.append("info", info);
+          formData.append("instagram", instagram);
+          formData.append("facebook", facebook);
+          formData.append("progress_style", JSON.stringify({
+            filled,
+            empty,
+            reward
+          }));
+
+          // 🔥 HERO FILE
+          const heroFile = document.getElementById("passHeroInput").files[0];
+
+          if (heroFile) {
+            formData.append("hero", heroFile);
+          }
+
+          const res = await fetch(`${API}/merchant/update-profile`, {
+            method: "POST",
+            headers: {
+              authorization: getToken()
+            },
+            body: formData
+          });
+
+          const data = await res.json();
+
+          if (data.success) {
+            alert("Pass updated!");
+          } else {
+            alert("Failed");
+          }
+
+          btn.innerText = "Save Pass";
           btn.disabled = false;
         }
 

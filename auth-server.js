@@ -596,7 +596,15 @@ app.post(
   ]),
   async (req, res) => {
 
-    const { name, email, hex_color } = req.body;
+    const {
+      name,
+      email,
+      hex_color,
+      info,
+      instagram,
+      facebook,
+      progress_style
+    } = req.body;
 
     let logo_url = null;
     let hero_url = null;
@@ -657,9 +665,12 @@ app.post(
         name,
         email,
         hex_color,
+        info,
+        instagram,
+        facebook,
+        progress_style,
         ...(logo_url && { logo_url }),
         ...(hero_url && { hero_url })
-
       })
 
       .eq('id', req.merchant.id);
@@ -683,7 +694,8 @@ app.post(
           name,
           email,
           hex_color,
-          ...(logo_url && { logo_url })
+          ...(logo_url && { logo_url }),
+          ...(hero_url && { hero_url }) // 🔥 ADD THIS LINE
         });
 
       } catch (err) {
@@ -843,7 +855,15 @@ app.post('/merchant/login', async (req, res) => {
 
 // ---------- MERCHANT SIGNUP ----------
 app.post('/merchant/signup', async (req, res) => {
-  const { name, email, password } = req.body;
+  const {
+    name,
+    email,
+    hex_color,
+    info,
+    instagram,
+    facebook,
+    progress_style
+  } = req.body;
 
   if (!name || !email || !password) {
     return res.json({ error: "Missing fields" });
