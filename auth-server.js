@@ -69,21 +69,18 @@ function getRewardText(visit, pending) {
 
 function getProgressText(visit) {
   const total = 5;
-  let text = "";
+
+  let stamps = "";
 
   for (let i = 1; i <= total; i++) {
-    if (i < 5) {
-      if (i <= visit) {
-        text += "● ";
-      } else {
-        text += "○ ";
-      }
+    if (i < total) {
+      stamps += i <= visit ? "🟡 " : "⚪ ";
     } else {
-      text += "🎁";
+      stamps += "🎁";
     }
   }
 
-  return text.trim();
+  return stamps.trim();
 }
 
 function generateSlug(name) {
@@ -191,6 +188,16 @@ async function updateWalletObject(customer, merchant) {
   }
 }
 
+function getContrastColor(hex) {
+  const r = parseInt(hex.substr(1, 2), 16);
+  const g = parseInt(hex.substr(3, 2), 16);
+  const b = parseInt(hex.substr(5, 2), 16);
+
+  const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+
+  return brightness > 150 ? "#000000" : "#FFFFFF";
+}
+
 // ---------- GOOGLE WALLET ----------
 
 async function getAccessToken() {
@@ -224,6 +231,14 @@ async function getAccessToken() {
 async function createWalletObject(customer, merchant) {
   const objectId = `${ISSUER_ID}.${customer.wallet_id}`;
 
+  const bg = merchant.hex_color || "#2B396D";
+  const contrast = getContrastColor(bg);
+
+  const finalBg =
+    contrast === "#FFFFFF"
+      ? bg
+      : "#1a1a1a";
+
   const object = {
     id: objectId,
     classId: CLASS_ID,
@@ -233,7 +248,7 @@ async function createWalletObject(customer, merchant) {
     accountName: String(merchant.name || "Tapr"),
 
     // 🎨 BRANDING
-    hexBackgroundColor: merchant.hex_color || "#2B396D",
+    hexBackgroundColor: finalBg,
 
     logo: merchant.logo_url
       ? {
@@ -243,10 +258,10 @@ async function createWalletObject(customer, merchant) {
       }
       : undefined,
 
-    heroImage: merchant.logo_url
+    heroImage: merchant.hero_url
       ? {
         sourceUri: {
-          uri: merchant.logo_url
+          uri: merchant.hero_url
         }
       }
       : undefined,
@@ -265,6 +280,15 @@ async function createWalletObject(customer, merchant) {
         language: "en-US",
         value: customer.name || "Tapr User"
       }
+    },
+
+    linksModuleData: {
+      uris: [
+        {
+          uri: `https://usetapr.com/join/${merchant.slug}`,
+          description: "View Store"
+        }
+      ]
     },
 
     barcode: {
