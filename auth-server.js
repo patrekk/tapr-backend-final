@@ -67,19 +67,43 @@ function getRewardText(visit, pending) {
   return `Next visit → ₱${pending}`;
 }
 
-function getProgressText(visit) {
+function getProgressText(visit, progressStyleRaw) {
   const total = 5;
+
+  let style = {
+    filled: "●",
+    empty: "○",
+    reward: "🎁"
+  };
+
+  if (progressStyleRaw) {
+    try {
+      const parsed = typeof progressStyleRaw === "string"
+        ? JSON.parse(progressStyleRaw)
+        : progressStyleRaw;
+
+      style = {
+        filled: parsed.filled || "●",
+        empty: parsed.empty || "○",
+        reward: parsed.reward || "🎁"
+      };
+    } catch (e) {
+      console.log("PROGRESS STYLE PARSE ERROR");
+    }
+  }
+
   let stamps = "";
 
   for (let i = 1; i <= total; i++) {
     if (i < total) {
-      stamps += i <= visit ? "● " : "○ ";
+      stamps += i <= visit
+        ? style.filled + " "
+        : style.empty + " ";
     } else {
-      stamps += "🎁";
+      stamps += style.reward;
     }
   }
 
-  // spacing hack for visual centering
   return `   ${stamps.trim()}`;
 }
 
@@ -196,7 +220,12 @@ async function updateWalletObject(customer, merchant) {
         body:
           getProgressText(customer.visit_count) +
           `\nVisit ${customer.visit_count} of 5`
-      }
+      },
+      ...(merchant.info ? [{
+        id: "info",
+        header: "ℹ️ Info",
+        body: merchant.info
+      }] : [])
     ],
 
     ...(links.length > 0 && {
@@ -326,7 +355,7 @@ async function createWalletObject(customer, merchant) {
       {
         id: "progress",
         header: "Progress",
-        body: getProgressText(customer.visit_count) +
+        body: getProgressText(customer.visit_count, merchant.progress_style) +
           `\nVisit ${customer.visit_count} of 5`
       }
     ]
