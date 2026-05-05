@@ -83,9 +83,9 @@ function getProgressText(visit, progressStyleRaw) {
         : progressStyleRaw;
 
       style = {
-        filled: parsed.filled || "●",
-        empty: parsed.empty || "○",
-        reward: parsed.reward || "🎁"
+        filled: parsed.filled !== undefined ? parsed.filled : "●",
+        empty: parsed.empty !== undefined ? parsed.empty : "○",
+        reward: parsed.reward !== undefined ? parsed.reward : "🎁"
       };
     } catch (e) {
       console.log("PROGRESS STYLE PARSE ERROR");
