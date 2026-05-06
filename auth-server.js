@@ -9,6 +9,7 @@ import { fileURLToPath } from 'url';
 import bcrypt from 'bcrypt';
 import rateLimit from 'express-rate-limit';
 import multer from 'multer';
+import { info } from 'console';
 
 dotenv.config();
 
@@ -624,7 +625,12 @@ app.get('/merchant/me', verifySession, async (req, res) => {
     name: req.merchant.name,
     slug: req.merchant.slug,
     hex_color: req.merchant.hex_color,
-    email: req.merchant.email
+    email: req.merchant.email,
+
+    info: req.merchant.info,
+    instagram: req.merchant.instagram,
+    facebook: req.merchant.facebook,
+    progress_style: req.merchant.progress_style
   });
 });
 
