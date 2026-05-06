@@ -740,10 +740,10 @@ app.post(
           ...(hex_color && { hex_color }),
           ...(logo_url && { logo_url }),
           ...(hero_url && { hero_url }),
-          info,
-          instagram,
-          facebook,
-          progress_style
+          ...(info !== undefined && info !== "" && { info }),
+          ...(instagram !== undefined && instagram !== "" && { instagram }),
+          ...(facebook !== undefined && facebook !== "" && { facebook }),
+          ...(progress_style !== undefined && progress_style !== "" && { progress_style })
         });
 
       } catch (err) {
