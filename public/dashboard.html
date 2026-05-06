@@ -707,29 +707,116 @@
         <div class="section">
           <h3>Pass Customization</h3>
 
-          <div style="margin-bottom:10px;">
+          <!-- HERO IMAGE -->
+          <div style="margin-bottom:20px;">
+
+            <div style="font-weight:600; margin-bottom:4px;">
+              Hero Image
+            </div>
+
+            <div style="font-size:12px; color:#777; margin-bottom:10px;">
+              This image appears at the bottom of your pass
+            </div>
+
             <input type="file" id="passHeroInput">
-            <p style="font-size:12px; color:#777;">
+
+            <p style="font-size:12px; color:#777; margin-top:6px;">
               Hero image (3:1 ratio recommended)
             </p>
+
           </div>
 
           <!-- INFO -->
-          <textarea id="infoInput" placeholder="Store info (optional)"
-            style="width:100%; margin-bottom:10px;"></textarea>
+          <div style="margin-bottom:20px;">
 
-          <!-- SOCIALS -->
-          <input id="instagramInput" placeholder="Instagram URL" style="margin-bottom:10px;">
-          <input id="facebookInput" placeholder="Facebook URL" style="margin-bottom:10px;">
+            <div style="font-weight:600; margin-bottom:4px;">
+              Info
+            </div>
 
-          <!-- PROGRESS STYLE -->
-          <div style="margin-bottom:10px;">
-            <input id="filledInput" placeholder="Filled (●)" maxlength="2">
-            <input id="emptyInput" placeholder="Empty (○)" maxlength="2">
-            <input id="rewardInput" placeholder="Reward (🎁)" maxlength="2">
+            <div style="font-size:12px; color:#777; margin-bottom:10px;">
+              Display important info
+            </div>
+
+            <textarea id="infoInput" placeholder="Branches, opening hours, promos, etc."
+              style="width:100%; min-height:80px;"></textarea>
+
           </div>
 
-          <button onclick="savePass(event)">Save Pass</button>
+          <!-- INSTAGRAM -->
+          <div style="margin-bottom:20px;">
+
+            <div style="font-weight:600; margin-bottom:4px;">
+              Instagram
+            </div>
+
+            <div style="font-size:12px; color:#777; margin-bottom:10px;">
+              Format: instagram.com/yourinstagramhandle
+            </div>
+
+            <input id="instagramInput" placeholder="instagram.com/yourinstagramhandle" style="width:100%;">
+
+          </div>
+
+          <!-- FACEBOOK -->
+          <div style="margin-bottom:20px;">
+
+            <div style="font-weight:600; margin-bottom:4px;">
+              Facebook
+            </div>
+
+            <div style="font-size:12px; color:#777; margin-bottom:10px;">
+              Format: facebook.com/yourfacebookhandle
+            </div>
+
+            <input id="facebookInput" placeholder="facebook.com/yourfacebookhandle" style="width:100%;">
+
+          </div>
+
+          <!-- PROGRESS -->
+          <div style="margin-bottom:20px;">
+
+            <div style="font-weight:600; margin-bottom:4px;">
+              Progress Customization
+            </div>
+
+            <div style="font-size:12px; color:#777; margin-bottom:12px;">
+              Customize how progress appears on the pass
+            </div>
+
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+
+              <div style="flex:1; min-width:120px;">
+                <div style="font-size:12px; color:#777; margin-bottom:6px;">
+                  Filled
+                </div>
+
+                <input id="filledInput" placeholder="●" maxlength="2" style="width:100%;">
+              </div>
+
+              <div style="flex:1; min-width:120px;">
+                <div style="font-size:12px; color:#777; margin-bottom:6px;">
+                  Empty
+                </div>
+
+                <input id="emptyInput" placeholder="○" maxlength="2" style="width:100%;">
+              </div>
+
+              <div style="flex:1; min-width:120px;">
+                <div style="font-size:12px; color:#777; margin-bottom:6px;">
+                  Reward
+                </div>
+
+                <input id="rewardInput" placeholder="🎁" maxlength="2" style="width:100%;">
+              </div>
+
+            </div>
+
+          </div>
+
+          <button onclick="savePass(event)">
+            Save Pass
+          </button>
+
         </div>
 
       </div>
