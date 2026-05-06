@@ -1337,6 +1337,38 @@
           }, 16);
         }
 
+        async function loadPass() {
+          const res = await fetch(`${API}/merchant/me`, {
+            headers: { authorization: getToken() }
+          });
+
+          const data = await res.json();
+
+          if (data.info) {
+            document.getElementById("infoInput").value = data.info;
+          }
+
+          if (data.instagram) {
+            document.getElementById("instagramInput").value = data.instagram;
+          }
+
+          if (data.facebook) {
+            document.getElementById("facebookInput").value = data.facebook;
+          }
+
+          if (data.progress_style) {
+            try {
+              const style = typeof data.progress_style === "string"
+                ? JSON.parse(data.progress_style)
+                : data.progress_style;
+
+              document.getElementById("filledInput").value = style.filled || "";
+              document.getElementById("emptyInput").value = style.empty || "";
+              document.getElementById("rewardInput").value = style.reward || "";
+            } catch { }
+          }
+        }
+
         function getContrastColor(hex) {
           const r = parseInt(hex.substr(1, 2), 16);
           const g = parseInt(hex.substr(3, 2), 16);
@@ -1366,6 +1398,7 @@
           loadStats();
           loadCustomers();
           loadProfile();
+          loadPass();
           loadLogs();
 
           const saved = localStorage.getItem("sidebarCollapsed");
