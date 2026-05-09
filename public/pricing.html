@@ -108,7 +108,7 @@
 
         .hero h1 {
             font-size: 40px;
-            line-height: 1.05;
+            line-height: 1.1;
             max-width: 900px;
             margin: 0 auto 20px;
         }
@@ -139,12 +139,14 @@
             padding: 14px 26px;
             border-radius: 999px;
             font-weight: 600;
+            cursor: pointer;
         }
 
         .toggle-inactive {
             padding: 14px 26px;
             color: #444;
             font-weight: 500;
+            cursor: pointer;
         }
 
         /* PRICING */
@@ -222,6 +224,7 @@
             color: var(--primary);
             font-weight: 600;
             margin-bottom: 26px;
+            min-height: 24px;
         }
 
         /* BUTTONS */
@@ -325,7 +328,7 @@
             }
 
             .hero h1 {
-                font-size: 40px;
+                font-size: 34px;
             }
 
             .pricing-grid {
@@ -345,7 +348,9 @@
     <div class="nav">
         <div class="nav-inner">
 
-            <img src="/images/logo.png" class="logo">
+            <a href="/">
+                <img src="/images/logo.png" class="logo">
+            </a>
 
             <div class="nav-right">
 
@@ -391,15 +396,23 @@
             Just a clean customer rewards system that keeps people coming back.
         </p>
 
+        <!-- TOGGLE -->
         <div class="billing-toggle">
-            <div class="toggle-active">Pay monthly</div>
-            <div class="toggle-inactive">Pay yearly (save 2 months)</div>
+
+            <div class="toggle-active" id="monthlyToggle" onclick="setBilling('monthly')">
+                Pay monthly
+            </div>
+
+            <div class="toggle-inactive" id="yearlyToggle" onclick="setBilling('yearly')">
+                Pay yearly (2 months free)
+            </div>
+
         </div>
 
         <!-- PRICING GRID -->
         <div class="pricing-grid">
 
-            <!-- FREE -->
+            <!-- STARTER -->
             <div class="card">
 
                 <div class="card-top">
@@ -462,13 +475,11 @@
                         Built for stores focused on retention and repeat visits.
                     </div>
 
-                    <div class="price">
+                    <div class="price" id="growthPrice">
                         ₱999 <span>/month</span>
                     </div>
 
-                    <div class="yearly">
-                        ₱9,990 /year (save ₱1,998)
-                    </div>
+                    <div class="yearly" id="growthYearly"></div>
 
                     <button class="btn btn-primary">
                         Start 14-day free trial
@@ -489,6 +500,50 @@
                         <li>Advanced analytics & reports</li>
                         <li>Custom branding</li>
                         <li>Priority support</li>
+                    </ul>
+
+                </div>
+
+            </div>
+
+            <!-- PRO -->
+            <div class="card">
+
+                <div class="card-top">
+                    Multi-location businesses
+                </div>
+
+                <div class="card-content">
+
+                    <div class="plan-name">
+                        Pro
+                    </div>
+
+                    <div class="plan-desc">
+                        Manage multiple locations with one shared customer system.
+                    </div>
+
+                    <div class="price" id="proPrice">
+                        ₱2,499 <span>/month</span>
+                    </div>
+
+                    <div class="yearly" id="proYearly"></div>
+
+                    <button class="btn btn-secondary">
+                        Start 14-day free trial
+                    </button>
+
+                    <div class="features-title">
+                        Includes everything in Growth PLUS:
+                    </div>
+
+                    <ul class="features">
+                        <li>3 locations included</li>
+                        <li>Shared customer database</li>
+                        <li>Branch analytics</li>
+                        <li>Cross-location campaigns</li>
+                        <li>Centralized management</li>
+                        <li>Staff roles & team access</li>
                     </ul>
 
                 </div>
@@ -548,6 +603,43 @@
         </button>
 
     </div>
+
+    <script>
+        function setBilling(mode) {
+
+            const monthlyToggle = document.getElementById('monthlyToggle');
+            const yearlyToggle = document.getElementById('yearlyToggle');
+
+            const growthPrice = document.getElementById('growthPrice');
+            const growthYearly = document.getElementById('growthYearly');
+
+            const proPrice = document.getElementById('proPrice');
+            const proYearly = document.getElementById('proYearly');
+
+            if (mode === 'yearly') {
+
+                monthlyToggle.className = 'toggle-inactive';
+                yearlyToggle.className = 'toggle-active';
+
+                growthPrice.innerHTML = '₱832.5 <span>/month</span>';
+                growthYearly.innerHTML = '₱9,990/year';
+
+                proPrice.innerHTML = '₱2,082.5 <span>/month</span>';
+                proYearly.innerHTML = '₱24,990/year';
+
+            } else {
+
+                monthlyToggle.className = 'toggle-active';
+                yearlyToggle.className = 'toggle-inactive';
+
+                growthPrice.innerHTML = '₱999 <span>/month</span>';
+                growthYearly.innerHTML = '';
+
+                proPrice.innerHTML = '₱2,499 <span>/month</span>';
+                proYearly.innerHTML = '';
+            }
+        }
+    </script>
 
 </body>
 
