@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Tapr Pricing</title>
+
+    <style>
+        :root {
+            --primary: #16A34A;
+            --bg: #F7F8FA;
+            --text: #0B0B0B;
+            --muted: #666;
+            --card: #FFFFFF;
+            --border: #E5E7EB;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(to bottom, #f7f8fa, #ffffff);
+            color: var(--text);
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: auto;
+            padding: 24px;
+        }
+
+        /* NAVBAR */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 16px 24px;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+        }
+
+        .nav-inner {
+            max-width: 1280px;
+            margin: auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 28px;
+        }
+
+        .logo {
+            height: 30px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 22px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #111;
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .nav-links a.active {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .login-btn {
+            text-decoration: none;
+            color: #111;
+            font-weight: 500;
+            font-size: 15px;
+        }
+
+        .start-btn {
+            background: var(--primary);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            box-shadow: 0 10px 20px rgba(22, 163, 74, 0.2);
+        }
+
+        /* HERO */
+        .hero {
+            padding-top: 140px;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 58px;
+            line-height: 1;
+            margin-bottom: 18px;
+            letter-spacing: -2px;
+        }
+
+        .hero p {
+            color: var(--muted);
+            font-size: 20px;
+            margin-bottom: 40px;
+        }
+
+        /* TOGGLE */
+        .billing-toggle {
+            width: fit-content;
+            margin: auto;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            padding: 6px;
+            display: flex;
+            gap: 8px;
+            margin-bottom: 60px;
+        }
+
+        .toggle-active {
+            background: #111;
+            color: white;
+            padding: 14px 26px;
+            border-radius: 999px;
+            font-weight: 600;
+        }
+
+        .toggle-inactive {
+            padding: 14px 26px;
+            color: #444;
+            font-weight: 500;
+        }
+
+        /* PRICING GRID */
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-bottom: 70px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 22px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+        }
+
+        .card-top {
+            background: #E9F8EC;
+            color: var(--primary);
+            text-align: center;
+            font-weight: 700;
+            padding: 16px;
+            font-size: 18px;
+        }
+
+        .popular .card-top {
+            background: #16A34A;
+            color: white;
+        }
+
+        .card-content {
+            padding: 34px;
+        }
+
+        .plan-name {
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #0B0B0B;
+        }
+
+        .plan-desc {
+            color: var(--muted);
+            line-height: 1.5;
+            margin-bottom: 28px;
+            min-height: 52px;
+        }
+
+        .price {
+            font-size: 56px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .price span {
+            font-size: 18px;
+            color: var(--muted);
+            font-weight: 500;
+        }
+
+        .yearly {
+            color: var(--primary);
+            font-weight: 600;
+            margin-bottom: 26px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border-radius: 14px;
+            border: none;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            margin-bottom: 34px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: white;
+            border: 1px solid #16A34A;
+            color: var(--primary);
+        }
+
+        .features-title {
+            font-weight: 700;
+            margin-bottom: 18px;
+        }
+
+        .features {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .features li {
+            display: flex;
+            gap: 10px;
+            line-height: 1.45;
+            color: #222;
+        }
+
+        .features li::before {
+            content: "✓";
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        /* BOTTOM FEATURES */
+        .bottom-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 30px;
+            margin-top: 60px;
+            margin-bottom: 120px;
+        }
+
+        .bottom-card h3 {
+            margin-bottom: 10px;
+            font-size: 20px;
+        }
+
+        .bottom-card p {
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
+        @media (max-width: 1100px) {
+            .pricing-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .bottom-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero h1 {
+                font-size: 42px;
+            }
+        }
+
+        @media (max-width: 700px) {
+            .nav-inner {
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .nav-left {
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .hero {
+                padding-top: 180px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="nav">
+        <div class="nav-inner">
+
+            <div class="nav-left">
+                <a href="/">
+                    <img src="/logo.png" class="logo">
+                </a>
+            </div>
+
+            <div class="nav-right">
+
+                <div class="nav-links">
+                    <a href="/pricing" class="active">Pricing</a>
+                </div>
+
+                <a href="/login" class="login-btn">Log in</a>
+
+                <a href="/signup" class="start-btn">
+                    Start free
+                </a>
+
+            </div>
+
+        </div>
+    </nav>
+
+    <section class="hero container">
+
+        <h1>
+            Simple pricing.<br>
+            Powerful retention.
+        </h1>
+
+        <p>
+            Choose the plan that fits your business.
+        </p>
+
+        <div class="billing-toggle">
+            <div class="toggle-active">Pay monthly</div>
+            <div class="toggle-inactive">Pay yearly (save 2 months)</div>
+        </div>
+
+        <div class="pricing-grid">
+
+            <!-- FREE -->
+            <div class="card">
+
+                <div class="card-top">
+                    Forever free
+                </div>
+
+                <div class="card-content">
+
+                    <div class="plan-name">Free</div>
+
+                    <div class="plan-desc">
+                        Perfect for getting started with loyalty.
+                    </div>
+
+                    <div class="price">
+                        ₱0 <span>/month</span>
+                    </div>
+
+                    <div class="yearly">
+                        Free forever
+                    </div>
+
+                    <button class="btn btn-secondary">
+                        Get started free
+                    </button>
+
+                    <div class="features-title">
+                        What's included
+                    </div>
+
+                    <ul class="features">
+                        <li>Digital loyalty card</li>
+                        <li>Apple Wallet & Google Wallet</li>
+                        <li>QR code join</li>
+                        <li>Unlimited scans</li>
+                        <li>Core loyalty loop (10-10-20-0-50)</li>
+                        <li>1 location</li>
+                        <li>Basic member insights</li>
+                        <li>Tapr branding on pass</li>
+                    </ul>
+
+                </div>
+
+            </div>
+
+            <!-- SINGLE -->
+            <div class="card popular">
+
+                <div class="card-top">
+                    Best for growing businesses
+                </div>
+
+                <div class="card-content">
+
+                    <div class="plan-name">
+                        Single Location
+                    </div>
+
+                    <div class="plan-desc">
+                        Everything you need to grow and retain customers.
+                    </div>
+
+                    <div class="price">
+                        ₱999 <span>/month</span>
+                    </div>
+
+                    <div class="yearly">
+                        ₱9,990 /year (save ₱1,998)
+                    </div>
+
+                    <button class="btn btn-primary">
+                        Start 14-day free trial
+                    </button>
+
+                    <div class="features-title">
+                        Everything in Free, plus:
+                    </div>
+
+                    <ul class="features">
+                        <li>Paid memberships (active / inactive)</li>
+                        <li>Campaigns (broadcast & segmented)</li>
+                        <li>Customer segmentation</li>
+                        <li>Push notifications</li>
+                        <li>Birthday rewards</li>
+                        <li>Partner perks & discounts</li>
+                        <li>Geofencing</li>
+                        <li>Advanced analytics & reports</li>
+                        <li>Custom branding on pass</li>
+                        <li>Priority support</li>
+                    </ul>
+
+                </div>
+
+            </div>
+
+            <!-- MULTI -->
+            <div class="card">
+
+                <div class="card-top">
+                    Scale across locations
+                </div>
+
+                <div class="card-content">
+
+                    <div class="plan-name">
+                        Multi Location
+                    </div>
+
+                    <div class="plan-desc">
+                        Manage up to 3 locations and all your customers in one place.
+                    </div>
+
+                    <div class="price">
+                        ₱2,499 <span>/month</span>
+                    </div>
+
+                    <div class="yearly">
+                        ₱24,990 /year (save ₱4,998)
+                    </div>
+
+                    <button class="btn btn-secondary">
+                        Start 14-day free trial
+                    </button>
+
+                    <div class="features-title">
+                        Everything in Single Location, plus:
+                    </div>
+
+                    <ul class="features">
+                        <li>Up to 3 locations included</li>
+                        <li>Shared customer database</li>
+                        <li>Location performance analytics</li>
+                        <li>Cross-location campaigns</li>
+                        <li>Staff roles & permissions</li>
+                        <li>Centralized member management</li>
+                        <li>Location-based insights</li>
+                        <li>Priority support</li>
+                    </ul>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="bottom-grid">
+
+            <div class="bottom-card">
+                <h3>Wallet-native</h3>
+                <p>
+                    Installed directly into Apple Wallet and Google Wallet.
+                </p>
+            </div>
+
+            <div class="bottom-card">
+                <h3>Drive repeat visits</h3>
+                <p>
+                    Built-in retention loops and smart campaigns.
+                </p>
+            </div>
+
+            <div class="bottom-card">
+                <h3>Know your customers</h3>
+                <p>
+                    Segment, engage, and convert inactive members.
+                </p>
+            </div>
+
+            <div class="bottom-card">
+                <h3>Secure & reliable</h3>
+                <p>
+                    Enterprise-grade infrastructure and security.
+                </p>
+            </div>
+
+        </div>
+
+    </section>
+
+</body>
+
+</html>
