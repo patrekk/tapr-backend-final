@@ -31,7 +31,6 @@
             color: var(--text);
         }
 
-        /* CONTAINER */
         .container {
             max-width: 1100px;
             margin: auto;
@@ -282,12 +281,33 @@
             font-weight: 700;
         }
 
+        /* RETENTION */
+        .retention-section {
+            margin-top: 100px;
+            text-align: center;
+        }
+
+        .retention-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 18px;
+            margin-top: 40px;
+        }
+
+        .retention-card {
+            background: white;
+            border-radius: 18px;
+            border: 1px solid #eee;
+            padding: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        }
+
         /* BOTTOM */
         .bottom-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
             gap: 30px;
-            margin-top: 80px;
+            margin-top: 100px;
         }
 
         .bottom-card {
@@ -392,8 +412,8 @@
         </h1>
 
         <p>
-            No complicated loyalty setup. No expensive hardware.
-            Just a clean customer rewards system that keeps people coming back.
+            Run wallet-native loyalty, memberships, and retention campaigns
+            without building a custom app.
         </p>
 
         <!-- TOGGLE -->
@@ -412,7 +432,7 @@
         <!-- PRICING GRID -->
         <div class="pricing-grid">
 
-            <!-- STARTER -->
+            <!-- FREE -->
             <div class="card">
 
                 <div class="card-top">
@@ -421,7 +441,7 @@
 
                 <div class="card-content">
 
-                    <div class="plan-name">Starter</div>
+                    <div class="plan-name">Free</div>
 
                     <div class="plan-desc">
                         Perfect for testing Tapr in a small shop.
@@ -451,7 +471,6 @@
                         <li>Unlimited scans</li>
                         <li>Core loyalty loop (10-10-20-0-50)</li>
                         <li>1 location</li>
-                        <li>Basic analytics</li>
                     </ul>
 
                 </div>
@@ -486,20 +505,19 @@
                     </button>
 
                     <div class="features-title">
-                        Everything in Starter, plus:
+                        Everything in Free, plus:
                     </div>
 
                     <ul class="features">
-                        <li>Unlimited customers</li>
-                        <li>Paid memberships</li>
-                        <li>Customer segmentation</li>
-                        <li>Push notifications</li>
-                        <li>Birthday rewards</li>
-                        <li>Partner perks & discounts</li>
-                        <li>Geofencing</li>
-                        <li>Advanced analytics & reports</li>
-                        <li>Custom branding</li>
-                        <li>Priority support</li>
+                        <li>1 included location</li>
+                        <li>₱300/additional location</li>
+                        <li>Shared customer database</li>
+                        <li>Centralized management</li>
+                        <li>Memberships</li>
+                        <li>Campaigns</li>
+                        <li>Customer insights</li>
+                        <li>Segmentation</li>
+                        <li>Geotagging</li>
                     </ul>
 
                 </div>
@@ -510,7 +528,7 @@
             <div class="card">
 
                 <div class="card-top">
-                    Multi-location businesses
+                    Automated retention
                 </div>
 
                 <div class="card-content">
@@ -538,17 +556,78 @@
                     </div>
 
                     <ul class="features">
-                        <li>3 locations included</li>
-                        <li>Shared customer database</li>
-                        <li>Branch analytics</li>
-                        <li>Cross-location campaigns</li>
-                        <li>Centralized management</li>
-                        <li>Staff roles & team access</li>
+                        <li>3 included locations</li>
+                        <li>₱300/additional location</li>
+                        <li>Advanced customer insights</li>
+                        <li>Staff/team roles</li>
+                        <li>Automation tools</li>
+                        <li>Advanced campaigns</li>
+                        <li>Priority support</li>
+                        <li>Geo-triggered automations</li>
                     </ul>
 
                 </div>
 
             </div>
+
+        </div>
+
+        <!-- RETENTION -->
+        <div class="retention-section">
+
+            <h2 style="
+        font-size:32px;
+        margin-bottom:14px;
+      ">
+                Built for repeat visits
+            </h2>
+
+            <p style="
+        color:var(--muted);
+        max-width:700px;
+        margin:auto;
+        line-height:1.6;
+      ">
+                Tapr is designed around a fast-paced retention loop
+                that keeps customers coming back.
+            </p>
+
+            <div class="retention-grid">
+
+                <div class="retention-card">
+                    <div style="font-size:14px;color:#666;">Visit 1</div>
+                    <div style="font-size:32px;font-weight:700;margin-top:8px;">₱10</div>
+                </div>
+
+                <div class="retention-card">
+                    <div style="font-size:14px;color:#666;">Visit 2</div>
+                    <div style="font-size:32px;font-weight:700;margin-top:8px;">₱10</div>
+                </div>
+
+                <div class="retention-card">
+                    <div style="font-size:14px;color:#666;">Visit 3</div>
+                    <div style="font-size:32px;font-weight:700;margin-top:8px;">₱20</div>
+                </div>
+
+                <div class="retention-card">
+                    <div style="font-size:14px;color:#666;">Visit 4</div>
+                    <div style="font-size:32px;font-weight:700;margin-top:8px;">₱0</div>
+                </div>
+
+                <div class="retention-card">
+                    <div style="font-size:14px;color:#666;">Visit 5</div>
+                    <div style="font-size:32px;font-weight:700;margin-top:8px;">₱50</div>
+                </div>
+
+            </div>
+
+            <p style="
+        margin-top:24px;
+        color:var(--muted);
+        font-size:15px;
+      ">
+                Designed to reward repeat behavior while staying sustainable for merchants.
+            </p>
 
         </div>
 
@@ -558,28 +637,28 @@
             <div class="bottom-card">
                 <h3>Wallet-native</h3>
                 <p>
-                    Installed directly into Apple Wallet and Google Wallet.
+                    Works directly inside Apple Wallet and Google Wallet.
                 </p>
             </div>
 
             <div class="bottom-card">
-                <h3>Drive repeat visits</h3>
+                <h3>Built for repeat visits</h3>
                 <p>
-                    Built-in retention loops and smart campaigns.
+                    Designed around retention loops and comeback behavior.
                 </p>
             </div>
 
             <div class="bottom-card">
-                <h3>Know your customers</h3>
+                <h3>Membership-ready</h3>
                 <p>
-                    Segment, engage, and convert inactive members.
+                    Turn loyalty cards into paid memberships with perks.
                 </p>
             </div>
 
             <div class="bottom-card">
-                <h3>Secure & reliable</h3>
+                <h3>Multi-location ready</h3>
                 <p>
-                    Enterprise-grade infrastructure and security.
+                    Share customers and campaigns across branches.
                 </p>
             </div>
 
