@@ -1121,6 +1121,10 @@ app.get('/pricing', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'pricing.html'));
 });
 
+app.get('/builder', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'builder.html'));
+});
+
 app.get('/dashboard', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
 });
