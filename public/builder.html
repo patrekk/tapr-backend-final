@@ -225,126 +225,204 @@
             top: 120px;
         }
 
-        .wallet-card {
-            width: 100%;
-            max-width: 380px;
-            aspect-ratio: 1.58 / 1;
-            border-radius: 28px;
-            padding: 24px;
-            color: white;
-            background: var(--primary);
-            position: relative;
-            overflow: hidden;
-            box-shadow:
-                0 30px 80px rgba(43, 57, 109, 0.25),
-                inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        .preview-toggle {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+
+        .toggle-btn {
+            padding: 10px 16px;
+            border-radius: 999px;
+            border: 1px solid #ddd;
+            background: white;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
             transition: 0.2s ease;
         }
 
-        .wallet-card::before {
-            content: "";
-            position: absolute;
-            width: 220px;
-            height: 220px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.08);
-            top: -80px;
-            right: -60px;
+        .toggle-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
         }
 
-        .card-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: relative;
-            z-index: 2;
-        }
-
-        .card-logo {
-            width: 52px;
-            height: 52px;
-            border-radius: 14px;
-            background: rgba(255, 255, 255, 0.15);
-            display: flex;
-            justify-content: center;
-            align-items: center;
+        .wallet-card {
+            width: 100%;
+            max-width: 390px;
+            border-radius: 32px;
             overflow: hidden;
-            backdrop-filter: blur(10px);
+            color: white;
+            position: relative;
+            min-height: 720px;
+
+            background: linear-gradient(135deg,
+                    #2B396D,
+                    #1F2A52);
+
+            box-shadow:
+                0 30px 80px rgba(43, 57, 109, 0.35),
+                inset 0 1px 0 rgba(255, 255, 255, 0.12);
+
+            transition: 0.2s ease;
         }
 
-        .card-logo img {
+        .wallet-card.google {
+            border-radius: 24px;
+        }
+
+        .wallet-hero-image {
+            width: 100%;
+            height: 240px;
+
+            background:
+                linear-gradient(rgba(0, 0, 0, 0.15),
+                    rgba(0, 0, 0, 0.45)),
+                url('https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?q=80&w=1200&auto=format&fit=crop');
+
+            background-size: cover;
+            background-position: center;
+
+            position: relative;
+        }
+
+        .wallet-content {
+            padding: 24px;
+        }
+
+        .wallet-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .wallet-logo {
+            width: 54px;
+            height: 54px;
+            border-radius: 16px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.14);
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            backdrop-filter: blur(20px);
+        }
+
+        .wallet-logo img {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
 
-        .card-business {
-            font-size: 15px;
-            font-weight: 600;
-            opacity: 0.95;
+        .wallet-label {
+            font-size: 12px;
+            opacity: 0.75;
+            letter-spacing: 0.5px;
         }
 
-        .reward {
-            margin-top: 40px;
-            position: relative;
-            z-index: 2;
-        }
-
-        .reward-label {
-            font-size: 13px;
-            opacity: 0.8;
-            margin-bottom: 10px;
-        }
-
-        .reward-title {
-            font-size: 34px;
+        .wallet-business {
+            font-size: 22px;
             font-weight: 700;
+            margin-top: 2px;
+        }
+
+        .wallet-hero {
+            margin-top: 50px;
+        }
+
+        .wallet-reward-label {
+            font-size: 12px;
+            opacity: 0.7;
+            letter-spacing: 1px;
+        }
+
+        .wallet-reward {
+            font-size: 42px;
+            font-weight: 700;
+            margin-top: 12px;
             line-height: 1;
         }
 
-        .progress-wrap {
-            margin-top: 34px;
-            position: relative;
-            z-index: 2;
+        .wallet-progress-section {
+            margin-top: 50px;
         }
 
-        .progress-text {
+        .wallet-progress-top {
             display: flex;
             justify-content: space-between;
             font-size: 13px;
-            opacity: 0.9;
-            margin-bottom: 10px;
+            opacity: 0.85;
+            margin-bottom: 12px;
         }
 
-        .progress-bar {
+        .wallet-progress-bar {
             height: 12px;
-            background: rgba(255, 255, 255, 0.15);
             border-radius: 999px;
             overflow: hidden;
+            background: rgba(255, 255, 255, 0.12);
         }
 
-        .progress-fill {
+        .wallet-progress-fill {
             width: 60%;
             height: 100%;
             background: white;
             border-radius: 999px;
         }
 
-        .loop {
-            margin-top: 28px;
+        .wallet-loop {
+            margin-top: 34px;
             display: flex;
+            justify-content: space-between;
             gap: 8px;
-            flex-wrap: wrap;
-            position: relative;
-            z-index: 2;
         }
 
-        .loop-pill {
-            background: rgba(255, 255, 255, 0.12);
-            padding: 8px 12px;
-            border-radius: 999px;
-            font-size: 12px;
+        .wallet-loop-item {
+            flex: 1;
+            text-align: center;
+            padding: 12px 0;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.10);
+            font-size: 13px;
+            font-weight: 600;
             backdrop-filter: blur(10px);
+        }
+
+        .wallet-loop-item.active {
+            background: white;
+            color: #111;
+        }
+
+        .wallet-loop-item.reward {
+            background: rgba(255, 255, 255, 0.22);
+        }
+
+        .wallet-barcode-wrap {
+            margin-top: 50px;
+        }
+
+        .wallet-barcode {
+            height: 90px;
+            border-radius: 16px;
+
+            background:
+                repeating-linear-gradient(90deg,
+                    #000,
+                    #000 2px,
+                    #fff 2px,
+                    #fff 4px);
+
+            border: 10px solid white;
+        }
+
+        .wallet-instagram {
+            text-align: center;
+            margin-top: 14px;
+            font-size: 13px;
+            opacity: 0.85;
         }
 
         .preview-note {
@@ -454,7 +532,7 @@
                 <div class="field">
                     <label>Business Name</label>
 
-                    <input type="text" id="businessInput" placeholder="Feral Studios" value="Feral Studios">
+                    <input type="text" id="businessInput" placeholder="Tapr" value="Tapr">
                 </div>
 
                 <!-- REWARD -->
@@ -468,7 +546,7 @@
                 <div class="field">
                     <label>Instagram Handle (optional)</label>
 
-                    <input type="text" id="instagramInput" placeholder="@feralstudios" value="@feralstudios">
+                    <input type="text" id="instagramInput" placeholder="@usetapr" value="@usetapr">
                 </div>
 
                 <!-- COLOR -->
@@ -488,20 +566,54 @@
                         <input type="file" id="logoInput" accept="image/*">
 
                         <div>
+
                             <div style="
-                font-size:16px;
-                font-weight:600;
-                margin-bottom:8px;
-              ">
+                                font-size:16px;
+                                font-weight:600;
+                                margin-bottom:8px;
+                            ">
                                 Upload Logo
                             </div>
 
                             <div style="
-                color:#666;
-                font-size:14px;
-              ">
+                                color:#666;
+                                font-size:14px;
+                            ">
                                 PNG or JPG recommended
                             </div>
+
+                        </div>
+
+                    </label>
+
+                </div>
+
+                <!-- HERO IMAGE -->
+                <div class="field">
+
+                    <label>Hero Image</label>
+
+                    <label class="upload-box">
+
+                        <input type="file" id="heroInput" accept="image/*">
+
+                        <div>
+
+                            <div style="
+                                font-size:16px;
+                                font-weight:600;
+                                margin-bottom:8px;
+                            ">
+                                Upload Hero Image
+                            </div>
+
+                            <div style="
+                                color:#666;
+                                font-size:14px;
+                            ">
+                                Recommended: wide banner image
+                            </div>
+
                         </div>
 
                     </label>
@@ -520,52 +632,111 @@
 
                 <div>
 
+                    <div class="preview-toggle">
+
+                        <button class="toggle-btn active" id="appleBtn" onclick="setWallet('apple')">
+                            Apple Wallet
+                        </button>
+
+                        <button class="toggle-btn" id="googleBtn" onclick="setWallet('google')">
+                            Google Wallet
+                        </button>
+
+                    </div>
+
+                    <!-- CARD -->
                     <div class="wallet-card" id="walletCard">
 
-                        <div class="card-top">
-
-                            <div class="card-business" id="cardBusiness">
-                                Feral Studios
-                            </div>
-
-                            <div class="card-logo" id="cardLogo">
-                                ✦
-                            </div>
-
+                        <!-- HERO IMAGE -->
+                        <div class="wallet-hero-image" id="heroPreview">
                         </div>
 
-                        <div class="reward">
+                        <!-- CONTENT -->
+                        <div class="wallet-content">
 
-                            <div class="reward-label">
-                                Current Reward
+                            <!-- HEADER -->
+                            <div class="wallet-header">
+
+                                <div class="wallet-logo" id="cardLogo">
+                                    ✦
+                                </div>
+
+                                <div>
+
+                                    <div class="wallet-label">
+                                        Loyalty Card
+                                    </div>
+
+                                    <div class="wallet-business" id="cardBusiness">
+                                        Tapr
+                                    </div>
+
+                                </div>
+
                             </div>
 
-                            <div class="reward-title" id="cardReward">
-                                ₱50 Reward
+                            <!-- HERO -->
+                            <div class="wallet-hero">
+
+                                <div class="wallet-reward-label">
+                                    CURRENT REWARD
+                                </div>
+
+                                <div class="wallet-reward" id="cardReward">
+                                    ₱50 Reward
+                                </div>
+
                             </div>
 
-                        </div>
+                            <!-- PROGRESS -->
+                            <div class="wallet-progress-section">
 
-                        <div class="progress-wrap">
+                                <div class="wallet-progress-top">
+                                    <span>Visit 3 of 5</span>
+                                    <span>60%</span>
+                                </div>
 
-                            <div class="progress-text">
-                                <span>Visit 3 of 5</span>
-                                <span>60%</span>
+                                <div class="wallet-progress-bar">
+                                    <div class="wallet-progress-fill"></div>
+                                </div>
+
                             </div>
 
-                            <div class="progress-bar">
-                                <div class="progress-fill"></div>
+                            <!-- LOOP -->
+                            <div class="wallet-loop">
+
+                                <div class="wallet-loop-item">
+                                    ₱10
+                                </div>
+
+                                <div class="wallet-loop-item">
+                                    ₱10
+                                </div>
+
+                                <div class="wallet-loop-item active">
+                                    ₱20
+                                </div>
+
+                                <div class="wallet-loop-item">
+                                    ₱0
+                                </div>
+
+                                <div class="wallet-loop-item reward">
+                                    ₱50
+                                </div>
+
                             </div>
 
-                        </div>
+                            <!-- BARCODE -->
+                            <div class="wallet-barcode-wrap">
 
-                        <div class="loop">
+                                <div class="wallet-barcode"></div>
 
-                            <div class="loop-pill">₱10</div>
-                            <div class="loop-pill">₱10</div>
-                            <div class="loop-pill">₱20</div>
-                            <div class="loop-pill">₱0</div>
-                            <div class="loop-pill">₱50</div>
+                                <div class="wallet-instagram" id="cardInstagram">
+                                    @usetapr
+                                </div>
+
+                            </div>
 
                         </div>
 
@@ -586,27 +757,80 @@
 
     <script>
 
-        const businessInput = document.getElementById('businessInput');
-        const rewardInput = document.getElementById('rewardInput');
-        const instagramInput = document.getElementById('instagramInput');
-        const colorInput = document.getElementById('colorInput');
-        const logoInput = document.getElementById('logoInput');
+        const businessInput =
+            document.getElementById('businessInput');
 
-        const cardBusiness = document.getElementById('cardBusiness');
-        const cardReward = document.getElementById('cardReward');
-        const walletCard = document.getElementById('walletCard');
-        const cardLogo = document.getElementById('cardLogo');
+        const rewardInput =
+            document.getElementById('rewardInput');
+
+        const instagramInput =
+            document.getElementById('instagramInput');
+
+        const colorInput =
+            document.getElementById('colorInput');
+
+        const logoInput =
+            document.getElementById('logoInput');
+
+        const heroInput =
+            document.getElementById('heroInput');
+
+        const cardBusiness =
+            document.getElementById('cardBusiness');
+
+        const cardReward =
+            document.getElementById('cardReward');
+
+        const cardInstagram =
+            document.getElementById('cardInstagram');
+
+        const walletCard =
+            document.getElementById('walletCard');
+
+        const cardLogo =
+            document.getElementById('cardLogo');
+
+        const heroPreview =
+            document.getElementById('heroPreview');
+
+        const appleBtn =
+            document.getElementById('appleBtn');
+
+        const googleBtn =
+            document.getElementById('googleBtn');
 
         businessInput.addEventListener('input', () => {
-            cardBusiness.innerText = businessInput.value || 'Business Name';
+
+            cardBusiness.innerText =
+                businessInput.value || 'Tapr';
+
         });
 
         rewardInput.addEventListener('input', () => {
-            cardReward.innerText = rewardInput.value || 'Reward';
+
+            cardReward.innerText =
+                rewardInput.value || 'Reward';
+
+        });
+
+        instagramInput.addEventListener('input', () => {
+
+            cardInstagram.innerText =
+                instagramInput.value || '@usetapr';
+
         });
 
         colorInput.addEventListener('input', () => {
-            walletCard.style.background = colorInput.value;
+
+            const color = colorInput.value;
+
+            walletCard.style.background =
+                `linear-gradient(
+                    135deg,
+                    ${color},
+                    ${darkenColor(color, 20)}
+                )`;
+
         });
 
         logoInput.addEventListener('change', (e) => {
@@ -620,14 +844,87 @@
             reader.onload = function (event) {
 
                 cardLogo.innerHTML = `
-          <img src="${event.target.result}">
-        `;
+                    <img src="${event.target.result}">
+                `;
 
             };
 
             reader.readAsDataURL(file);
 
         });
+
+        heroInput.addEventListener('change', (e) => {
+
+            const file = e.target.files[0];
+
+            if (!file) return;
+
+            const reader = new FileReader();
+
+            reader.onload = function (event) {
+
+                heroPreview.style.background = `
+                    linear-gradient(
+                        rgba(0,0,0,0.15),
+                        rgba(0,0,0,0.45)
+                    ),
+                    url('${event.target.result}')
+                `;
+
+                heroPreview.style.backgroundSize = 'cover';
+                heroPreview.style.backgroundPosition = 'center';
+
+            };
+
+            reader.readAsDataURL(file);
+
+        });
+
+        function setWallet(type) {
+
+            if (type === 'apple') {
+
+                walletCard.classList.remove('google');
+
+                appleBtn.classList.add('active');
+                googleBtn.classList.remove('active');
+
+            } else {
+
+                walletCard.classList.add('google');
+
+                googleBtn.classList.add('active');
+                appleBtn.classList.remove('active');
+
+            }
+
+        }
+
+        function darkenColor(hex, percent) {
+
+            let num =
+                parseInt(hex.replace("#", ""), 16);
+
+            let amt =
+                Math.round(2.55 * percent);
+
+            let R =
+                (num >> 16) - amt;
+
+            let G =
+                (num >> 8 & 0x00FF) - amt;
+
+            let B =
+                (num & 0x0000FF) - amt;
+
+            return "#" + (
+                0x1000000 +
+                (R < 255 ? (R < 1 ? 0 : R) : 255) * 0x10000 +
+                (G < 255 ? (G < 1 ? 0 : G) : 255) * 0x100 +
+                (B < 255 ? (B < 1 ? 0 : B) : 255)
+            ).toString(16).slice(1);
+
+        }
 
         function publishCard() {
 
