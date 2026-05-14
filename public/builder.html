@@ -230,32 +230,54 @@
             border-color: var(--primary);
         }
 
+        /* WALLET PASS */
+
         .wallet-pass {
+
             width: 100%;
-            max-width: 340px;
+            max-width: 398px;
 
-            height: 620px;
-
-            background: #7B61FF;
-
-            border-radius: 28px;
+            border-radius: 32px;
 
             overflow: hidden;
+
+            background: #7B61FF;
 
             color: white;
 
             position: relative;
 
-            padding: 22px;
-
             margin: auto;
+
+            transition: .2s ease;
 
             box-shadow:
                 0 30px 80px rgba(0, 0, 0, 0.18);
+
+        }
+
+        /* SMALL MODE (NO HERO IMAGE) */
+
+        .wallet-pass.compact {
+
+            height: 560px;
+
+            padding: 26px;
+
+        }
+
+        /* LARGE MODE (WITH HERO IMAGE) */
+
+        .wallet-pass.expanded {
+
+            height: 720px;
+
+            padding: 26px;
+
         }
 
         .wallet-pass.google {
-            border-radius: 26px;
+            border-radius: 28px;
         }
 
         .wallet-header {
@@ -271,18 +293,22 @@
         }
 
         .wallet-logo {
+
             width: 56px;
             height: 56px;
 
             border-radius: 10px;
 
-            background: rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.12);
 
             overflow: hidden;
 
             display: flex;
             justify-content: center;
             align-items: center;
+
+            flex-shrink: 0;
+
         }
 
         .wallet-logo img {
@@ -293,86 +319,126 @@
 
         .wallet-brand,
         .wallet-brand-right {
+
             font-size: 18px;
             font-weight: 600;
+
         }
 
         .hidden {
             display: none;
         }
 
-        .wallet-hero-top {
-            width: calc(100% + 44px);
+        /* APPLE HERO */
 
-            height: 148px;
+        .wallet-hero-top {
+
+            width: calc(100% + 52px);
+
+            height: 170px;
 
             margin:
-                22px -22px 18px -22px;
+                22px -26px 22px -26px;
 
             background-size: cover;
             background-position: center;
+
         }
 
-        .wallet-title {
-            margin-top: 18px;
-
-            font-size: 15px;
-            line-height: 1.45;
-            font-weight: 700;
-
-            max-width: 260px;
-        }
-
-        .wallet-stamps {
-            display: flex;
-            gap: 8px;
-
-            margin-top: 14px;
-        }
-
-        .stamp {
-            width: 24px;
-            height: 24px;
-
-            border-radius: 50%;
-
-            border: 2px solid white;
-        }
-
-        .wallet-qr-wrap {
-            display: flex;
-            justify-content: center;
-
-            margin-top: 42px;
-        }
-
-        .wallet-qr {
-            width: 128px;
-            height: 128px;
-
-            background: white;
-
-            border-radius: 12px;
-
-            overflow: hidden;
-        }
-
-        .wallet-qr img {
-            width: 100%;
-            height: 100%;
-        }
+        /* GOOGLE HERO */
 
         .wallet-hero-bottom {
+
             position: absolute;
 
             left: 0;
             right: 0;
             bottom: 0;
 
-            height: 138px;
+            height: 170px;
 
             background-size: cover;
             background-position: center;
+
+        }
+
+        /* CONTENT */
+
+        .wallet-content.apple {
+
+            margin-top: 26px;
+
+        }
+
+        .wallet-content.google {
+
+            margin-top: 56px;
+
+        }
+
+        .wallet-title {
+
+            font-size: 15px;
+            line-height: 1.45;
+            font-weight: 700;
+
+            max-width: 260px;
+
+        }
+
+        .wallet-stamps {
+
+            display: flex;
+            gap: 8px;
+
+            margin-top: 14px;
+
+        }
+
+        .stamp {
+
+            width: 26px;
+            height: 26px;
+
+            border-radius: 50%;
+
+            border: 2px solid white;
+
+        }
+
+        .wallet-qr-wrap {
+
+            display: flex;
+            justify-content: center;
+
+            margin-top: 46px;
+
+        }
+
+        .wallet-pass.expanded .wallet-qr-wrap {
+
+            margin-top: 72px;
+
+        }
+
+        .wallet-qr {
+
+            width: 148px;
+            height: 148px;
+
+            background: white;
+
+            border-radius: 12px;
+
+            overflow: hidden;
+
+            padding: 6px;
+
+        }
+
+        .wallet-qr img {
+            width: 100%;
+            height: 100%;
         }
 
         .preview-note {
@@ -408,6 +474,10 @@
                 padding: 24px;
             }
 
+            .wallet-pass {
+                transform: scale(.9);
+            }
+
         }
     </style>
 </head>
@@ -416,6 +486,7 @@
 
     <!-- NAV -->
     <div class="nav">
+
         <div class="nav-inner">
 
             <a href="/">
@@ -439,6 +510,7 @@
             </div>
 
         </div>
+
     </div>
 
     <!-- PAGE -->
@@ -476,21 +548,27 @@
                 </p>
 
                 <div class="field">
+
                     <label>Business Name</label>
 
                     <input type="text" id="businessInput" value="Tapr">
+
                 </div>
 
                 <div class="field">
+
                     <label>Reward Text</label>
 
                     <input type="text" id="rewardInput" value="₱10 ready on your first visit">
+
                 </div>
 
                 <div class="field">
+
                     <label>Card Color</label>
 
                     <input type="color" id="colorInput" value="#7B61FF">
+
                 </div>
 
                 <div class="field">
@@ -526,7 +604,9 @@
                 </div>
 
                 <button class="publish-btn" onclick="publishCard()">
+
                     Publish Card
+
                 </button>
 
             </div>
@@ -539,63 +619,91 @@
                     <div class="preview-toggle">
 
                         <button class="toggle-btn active" id="appleBtn" onclick="setWallet('apple')">
+
                             Apple Wallet
+
                         </button>
 
                         <button class="toggle-btn" id="googleBtn" onclick="setWallet('google')">
+
                             Google Wallet
+
                         </button>
 
                     </div>
 
-                    <div class="wallet-pass" id="walletPass">
+                    <div class="wallet-pass compact" id="walletPass">
+
+                        <!-- HEADER -->
 
                         <div class="wallet-header">
 
                             <div class="wallet-header-left">
 
                                 <div class="wallet-logo" id="cardLogo">
+
                                     ✦
+
                                 </div>
 
+                                <!-- GOOGLE NAME -->
+
                                 <div class="wallet-brand hidden" id="googleBusiness">
+
                                     Tapr
+
                                 </div>
 
                             </div>
 
+                            <!-- APPLE NAME -->
+
                             <div class="wallet-brand-right" id="appleBusiness">
+
                                 Tapr
+
                             </div>
 
                         </div>
+
+                        <!-- APPLE HERO -->
 
                         <div class="wallet-hero-top hidden" id="heroTop">
                         </div>
 
-                        <div class="wallet-title" id="cardReward">
-                            ₱10 ready on your first visit
-                        </div>
+                        <!-- CONTENT -->
 
-                        <div class="wallet-stamps">
+                        <div class="wallet-content apple" id="walletContent">
 
-                            <div class="stamp"></div>
-                            <div class="stamp"></div>
-                            <div class="stamp"></div>
-                            <div class="stamp"></div>
-                            <div class="stamp"></div>
+                            <div class="wallet-title" id="cardReward">
 
-                        </div>
+                                ₱10 ready on your first visit
 
-                        <div class="wallet-qr-wrap">
+                            </div>
 
-                            <div class="wallet-qr">
+                            <div class="wallet-stamps">
 
-                                <img src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=tapr">
+                                <div class="stamp"></div>
+                                <div class="stamp"></div>
+                                <div class="stamp"></div>
+                                <div class="stamp"></div>
+                                <div class="stamp"></div>
+
+                            </div>
+
+                            <div class="wallet-qr-wrap">
+
+                                <div class="wallet-qr">
+
+                                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=tapr">
+
+                                </div>
 
                             </div>
 
                         </div>
+
+                        <!-- GOOGLE HERO -->
 
                         <div class="wallet-hero-bottom hidden" id="heroBottom">
                         </div>
@@ -634,6 +742,9 @@
         const walletPass =
             document.getElementById('walletPass');
 
+        const walletContent =
+            document.getElementById('walletContent');
+
         const appleBusiness =
             document.getElementById('appleBusiness');
 
@@ -660,6 +771,10 @@
 
         let currentWallet = 'apple';
 
+        let hasHero = false;
+
+        /* BUSINESS */
+
         businessInput.addEventListener('input', () => {
 
             const value =
@@ -670,6 +785,8 @@
 
         });
 
+        /* REWARD */
+
         rewardInput.addEventListener('input', () => {
 
             cardReward.innerText =
@@ -678,12 +795,16 @@
 
         });
 
+        /* COLOR */
+
         colorInput.addEventListener('input', () => {
 
             walletPass.style.background =
                 colorInput.value;
 
         });
+
+        /* LOGO */
 
         logoInput.addEventListener('change', (e) => {
 
@@ -705,11 +826,18 @@
 
         });
 
+        /* HERO */
+
         heroInput.addEventListener('change', (e) => {
 
             const file = e.target.files[0];
 
             if (!file) return;
+
+            hasHero = true;
+
+            walletPass.classList.remove('compact');
+            walletPass.classList.add('expanded');
 
             const reader = new FileReader();
 
@@ -737,6 +865,8 @@
 
         });
 
+        /* WALLET TOGGLE */
+
         function setWallet(type) {
 
             currentWallet = type;
@@ -751,9 +881,12 @@
                 appleBusiness.classList.remove('hidden');
                 googleBusiness.classList.add('hidden');
 
+                walletContent.classList.remove('google');
+                walletContent.classList.add('apple');
+
                 heroBottom.classList.add('hidden');
 
-                if (heroTop.style.backgroundImage) {
+                if (hasHero) {
 
                     heroTop.classList.remove('hidden');
 
@@ -769,9 +902,12 @@
                 appleBusiness.classList.add('hidden');
                 googleBusiness.classList.remove('hidden');
 
+                walletContent.classList.remove('apple');
+                walletContent.classList.add('google');
+
                 heroTop.classList.add('hidden');
 
-                if (heroBottom.style.backgroundImage) {
+                if (hasHero) {
 
                     heroBottom.classList.remove('hidden');
 
@@ -781,12 +917,16 @@
 
         }
 
+        /* PUBLISH */
+
         function publishCard() {
 
             const draft = {
+
                 business: businessInput.value,
                 reward: rewardInput.value,
                 color: colorInput.value
+
             };
 
             localStorage.setItem(
