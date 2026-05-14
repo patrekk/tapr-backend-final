@@ -232,13 +232,13 @@
 
         .wallet-pass {
             width: 100%;
-            max-width: 540px;
+            max-width: 340px;
 
-            aspect-ratio: 1.586 / 1;
+            height: 620px;
 
             background: #7B61FF;
 
-            border-radius: 32px;
+            border-radius: 28px;
 
             overflow: hidden;
 
@@ -246,9 +246,12 @@
 
             position: relative;
 
-            padding: 26px;
+            padding: 22px;
 
             margin: auto;
+
+            box-shadow:
+                0 30px 80px rgba(0, 0, 0, 0.18);
         }
 
         .wallet-pass.google {
@@ -299,24 +302,25 @@
         }
 
         .wallet-hero-top {
-            width: calc(100% + 52px);
-            height: 150px;
+            width: calc(100% + 44px);
+
+            height: 148px;
 
             margin:
-                24px -26px 18px -26px;
+                22px -22px 18px -22px;
 
             background-size: cover;
             background-position: center;
         }
 
         .wallet-title {
-            margin-top: 24px;
+            margin-top: 18px;
 
-            font-size: 16px;
-            line-height: 1.4;
+            font-size: 15px;
+            line-height: 1.45;
             font-weight: 700;
 
-            max-width: 360px;
+            max-width: 260px;
         }
 
         .wallet-stamps {
@@ -339,12 +343,12 @@
             display: flex;
             justify-content: center;
 
-            margin-top: 60px;
+            margin-top: 42px;
         }
 
         .wallet-qr {
-            width: 140px;
-            height: 140px;
+            width: 128px;
+            height: 128px;
 
             background: white;
 
@@ -365,7 +369,7 @@
             right: 0;
             bottom: 0;
 
-            height: 140px;
+            height: 138px;
 
             background-size: cover;
             background-position: center;
@@ -544,7 +548,6 @@
 
                     </div>
 
-                    <!-- PASS -->
                     <div class="wallet-pass" id="walletPass">
 
                         <div class="wallet-header">
@@ -567,11 +570,9 @@
 
                         </div>
 
-                        <!-- APPLE HERO -->
                         <div class="wallet-hero-top hidden" id="heroTop">
                         </div>
 
-                        <!-- CONTENT -->
                         <div class="wallet-title" id="cardReward">
                             ₱10 ready on your first visit
                         </div>
@@ -596,7 +597,6 @@
 
                         </div>
 
-                        <!-- GOOGLE HERO -->
                         <div class="wallet-hero-bottom hidden" id="heroBottom">
                         </div>
 
