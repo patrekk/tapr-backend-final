@@ -210,11 +210,6 @@
             cursor: pointer;
             margin-top: 20px;
             box-shadow: 0 10px 25px rgba(43, 57, 109, 0.25);
-            transition: 0.2s ease;
-        }
-
-        .publish-btn:hover {
-            transform: translateY(-2px);
         }
 
         /* PREVIEW */
@@ -228,8 +223,8 @@
         .preview-toggle {
             display: flex;
             gap: 10px;
-            margin-bottom: 20px;
             justify-content: center;
+            margin-bottom: 20px;
         }
 
         .toggle-btn {
@@ -240,7 +235,6 @@
             cursor: pointer;
             font-weight: 600;
             font-size: 13px;
-            transition: 0.2s ease;
         }
 
         .toggle-btn.active {
@@ -249,50 +243,35 @@
             border-color: var(--primary);
         }
 
-        .wallet-card {
-            width: 100%;
-            max-width: 390px;
-            border-radius: 32px;
+        /* WALLET PASS */
+        .wallet-pass {
+            width: 390px;
+            min-height: 760px;
+
+            background: #7B61FF;
+
+            border-radius: 34px;
+
             overflow: hidden;
+
+            position: relative;
+
             color: white;
-            position: relative;
-            min-height: 720px;
 
-            background: linear-gradient(135deg,
-                    #2B396D,
-                    #1F2A52);
-
-            box-shadow:
-                0 30px 80px rgba(43, 57, 109, 0.35),
-                inset 0 1px 0 rgba(255, 255, 255, 0.12);
-
-            transition: 0.2s ease;
+            padding: 30px;
         }
 
-        .wallet-card.google {
-            border-radius: 24px;
-        }
-
-        .wallet-hero-image {
-            width: 100%;
-            height: 240px;
-
-            background:
-                linear-gradient(rgba(0, 0, 0, 0.15),
-                    rgba(0, 0, 0, 0.45)),
-                url('https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?q=80&w=1200&auto=format&fit=crop');
-
-            background-size: cover;
-            background-position: center;
-
-            position: relative;
-        }
-
-        .wallet-content {
-            padding: 24px;
+        .wallet-pass.google {
+            border-radius: 26px;
         }
 
         .wallet-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .wallet-header-left {
             display: flex;
             align-items: center;
             gap: 14px;
@@ -301,15 +280,12 @@
         .wallet-logo {
             width: 54px;
             height: 54px;
-            border-radius: 16px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.15);
             overflow: hidden;
-            background: rgba(255, 255, 255, 0.14);
-
             display: flex;
             align-items: center;
             justify-content: center;
-
-            backdrop-filter: blur(20px);
         }
 
         .wallet-logo img {
@@ -318,111 +294,92 @@
             object-fit: cover;
         }
 
-        .wallet-label {
-            font-size: 12px;
-            opacity: 0.75;
-            letter-spacing: 0.5px;
-        }
-
-        .wallet-business {
-            font-size: 22px;
-            font-weight: 700;
-            margin-top: 2px;
-        }
-
-        .wallet-hero {
-            margin-top: 50px;
-        }
-
-        .wallet-reward-label {
-            font-size: 12px;
-            opacity: 0.7;
-            letter-spacing: 1px;
-        }
-
-        .wallet-reward {
-            font-size: 42px;
-            font-weight: 700;
-            margin-top: 12px;
-            line-height: 1;
-        }
-
-        .wallet-progress-section {
-            margin-top: 50px;
-        }
-
-        .wallet-progress-top {
-            display: flex;
-            justify-content: space-between;
-            font-size: 13px;
-            opacity: 0.85;
-            margin-bottom: 12px;
-        }
-
-        .wallet-progress-bar {
-            height: 12px;
-            border-radius: 999px;
-            overflow: hidden;
-            background: rgba(255, 255, 255, 0.12);
-        }
-
-        .wallet-progress-fill {
-            width: 60%;
-            height: 100%;
-            background: white;
-            border-radius: 999px;
-        }
-
-        .wallet-loop {
-            margin-top: 34px;
-            display: flex;
-            justify-content: space-between;
-            gap: 8px;
-        }
-
-        .wallet-loop-item {
-            flex: 1;
-            text-align: center;
-            padding: 12px 0;
-            border-radius: 14px;
-            background: rgba(255, 255, 255, 0.10);
-            font-size: 13px;
+        .wallet-brand {
+            font-size: 17px;
             font-weight: 600;
-            backdrop-filter: blur(10px);
         }
 
-        .wallet-loop-item.active {
+        .wallet-brand-right {
+            font-size: 17px;
+            opacity: 0.95;
+        }
+
+        /* APPLE HERO */
+        .wallet-hero-image {
+            width: calc(100% + 60px);
+            height: 270px;
+
+            margin:
+                30px -30px 20px -30px;
+
+            background-size: cover;
+            background-position: center;
+        }
+
+        .wallet-content {
+            position: relative;
+        }
+
+        .wallet-title {
+            margin-top: 38px;
+
+            font-size: 24px;
+            line-height: 1.35;
+            font-weight: 700;
+        }
+
+        .wallet-stamps {
+            display: flex;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        .stamp {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 3px solid white;
+        }
+
+        .wallet-qr-wrap {
+            display: flex;
+            justify-content: center;
+
+            margin-top: 220px;
+        }
+
+        .wallet-qr {
+            width: 220px;
+            height: 220px;
+
             background: white;
-            color: #111;
+
+            border-radius: 14px;
+
+            overflow: hidden;
         }
 
-        .wallet-loop-item.reward {
-            background: rgba(255, 255, 255, 0.22);
+        .wallet-qr img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
-        .wallet-barcode-wrap {
-            margin-top: 50px;
+        /* GOOGLE HERO */
+        .wallet-google-bottom-hero {
+            width: calc(100% + 60px);
+
+            height: 240px;
+
+            margin:
+                60px -30px -30px -30px;
+
+            background-size: cover;
+            background-position: center;
         }
 
-        .wallet-barcode {
-            height: 90px;
-            border-radius: 16px;
-
-            background:
-                repeating-linear-gradient(90deg,
-                    #000,
-                    #000 2px,
-                    #fff 2px,
-                    #fff 4px);
-
-            border: 10px solid white;
-        }
-
-        .wallet-instagram {
-            text-align: center;
-            margin-top: 14px;
-            font-size: 13px;
-            opacity: 0.85;
+        .hidden {
+            display: none;
         }
 
         .preview-note {
@@ -442,12 +399,13 @@
                 position: static;
             }
 
-            .wallet-card {
+            .wallet-pass {
                 margin: auto;
             }
         }
 
         @media (max-width: 768px) {
+
             .hero h1 {
                 font-size: 34px;
             }
@@ -532,28 +490,21 @@
                 <div class="field">
                     <label>Business Name</label>
 
-                    <input type="text" id="businessInput" placeholder="Tapr" value="Tapr">
+                    <input type="text" id="businessInput" value="Tapr">
                 </div>
 
                 <!-- REWARD -->
                 <div class="field">
-                    <label>Reward Name</label>
+                    <label>Reward Text</label>
 
-                    <input type="text" id="rewardInput" placeholder="₱50 Reward" value="₱50 Reward">
-                </div>
-
-                <!-- INSTAGRAM -->
-                <div class="field">
-                    <label>Instagram Handle (optional)</label>
-
-                    <input type="text" id="instagramInput" placeholder="@usetapr" value="@usetapr">
+                    <input type="text" id="rewardInput" value="₱10 ready on your first visit">
                 </div>
 
                 <!-- COLOR -->
                 <div class="field">
-                    <label>Brand Color</label>
+                    <label>Card Color</label>
 
-                    <input type="color" id="colorInput" value="#2B396D">
+                    <input type="color" id="colorInput" value="#7B61FF">
                 </div>
 
                 <!-- LOGO -->
@@ -588,7 +539,7 @@
 
                 </div>
 
-                <!-- HERO IMAGE -->
+                <!-- HERO -->
                 <div class="field">
 
                     <label>Hero Image</label>
@@ -611,7 +562,7 @@
                                 color:#666;
                                 font-size:14px;
                             ">
-                                Recommended: wide banner image
+                                Optional wide banner image
                             </div>
 
                         </div>
@@ -620,7 +571,6 @@
 
                 </div>
 
-                <!-- CTA -->
                 <button class="publish-btn" onclick="publishCard()">
                     Publish Card
                 </button>
@@ -632,6 +582,7 @@
 
                 <div>
 
+                    <!-- TOGGLE -->
                     <div class="preview-toggle">
 
                         <button class="toggle-btn active" id="appleBtn" onclick="setWallet('apple')">
@@ -644,107 +595,74 @@
 
                     </div>
 
-                    <!-- CARD -->
-                    <div class="wallet-card" id="walletCard">
+                    <!-- WALLET -->
+                    <div class="wallet-pass apple" id="walletPass">
 
-                        <!-- HERO IMAGE -->
-                        <div class="wallet-hero-image" id="heroPreview">
-                        </div>
+                        <!-- HEADER -->
+                        <div class="wallet-header">
 
-                        <!-- CONTENT -->
-                        <div class="wallet-content">
-
-                            <!-- HEADER -->
-                            <div class="wallet-header">
+                            <div class="wallet-header-left">
 
                                 <div class="wallet-logo" id="cardLogo">
                                     ✦
                                 </div>
 
-                                <div>
-
-                                    <div class="wallet-label">
-                                        Loyalty Card
-                                    </div>
-
-                                    <div class="wallet-business" id="cardBusiness">
-                                        Tapr
-                                    </div>
-
+                                <div class="wallet-brand" id="cardBusiness">
+                                    Tapr
                                 </div>
 
                             </div>
 
-                            <!-- HERO -->
-                            <div class="wallet-hero">
+                            <div class="wallet-brand-right">
+                                Tapr
+                            </div>
 
-                                <div class="wallet-reward-label">
-                                    CURRENT REWARD
-                                </div>
+                        </div>
 
-                                <div class="wallet-reward" id="cardReward">
-                                    ₱50 Reward
-                                </div>
+                        <!-- APPLE HERO -->
+                        <div class="wallet-hero-image hidden" id="heroPreview">
+                        </div>
+
+                        <!-- CONTENT -->
+                        <div class="wallet-content">
+
+                            <div class="wallet-title" id="cardReward">
+                                ₱10 ready on your first visit
+                            </div>
+
+                            <!-- STAMPS -->
+                            <div class="wallet-stamps">
+
+                                <div class="stamp"></div>
+                                <div class="stamp"></div>
+                                <div class="stamp"></div>
+                                <div class="stamp"></div>
+                                <div class="stamp"></div>
 
                             </div>
 
-                            <!-- PROGRESS -->
-                            <div class="wallet-progress-section">
+                            <!-- QR -->
+                            <div class="wallet-qr-wrap">
 
-                                <div class="wallet-progress-top">
-                                    <span>Visit 3 of 5</span>
-                                    <span>60%</span>
-                                </div>
+                                <div class="wallet-qr">
 
-                                <div class="wallet-progress-bar">
-                                    <div class="wallet-progress-fill"></div>
-                                </div>
+                                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=tapr">
 
-                            </div>
-
-                            <!-- LOOP -->
-                            <div class="wallet-loop">
-
-                                <div class="wallet-loop-item">
-                                    ₱10
-                                </div>
-
-                                <div class="wallet-loop-item">
-                                    ₱10
-                                </div>
-
-                                <div class="wallet-loop-item active">
-                                    ₱20
-                                </div>
-
-                                <div class="wallet-loop-item">
-                                    ₱0
-                                </div>
-
-                                <div class="wallet-loop-item reward">
-                                    ₱50
-                                </div>
-
-                            </div>
-
-                            <!-- BARCODE -->
-                            <div class="wallet-barcode-wrap">
-
-                                <div class="wallet-barcode"></div>
-
-                                <div class="wallet-instagram" id="cardInstagram">
-                                    @usetapr
                                 </div>
 
                             </div>
 
                         </div>
 
+                        <!-- GOOGLE HERO -->
+                        <div class="wallet-google-bottom-hero hidden" id="googleHero">
+                        </div>
+
                     </div>
 
                     <div class="preview-note">
-                        This is what customers will save into<br>
-                        Apple Wallet and Google Wallet.
+                        Real wallet-style preview based on Apple Wallet
+                        and Google Wallet layouts.
                     </div>
 
                 </div>
@@ -763,9 +681,6 @@
         const rewardInput =
             document.getElementById('rewardInput');
 
-        const instagramInput =
-            document.getElementById('instagramInput');
-
         const colorInput =
             document.getElementById('colorInput');
 
@@ -781,11 +696,8 @@
         const cardReward =
             document.getElementById('cardReward');
 
-        const cardInstagram =
-            document.getElementById('cardInstagram');
-
-        const walletCard =
-            document.getElementById('walletCard');
+        const walletPass =
+            document.getElementById('walletPass');
 
         const cardLogo =
             document.getElementById('cardLogo');
@@ -793,11 +705,16 @@
         const heroPreview =
             document.getElementById('heroPreview');
 
+        const googleHero =
+            document.getElementById('googleHero');
+
         const appleBtn =
             document.getElementById('appleBtn');
 
         const googleBtn =
             document.getElementById('googleBtn');
+
+        let currentWallet = 'apple';
 
         businessInput.addEventListener('input', () => {
 
@@ -809,27 +726,15 @@
         rewardInput.addEventListener('input', () => {
 
             cardReward.innerText =
-                rewardInput.value || 'Reward';
-
-        });
-
-        instagramInput.addEventListener('input', () => {
-
-            cardInstagram.innerText =
-                instagramInput.value || '@usetapr';
+                rewardInput.value ||
+                '₱10 ready on your first visit';
 
         });
 
         colorInput.addEventListener('input', () => {
 
-            const color = colorInput.value;
-
-            walletCard.style.background =
-                `linear-gradient(
-                    135deg,
-                    ${color},
-                    ${darkenColor(color, 20)}
-                )`;
+            walletPass.style.background =
+                colorInput.value;
 
         });
 
@@ -863,16 +768,24 @@
 
             reader.onload = function (event) {
 
-                heroPreview.style.background = `
-                    linear-gradient(
-                        rgba(0,0,0,0.15),
-                        rgba(0,0,0,0.45)
-                    ),
-                    url('${event.target.result}')
-                `;
+                const image =
+                    `url('${event.target.result}')`;
 
-                heroPreview.style.backgroundSize = 'cover';
-                heroPreview.style.backgroundPosition = 'center';
+                heroPreview.style.backgroundImage =
+                    image;
+
+                googleHero.style.backgroundImage =
+                    image;
+
+                if (currentWallet === 'apple') {
+
+                    heroPreview.classList.remove('hidden');
+
+                } else {
+
+                    googleHero.classList.remove('hidden');
+
+                }
 
             };
 
@@ -882,47 +795,39 @@
 
         function setWallet(type) {
 
+            currentWallet = type;
+
             if (type === 'apple') {
 
-                walletCard.classList.remove('google');
+                walletPass.classList.remove('google');
 
                 appleBtn.classList.add('active');
                 googleBtn.classList.remove('active');
 
+                googleHero.classList.add('hidden');
+
+                if (heroPreview.style.backgroundImage) {
+
+                    heroPreview.classList.remove('hidden');
+
+                }
+
             } else {
 
-                walletCard.classList.add('google');
+                walletPass.classList.add('google');
 
                 googleBtn.classList.add('active');
                 appleBtn.classList.remove('active');
 
+                heroPreview.classList.add('hidden');
+
+                if (googleHero.style.backgroundImage) {
+
+                    googleHero.classList.remove('hidden');
+
+                }
+
             }
-
-        }
-
-        function darkenColor(hex, percent) {
-
-            let num =
-                parseInt(hex.replace("#", ""), 16);
-
-            let amt =
-                Math.round(2.55 * percent);
-
-            let R =
-                (num >> 16) - amt;
-
-            let G =
-                (num >> 8 & 0x00FF) - amt;
-
-            let B =
-                (num & 0x0000FF) - amt;
-
-            return "#" + (
-                0x1000000 +
-                (R < 255 ? (R < 1 ? 0 : R) : 255) * 0x10000 +
-                (G < 255 ? (G < 1 ? 0 : G) : 255) * 0x100 +
-                (B < 255 ? (B < 1 ? 0 : B) : 255)
-            ).toString(16).slice(1);
 
         }
 
@@ -931,7 +836,6 @@
             const draft = {
                 business: businessInput.value,
                 reward: rewardInput.value,
-                instagram: instagramInput.value,
                 color: colorInput.value
             };
 
