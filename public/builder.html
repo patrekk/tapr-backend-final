@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Create Your Loyalty Card • Tapr</title>
+
+    <style>
+        :root {
+            --primary: #2B396D;
+            --bg: #F7F8FA;
+            --text: #0B0B0B;
+            --muted: #666;
+            --card: #FFFFFF;
+            --border: #E5E7EB;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(to bottom, #f7f8fa, #ffffff);
+            color: var(--text);
+        }
+
+        /* NAV */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 16px 24px;
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(10px);
+            z-index: 10;
+        }
+
+        .nav-inner {
+            max-width: 1100px;
+            margin: auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            height: 28px;
+            width: auto;
+            display: block;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #111;
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .start-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(43, 57, 109, 0.25);
+        }
+
+        .nav-btn {
+            padding: 10px 16px;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+            background: white;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        /* PAGE */
+        .page {
+            max-width: 1200px;
+            margin: auto;
+            padding: 140px 24px 80px;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .hero p.top {
+            font-size: 12px;
+            color: #888;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 14px;
+        }
+
+        .hero h1 {
+            font-size: 40px;
+            line-height: 1.1;
+            margin-bottom: 18px;
+        }
+
+        .hero p.sub {
+            max-width: 700px;
+            margin: auto;
+            color: var(--muted);
+            line-height: 1.6;
+            font-size: 18px;
+        }
+
+        /* BUILDER */
+        .builder {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: start;
+        }
+
+        .panel {
+            background: white;
+            border: 1px solid #eee;
+            border-radius: 24px;
+            padding: 32px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        }
+
+        .section-title {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .section-subtitle {
+            color: var(--muted);
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .field {
+            margin-bottom: 24px;
+        }
+
+        .field label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .field input[type="text"] {
+            width: 100%;
+            padding: 14px;
+            border-radius: 14px;
+            border: 1px solid #ddd;
+            font-size: 15px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .field input[type="color"] {
+            width: 100%;
+            height: 54px;
+            border: none;
+            border-radius: 14px;
+            background: none;
+            cursor: pointer;
+        }
+
+        .upload-box {
+            border: 2px dashed #ddd;
+            border-radius: 18px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        .upload-box:hover {
+            border-color: var(--primary);
+            background: rgba(43, 57, 109, 0.03);
+        }
+
+        .upload-box input {
+            display: none;
+        }
+
+        .publish-btn {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 18px;
+            border-radius: 16px;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+            box-shadow: 0 10px 25px rgba(43, 57, 109, 0.25);
+            transition: 0.2s ease;
+        }
+
+        .publish-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* PREVIEW */
+        .preview-wrap {
+            display: flex;
+            justify-content: center;
+            position: sticky;
+            top: 120px;
+        }
+
+        .wallet-card {
+            width: 100%;
+            max-width: 380px;
+            aspect-ratio: 1.58 / 1;
+            border-radius: 28px;
+            padding: 24px;
+            color: white;
+            background: var(--primary);
+            position: relative;
+            overflow: hidden;
+            box-shadow:
+                0 30px 80px rgba(43, 57, 109, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
+            transition: 0.2s ease;
+        }
+
+        .wallet-card::before {
+            content: "";
+            position: absolute;
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.08);
+            top: -80px;
+            right: -60px;
+        }
+
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .card-logo {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.15);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .card-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .card-business {
+            font-size: 15px;
+            font-weight: 600;
+            opacity: 0.95;
+        }
+
+        .reward {
+            margin-top: 40px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .reward-label {
+            font-size: 13px;
+            opacity: 0.8;
+            margin-bottom: 10px;
+        }
+
+        .reward-title {
+            font-size: 34px;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .progress-wrap {
+            margin-top: 34px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+
+        .progress-bar {
+            height: 12px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            width: 60%;
+            height: 100%;
+            background: white;
+            border-radius: 999px;
+        }
+
+        .loop {
+            margin-top: 28px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            position: relative;
+            z-index: 2;
+        }
+
+        .loop-pill {
+            background: rgba(255, 255, 255, 0.12);
+            padding: 8px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            backdrop-filter: blur(10px);
+        }
+
+        .preview-note {
+            text-align: center;
+            color: var(--muted);
+            font-size: 14px;
+            margin-top: 20px;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 980px) {
+            .builder {
+                grid-template-columns: 1fr;
+            }
+
+            .preview-wrap {
+                position: static;
+            }
+
+            .wallet-card {
+                margin: auto;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 34px;
+            }
+
+            .page {
+                padding-top: 120px;
+            }
+
+            .panel {
+                padding: 24px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAV -->
+    <div class="nav">
+        <div class="nav-inner">
+
+            <a href="/">
+                <img src="/images/logo.png" class="logo">
+            </a>
+
+            <div class="nav-right">
+
+                <a href="/pricing" class="nav-link">
+                    Pricing
+                </a>
+
+                <button class="start-btn" onclick="window.location.href='/builder'">
+                    Create Card
+                </button>
+
+                <button class="nav-btn" onclick="window.location.href='/login'">
+                    Login
+                </button>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- PAGE -->
+    <div class="page">
+
+        <!-- HERO -->
+        <div class="hero">
+
+            <p class="top">
+                Card-First Onboarding
+            </p>
+
+            <h1>
+                See your loyalty card<br>
+                before creating an account
+            </h1>
+
+            <p class="sub">
+                Customize your wallet pass in seconds and preview
+                exactly what your customers will experience.
+            </p>
+
+        </div>
+
+        <!-- BUILDER -->
+        <div class="builder">
+
+            <!-- LEFT -->
+            <div class="panel">
+
+                <h2 class="section-title">
+                    Build your loyalty card
+                </h2>
+
+                <p class="section-subtitle">
+                    Everything updates instantly on the live preview.
+                </p>
+
+                <!-- BUSINESS -->
+                <div class="field">
+                    <label>Business Name</label>
+
+                    <input type="text" id="businessInput" placeholder="Feral Studios" value="Feral Studios">
+                </div>
+
+                <!-- REWARD -->
+                <div class="field">
+                    <label>Reward Name</label>
+
+                    <input type="text" id="rewardInput" placeholder="₱50 Reward" value="₱50 Reward">
+                </div>
+
+                <!-- INSTAGRAM -->
+                <div class="field">
+                    <label>Instagram Handle (optional)</label>
+
+                    <input type="text" id="instagramInput" placeholder="@feralstudios" value="@feralstudios">
+                </div>
+
+                <!-- COLOR -->
+                <div class="field">
+                    <label>Brand Color</label>
+
+                    <input type="color" id="colorInput" value="#2B396D">
+                </div>
+
+                <!-- LOGO -->
+                <div class="field">
+
+                    <label>Logo Upload</label>
+
+                    <label class="upload-box">
+
+                        <input type="file" id="logoInput" accept="image/*">
+
+                        <div>
+                            <div style="
+                font-size:16px;
+                font-weight:600;
+                margin-bottom:8px;
+              ">
+                                Upload Logo
+                            </div>
+
+                            <div style="
+                color:#666;
+                font-size:14px;
+              ">
+                                PNG or JPG recommended
+                            </div>
+                        </div>
+
+                    </label>
+
+                </div>
+
+                <!-- CTA -->
+                <button class="publish-btn" onclick="publishCard()">
+                    Publish Card
+                </button>
+
+            </div>
+
+            <!-- RIGHT -->
+            <div class="preview-wrap">
+
+                <div>
+
+                    <div class="wallet-card" id="walletCard">
+
+                        <div class="card-top">
+
+                            <div class="card-business" id="cardBusiness">
+                                Feral Studios
+                            </div>
+
+                            <div class="card-logo" id="cardLogo">
+                                ✦
+                            </div>
+
+                        </div>
+
+                        <div class="reward">
+
+                            <div class="reward-label">
+                                Current Reward
+                            </div>
+
+                            <div class="reward-title" id="cardReward">
+                                ₱50 Reward
+                            </div>
+
+                        </div>
+
+                        <div class="progress-wrap">
+
+                            <div class="progress-text">
+                                <span>Visit 3 of 5</span>
+                                <span>60%</span>
+                            </div>
+
+                            <div class="progress-bar">
+                                <div class="progress-fill"></div>
+                            </div>
+
+                        </div>
+
+                        <div class="loop">
+
+                            <div class="loop-pill">₱10</div>
+                            <div class="loop-pill">₱10</div>
+                            <div class="loop-pill">₱20</div>
+                            <div class="loop-pill">₱0</div>
+                            <div class="loop-pill">₱50</div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="preview-note">
+                        This is what customers will save into<br>
+                        Apple Wallet and Google Wallet.
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+
+        const businessInput = document.getElementById('businessInput');
+        const rewardInput = document.getElementById('rewardInput');
+        const instagramInput = document.getElementById('instagramInput');
+        const colorInput = document.getElementById('colorInput');
+        const logoInput = document.getElementById('logoInput');
+
+        const cardBusiness = document.getElementById('cardBusiness');
+        const cardReward = document.getElementById('cardReward');
+        const walletCard = document.getElementById('walletCard');
+        const cardLogo = document.getElementById('cardLogo');
+
+        businessInput.addEventListener('input', () => {
+            cardBusiness.innerText = businessInput.value || 'Business Name';
+        });
+
+        rewardInput.addEventListener('input', () => {
+            cardReward.innerText = rewardInput.value || 'Reward';
+        });
+
+        colorInput.addEventListener('input', () => {
+            walletCard.style.background = colorInput.value;
+        });
+
+        logoInput.addEventListener('change', (e) => {
+
+            const file = e.target.files[0];
+
+            if (!file) return;
+
+            const reader = new FileReader();
+
+            reader.onload = function (event) {
+
+                cardLogo.innerHTML = `
+          <img src="${event.target.result}">
+        `;
+
+            };
+
+            reader.readAsDataURL(file);
+
+        });
+
+        function publishCard() {
+
+            const draft = {
+                business: businessInput.value,
+                reward: rewardInput.value,
+                instagram: instagramInput.value,
+                color: colorInput.value
+            };
+
+            localStorage.setItem(
+                'taprCardDraft',
+                JSON.stringify(draft)
+            );
+
+            window.location.href = '/signup';
+
+        }
+
+    </script>
+
+</body>
+
+</html>
