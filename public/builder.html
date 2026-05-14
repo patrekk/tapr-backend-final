@@ -31,7 +31,6 @@
             color: var(--text);
         }
 
-        /* NAV */
         .nav {
             position: fixed;
             top: 0;
@@ -87,7 +86,6 @@
             font-weight: 500;
         }
 
-        /* PAGE */
         .page {
             max-width: 1200px;
             margin: auto;
@@ -121,7 +119,6 @@
             font-size: 18px;
         }
 
-        /* BUILDER */
         .builder {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -201,7 +198,6 @@
             margin-top: 20px;
         }
 
-        /* PREVIEW */
         .preview-wrap {
             position: sticky;
             top: 120px;
@@ -230,12 +226,10 @@
             border-color: var(--primary);
         }
 
-        /* WALLET PASS */
-
         .wallet-pass {
 
             width: 100%;
-            max-width: 398px;
+            max-width: 360px;
 
             border-radius: 32px;
 
@@ -256,24 +250,14 @@
 
         }
 
-        /* SMALL MODE (NO HERO IMAGE) */
-
         .wallet-pass.compact {
-
             height: 560px;
-
-            padding: 26px;
-
+            padding: 24px;
         }
 
-        /* LARGE MODE (WITH HERO IMAGE) */
-
         .wallet-pass.expanded {
-
-            height: 720px;
-
-            padding: 26px;
-
+            height: 620px;
+            padding: 24px;
         }
 
         .wallet-pass.google {
@@ -293,22 +277,15 @@
         }
 
         .wallet-logo {
-
-            width: 56px;
-            height: 56px;
-
+            width: 48px;
+            height: 48px;
             border-radius: 10px;
-
             background: rgba(255, 255, 255, 0.12);
-
             overflow: hidden;
-
             display: flex;
             justify-content: center;
             align-items: center;
-
             flex-shrink: 0;
-
         }
 
         .wallet-logo img {
@@ -319,33 +296,27 @@
 
         .wallet-brand,
         .wallet-brand-right {
-
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 600;
-
         }
 
         .hidden {
             display: none;
         }
 
-        /* APPLE HERO */
-
         .wallet-hero-top {
 
-            width: calc(100% + 52px);
+            width: calc(100% + 48px);
 
-            height: 170px;
+            height: 130px;
 
             margin:
-                22px -26px 22px -26px;
+                18px -24px 18px -24px;
 
             background-size: cover;
             background-position: center;
 
         }
-
-        /* GOOGLE HERO */
 
         .wallet-hero-bottom {
 
@@ -355,85 +326,58 @@
             right: 0;
             bottom: 0;
 
-            height: 170px;
+            height: 130px;
 
             background-size: cover;
             background-position: center;
 
         }
 
-        /* CONTENT */
-
         .wallet-content.apple {
-
-            margin-top: 26px;
-
+            margin-top: 18px;
         }
 
         .wallet-content.google {
-
-            margin-top: 56px;
-
+            margin-top: 46px;
         }
 
         .wallet-title {
-
-            font-size: 15px;
+            font-size: 14px;
             line-height: 1.45;
             font-weight: 700;
-
-            max-width: 260px;
-
+            max-width: 250px;
         }
 
         .wallet-stamps {
-
             display: flex;
             gap: 8px;
-
             margin-top: 14px;
-
         }
 
         .stamp {
-
-            width: 26px;
-            height: 26px;
-
+            width: 22px;
+            height: 22px;
             border-radius: 50%;
-
             border: 2px solid white;
-
         }
 
         .wallet-qr-wrap {
-
             display: flex;
             justify-content: center;
-
-            margin-top: 46px;
-
+            margin-top: 44px;
         }
 
         .wallet-pass.expanded .wallet-qr-wrap {
-
-            margin-top: 72px;
-
+            margin-top: 52px;
         }
 
         .wallet-qr {
-
-            width: 148px;
-            height: 148px;
-
+            width: 140px;
+            height: 140px;
             background: white;
-
             border-radius: 12px;
-
             overflow: hidden;
-
             padding: 6px;
-
         }
 
         .wallet-qr img {
@@ -474,17 +418,12 @@
                 padding: 24px;
             }
 
-            .wallet-pass {
-                transform: scale(.9);
-            }
-
         }
     </style>
 </head>
 
 <body>
 
-    <!-- NAV -->
     <div class="nav">
 
         <div class="nav-inner">
@@ -513,7 +452,6 @@
 
     </div>
 
-    <!-- PAGE -->
     <div class="page">
 
         <div class="hero">
@@ -536,7 +474,6 @@
 
         <div class="builder">
 
-            <!-- LEFT -->
             <div class="panel">
 
                 <h2 class="section-title">
@@ -611,7 +548,6 @@
 
             </div>
 
-            <!-- RIGHT -->
             <div class="preview-wrap">
 
                 <div>
@@ -634,8 +570,6 @@
 
                     <div class="wallet-pass compact" id="walletPass">
 
-                        <!-- HEADER -->
-
                         <div class="wallet-header">
 
                             <div class="wallet-header-left">
@@ -646,8 +580,6 @@
 
                                 </div>
 
-                                <!-- GOOGLE NAME -->
-
                                 <div class="wallet-brand hidden" id="googleBusiness">
 
                                     Tapr
@@ -655,8 +587,6 @@
                                 </div>
 
                             </div>
-
-                            <!-- APPLE NAME -->
 
                             <div class="wallet-brand-right" id="appleBusiness">
 
@@ -666,12 +596,8 @@
 
                         </div>
 
-                        <!-- APPLE HERO -->
-
                         <div class="wallet-hero-top hidden" id="heroTop">
                         </div>
-
-                        <!-- CONTENT -->
 
                         <div class="wallet-content apple" id="walletContent">
 
@@ -702,8 +628,6 @@
                             </div>
 
                         </div>
-
-                        <!-- GOOGLE HERO -->
 
                         <div class="wallet-hero-bottom hidden" id="heroBottom">
                         </div>
@@ -773,8 +697,6 @@
 
         let hasHero = false;
 
-        /* BUSINESS */
-
         businessInput.addEventListener('input', () => {
 
             const value =
@@ -785,8 +707,6 @@
 
         });
 
-        /* REWARD */
-
         rewardInput.addEventListener('input', () => {
 
             cardReward.innerText =
@@ -795,16 +715,12 @@
 
         });
 
-        /* COLOR */
-
         colorInput.addEventListener('input', () => {
 
             walletPass.style.background =
                 colorInput.value;
 
         });
-
-        /* LOGO */
 
         logoInput.addEventListener('change', (e) => {
 
@@ -825,8 +741,6 @@
             reader.readAsDataURL(file);
 
         });
-
-        /* HERO */
 
         heroInput.addEventListener('change', (e) => {
 
@@ -864,8 +778,6 @@
             reader.readAsDataURL(file);
 
         });
-
-        /* WALLET TOGGLE */
 
         function setWallet(type) {
 
@@ -916,8 +828,6 @@
             }
 
         }
-
-        /* PUBLISH */
 
         function publishCard() {
 
