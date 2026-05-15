@@ -881,6 +881,128 @@ app.get('/merchant/:slug', async (req, res) => {
   res.json(merchant);
 });
 
+app.post('/merchant/send-code', async (req, res) => {
+
+  const { email } = req.body;
+
+  if (!email) {
+    return res.json({ error: "Email required" });
+  }
+
+  const normalizedEmail = email.trim().toLowerCase();
+
+  const { data: existingMerchant } = await supabase
+    .from('merchants')
+    .select('id')
+    .eq('email', normalizedEmail)
+    .maybeSingle();
+
+  if (existingMerchant) {
+    return res.json({ error: "Email already in use" });
+  }
+
+  const code = Math.floor(
+    100000 + Math.random() * 900000
+  ).toString();
+
+  const expires = new Date(
+    Date.now() + 10 * 60 * 1000
+  );
+
+  await supabase
+    .from('merchant_email_codes')
+    .delete()
+    .eq('email', normalizedEmail);
+
+  await supabase
+    .from('merchant_email_codes')
+    .insert([{
+      email: normalizedEmail,
+      code,
+      expires_at: expires.toISOString(),
+      verified: false
+    }]);
+
+  try {
+
+    await resend.emails.send({
+      from: 'Tapr <hello@usetapr.com>',
+      to: normalizedEmail,
+      subject: 'Your Tapr verification code',
+      html: `
+        <div style="
+          font-family: Inter, sans-serif;
+          padding: 24px;
+        ">
+          <h2>Your verification code</h2>
+
+          <div style="
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: 6px;
+            margin: 24px 0;
+          ">
+            ${code}
+          </div>
+
+          <p>
+            This code expires in 10 minutes.
+          </p>
+        </div>
+      `
+    });
+
+    res.json({ success: true });
+
+  } catch (err) {
+
+    console.log("RESEND ERROR:", err);
+
+    res.json({ error: "Failed to send code" });
+
+  }
+
+});
+
+app.post('/merchant/verify-code', async (req, res) => {
+
+  const { email, code } = req.body;
+
+  if (!email || !code) {
+    return res.json({ error: "Missing fields" });
+  }
+
+  const normalizedEmail = email.trim().toLowerCase();
+
+  const { data: record } = await supabase
+    .from('merchant_email_codes')
+    .select('*')
+    .eq('email', normalizedEmail)
+    .maybeSingle();
+
+  if (!record) {
+    return res.json({ error: "No code found" });
+  }
+
+  if (new Date() > new Date(record.expires_at)) {
+    return res.json({ error: "Code expired" });
+  }
+
+  if (record.code !== code) {
+    return res.json({ error: "Invalid code" });
+  }
+
+  await supabase
+    .from('merchant_email_codes')
+    .update({
+      verified: true
+    })
+    .eq('id', record.id);
+
+  res.json({ success: true });
+
+});
+
 // ---------- MERCHANT LOGIN ----------
 
 app.post('/merchant/login', async (req, res) => {
@@ -912,39 +1034,75 @@ app.post('/merchant/login', async (req, res) => {
 
 // ---------- MERCHANT SIGNUP ----------
 app.post('/merchant/signup', async (req, res) => {
+
   const {
+    first_name,
+    last_name,
     name,
     email,
-    hex_color,
-    info,
-    instagram,
-    facebook,
-    progress_style
+    password
   } = req.body;
 
-  if (!name || !email || !password) {
+  if (
+    !first_name ||
+    !last_name ||
+    !name ||
+    !email ||
+    !password
+  ) {
     return res.json({ error: "Missing fields" });
   }
+
+  const normalizedEmail = email
+    .trim()
+    .toLowerCase();
+
+  // ✅ CHECK VERIFIED EMAIL
+
+  const { data: verifiedEmail } = await supabase
+    .from('merchant_email_codes')
+    .select('*')
+    .eq('email', normalizedEmail)
+    .eq('verified', true)
+    .maybeSingle();
+
+  if (!verifiedEmail) {
+    return res.json({
+      error: "Email not verified"
+    });
+  }
+
+  // ✅ CHECK EXISTING ACCOUNT
 
   const { data: existing } = await supabase
     .from('merchants')
     .select('id')
-    .eq('email', email)
+    .eq('email', normalizedEmail)
     .maybeSingle();
 
   if (existing) {
-    return res.json({ error: "Email already in use" });
+    return res.json({
+      error: "Email already in use"
+    });
   }
+
+  // ✅ HASH PASSWORD
 
   const hashed = await bcrypt.hash(password, 10);
 
+  // ✅ GENERATE SLUG
+
   const slug = generateSlug(name);
+
+  // ✅ CREATE MERCHANT
 
   const { data, error } = await supabase
     .from('merchants')
     .insert([{
+      first_name,
+      last_name,
       name,
-      email,
+      email: normalizedEmail,
       password: hashed,
       slug
     }])
@@ -952,11 +1110,35 @@ app.post('/merchant/signup', async (req, res) => {
     .single();
 
   if (error) {
+
     console.log("SIGNUP ERROR:", error);
-    return res.json({ error: "Signup failed" });
+
+    return res.json({
+      error: "Signup failed"
+    });
+
   }
 
-  res.json({ success: true });
+  // ✅ CLEAN VERIFIED CODE
+
+  await supabase
+    .from('merchant_email_codes')
+    .delete()
+    .eq('email', normalizedEmail);
+
+  // ✅ AUTO LOGIN TOKEN
+
+  const token = jwt.sign(
+    { merchant_id: data.id },
+    process.env.JWT_SECRET,
+    { expiresIn: '7d' }
+  );
+
+  res.json({
+    success: true,
+    token
+  });
+
 });
 
 // ---------- SCAN ROUTE ----------
