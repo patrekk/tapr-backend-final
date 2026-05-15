@@ -1512,7 +1512,17 @@
 
         async function savePass(event) {
           const btn = event.target;
-          btn.innerText = "Saving...";
+          btn.innerHTML = `
+  <div style="
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+  ">
+    <div class="spinner"></div>
+    Saving
+  </div>
+`;
           btn.disabled = true;
 
           const formData = new FormData();
