@@ -1,309 +1,316 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <title>Join</title>
   <style>
+    :root {
+      --primary: #2B396D;
+      --bg: #E4E4E4;
+      --text: #0B0B0B;
+      --muted: #666;
+    }
 
-:root {
-  --primary: #2B396D;
-  --bg: #E4E4E4;
-  --text: #0B0B0B;
-  --muted: #666;
-}
+    body {
+      opacity: 0;
+    }
 
-body {
-  opacity: 0;
-}
+    body {
+      font-family: 'Inter', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background: var(--bg);
+    }
 
-body {
-  font-family: 'Inter', sans-serif;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  margin: 0;
-  background: var(--bg);
-}
+    .box {
+      background: white;
+      padding: 32px;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 380px;
+      box-shadow: 0 10px 30px rgba(43, 57, 109, 0.12);
+    }
 
-.box {
-  background: white;
-  padding: 32px;
-  border-radius: 16px;
-  width: 100%;
-  max-width: 380px;
-  box-shadow: 0 10px 30px rgba(43,57,109,0.12);
-}
+    #merchantLogo {
+      display: none;
+    }
 
-#merchantLogo {
-  display: none;
-}
+    @media (max-width: 480px) {
+      body {
+        align-items: stretch;
+        padding: 0px;
+        background: white;
+      }
 
-@media (max-width: 480px) {
-  body {
-    align-items: stretch;
-    padding: 0px;
-    background: white;
-  }
+      .box {
+        width: 100%;
+        max-width: 100%;
+        height: 100vh;
+        border-radius: 0;
+        box-shadow: none;
+        padding: 24px 20px;
+      }
+    }
 
-  .box {
-    width: 100%;
-    max-width: 100%;
-    height: 100vh;
-    border-radius: 0;
-    box-shadow: none;
-    padding: 24px 20px;
-  }
-}
+    h1 {
+      text-align: center;
+      margin-bottom: 6px;
+      color: var(--text);
+    }
 
-h1 {
-  text-align: center;
-  margin-bottom: 6px;
-  color: var(--text);
-}
+    .sub {
+      text-align: center;
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
 
-.sub {
-  text-align: center;
-  font-size: 14px;
-  color: var(--muted);
-  margin-bottom: 10px;
-}
+    .benefits {
+      font-size: 14px;
+      margin: 20px 0 26px;
+      padding: 18px;
+      background: color-mix(in srgb, var(--primary) 8%, white);
+      border-radius: 14px;
+      text-align: center;
+    }
 
-.benefits {
-  font-size: 14px;
-  margin: 20px 0 26px;
-  padding: 18px;
-  background: color-mix(in srgb, var(--primary) 8%, white);
-  border-radius: 14px;
-  text-align: center;
-}
+    strong {
+      color: var(--primary);
+    }
 
-strong {
-  color: var(--primary);
-}
+    .benefits div {
+      margin-bottom: 10px;
+      font-size: 15px;
+    }
 
-.benefits div {
-  margin-bottom: 10px;
-  font-size: 15px;
-}
+    input {
+      width: 100%;
+      padding: 16px;
+      margin-top: 12px;
+      border-radius: 12px;
+      border: 1px solid #ddd;
+      font-size: 16px;
+      box-sizing: border-box;
+      background: white;
+      appearance: none;
+    }
 
-input {
-  width: 100%;
-  padding: 16px;
-  margin-top: 12px;
-  border-radius: 12px;
-  border: 1px solid #ddd;
-  font-size: 16px;
-  box-sizing: border-box;
-  background: white;
-  appearance: none;
-}
+    input[type="date"] {
+      min-height: 52px;
+    }
 
-input[type="date"] {
-  min-height: 52px;
-}
+    input:hover {
+      border-color: #aaa;
+    }
 
-input:hover {
-  border-color: #aaa;
-}
+    input:focus {
+      border-color: #2B396D;
+      box-shadow: 0 0 0 2px var(--primary);
+      outline: none;
+    }
 
-input:focus {
-  border-color: #2B396D;
-  box-shadow: 0 0 0 2px var(--primary);
-  outline: none;
-}
+    button {
+      width: 100%;
+      padding: 18px;
+      margin-top: 28px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 16px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease;
+    }
 
-button {
-  width: 100%;
-  padding: 18px;
-  margin-top: 28px;
-  background: var(--primary);
-  color: white;
-  border: none;
-  border-radius: 16px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.15s ease, transform 0.1s ease;
-}
+    button:hover {
+      filter: brightness(0.9);
+    }
 
-button:hover {
-  filter: brightness(0.9);
-}
+    button:active {
+      transform: scale(0.97);
+    }
 
-button:active {
-  transform: scale(0.97);
-}
+    @media (max-width: 480px) {
+      button {
+        padding: 20px;
+        font-size: 17px;
+        border-radius: 18px;
+      }
+    }
 
-@media (max-width: 480px) {
-  button {
-    padding: 20px;
-    font-size: 17px;
-    border-radius: 18px;
-  }
-}
+    button:disabled {
+      background: #aaa;
+      cursor: not-allowed;
+    }
 
-button:disabled {
-  background: #aaa;
-  cursor: not-allowed;
-}
-
-.tapr {
-  text-align: center;
-  font-size: 11px;
-  color: #999;
-  margin-top: 14px;
-  opacity: 0.6;
-}
-</style>
+    .tapr {
+      text-align: center;
+      font-size: 11px;
+      color: #999;
+      margin-top: 14px;
+      opacity: 0.6;
+    }
+  </style>
 </head>
+
 <body>
 
-<div class="box">
-  <img id="merchantLogo" style="max-width:160px; margin:0 auto 10px;" />
-  <h1 id="title">Join</h1>
+  <div class="box">
+    <img id="merchantLogo" style="max-width:160px; margin:0 auto 10px;" />
+    <h1 id="title">Join</h1>
 
-  <p class="sub">Get rewarded every visit</p>
+    <p class="sub">Get rewarded every visit</p>
 
-  <div class="benefits">
-    <div><strong>₱10 instantly</strong> on your first visit</div>
-    <div>Rewards increase every visit</div>
-    <div><strong>₱50 reward</strong> on your 5th visit</div>
+    <div class="benefits">
+      <div><strong>₱10 instantly</strong> on your first visit</div>
+      <div>Rewards increase every visit</div>
+      <div><strong>₱50 reward</strong> on your 5th visit</div>
+    </div>
+
+    <input id="phone" placeholder="Phone number">
+    <input id="name" placeholder="Full name">
+    <input type="date" id="birthday">
+    <input id="email" placeholder="Email">
+
+    <button onclick="join()" id="joinBtn">
+      Join & Get Rewards
+    </button>
+    <p class="tapr">Powered by Tapr</p>
   </div>
 
-  <input id="phone" placeholder="Phone number">
-  <input id="name" placeholder="Full name">
-  <input type="date" id="birthday">
-  <input id="email" placeholder="Email">
-
-  <button onclick="join()" id="joinBtn">
-    Join & Get Rewards
-  </button>
-  <p class="tapr">Powered by Tapr</p>
-</div>
-
-<script>
-function getSlug() {
-  return window.location.pathname.split("/")[2];
-}
-
-const slug = getSlug();
-
-// get merchant names
-const API = "https://tapr-backend-final-production.up.railway.app";
-
-fetch(`${API}/merchant/${slug}`)
-  .then(res => res.json())
-  .then(data => {
-    if (data.name) {
-      document.getElementById("title").innerText =
-        "Join " + data.name;
+  <script>
+    function getSlug() {
+      return window.location.pathname.split("/")[2];
     }
 
-    if (data.logo_url) {
-      const logo = document.getElementById("merchantLogo");
-      logo.src = data.logo_url;
-      logo.style.display = "block";
+    const slug = getSlug();
 
-      // OPTIONAL: hide text if logo exists
-      document.getElementById("title").style.display = "none";
+    // get merchant names
+    const API = "https://tapr-backend-final-production.up.railway.app";
+
+    fetch(`${API}/merchant/${slug}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.name) {
+          document.getElementById("title").innerText =
+            "Join " + data.name;
+        }
+
+        if (data.logo_url) {
+          const logo = document.getElementById("merchantLogo");
+          logo.src = data.logo_url;
+          logo.style.display = "block";
+
+          // OPTIONAL: hide text if logo exists
+          document.getElementById("title").style.display = "none";
+        }
+
+        if (data.hex_color) {
+          document.documentElement.style
+            .setProperty('--primary', data.hex_color);
+        }
+
+        // 👉 SHOW PAGE AFTER COLOR SET
+        document.body.style.opacity = "1";
+      })
+      .catch(() => {
+        document.body.style.opacity = "1";
+      });
+
+    async function join() {
+      const btn = document.getElementById("joinBtn");
+      btn.disabled = true;
+      btn.innerText = "Loading...";
+      const phone = document.getElementById("phone").value;
+      const name = document.getElementById("name").value;
+      const email = document.getElementById("email").value;
+      const birthday = document.getElementById("birthday").value;
+
+      if (!phone || !name || !email || !birthday) {
+        alert("Fill all fields");
+        btn.disabled = false;
+        btn.innerText = "Join & Get Rewards";
+        return;
+      }
+
+      // 🔥 PHONE
+      if (!/^09\d{9}$/.test(phone)) {
+        alert("Enter a valid PH phone number (09XXXXXXXXX)");
+        btn.disabled = false;
+        btn.innerText = "Join & Get Rewards";
+        return;
+      }
+
+      // 🔥 EMAIL
+      if (!/^\S+@\S+\.\S+$/.test(email)) {
+        alert("Enter a valid email");
+        btn.disabled = false;
+        btn.innerText = "Join & Get Rewards";
+        return;
+      }
+
+      // 🔥 NAME
+      if (!/^[a-zA-Z\s]+$/.test(name)) {
+        alert("Name should only contain letters");
+        btn.disabled = false;
+        btn.innerText = "Join & Get Rewards";
+        return;
+      }
+
+      // 🔥 BIRTHDAY CHECK
+      if (!birthday) {
+        alert("Enter your birthday");
+        btn.disabled = false;
+        btn.innerText = "Join & Get Rewards";
+        return;
+      }
+
+      try {
+
+        const res = await fetch(`${API}/wallet/${slug}`, {
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json"
+          },
+
+          body: JSON.stringify({
+            phone,
+            name,
+            email,
+            birthday
+          })
+        });
+
+        const data = await res.json();
+
+        if (data.error) {
+
+          alert(data.error);
+
+          btn.disabled = false;
+          btn.innerText = "Join & Get Rewards";
+
+          return;
+        }
+
+        window.location.href =
+          `https://pay.google.com/gp/v/save/${data.saveJWT}`;
+
+      } catch (err) {
+        alert("Something went wrong");
+        btn.disabled = false;
+        btn.innerText = "Join & Get Rewards";
+      }
     }
-
-    if (data.hex_color) {
-      document.documentElement.style
-        .setProperty('--primary', data.hex_color);
-    }
-
-    // 👉 SHOW PAGE AFTER COLOR SET
-    document.body.style.opacity = "1";
-  })
-  .catch(() => {
-    document.body.style.opacity = "1";
-  });
-
-async function join() {
-  const btn = document.getElementById("joinBtn");
-  btn.disabled = true;
-  btn.innerText = "Loading...";
-  const phone = document.getElementById("phone").value;
-  const name = document.getElementById("name").value;
-  const email = document.getElementById("email").value;
-  const birthday = document.getElementById("birthday").value;
-
-  if (!phone || !name || !email || !birthday) {
-    alert("Fill all fields");
-    btn.disabled = false;
-    btn.innerText = "Join & Get Rewards";
-    return;
-  }
-
-  // 🔥 PHONE
-  if (!/^09\d{9}$/.test(phone)) {
-    alert("Enter a valid PH phone number (09XXXXXXXXX)");
-    btn.disabled = false;
-    btn.innerText = "Join & Get Rewards";
-    return;
-  }
-
-  // 🔥 EMAIL
-  if (!/^\S+@\S+\.\S+$/.test(email)) {
-    alert("Enter a valid email");
-    btn.disabled = false;
-    btn.innerText = "Join & Get Rewards";
-    return;
-  }
-
-  // 🔥 NAME
-  if (!/^[a-zA-Z\s]+$/.test(name)) {
-    alert("Name should only contain letters");
-    btn.disabled = false;
-    btn.innerText = "Join & Get Rewards";
-    return;
-  }
-
-  // 🔥 BIRTHDAY CHECK
-  if (!birthday) {
-    alert("Enter your birthday");
-    btn.disabled = false;
-    btn.innerText = "Join & Get Rewards";
-    return;
-  }
-
-  try {
-    // 👉 SAVE DATA TEMPORARILY
-    localStorage.setItem("joinData", JSON.stringify({
-      phone, name, email, birthday
-    }));
-
-    // 👉 SEND OTP
-    const otpRes = await fetch(`${API}/send-otp`, {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json"
-  },
-  body: JSON.stringify({ phone })
-});
-
-const otpData = await otpRes.json();
-
-if (otpData.error) {
-  alert(otpData.error);
-  btn.disabled = false;
-  btn.innerText = "Join & Get Rewards";
-  return;
-}
-
-    // 👉 REDIRECT TO OTP PAGE
-    window.location.href = `/otp?slug=${slug}`;
-
-  } catch (err) {
-    alert("Something went wrong");
-    btn.disabled = false;
-    btn.innerText = "Join & Get Rewards";
-  }
-}
-</script>
+  </script>
 
 </body>
+
 </html>
