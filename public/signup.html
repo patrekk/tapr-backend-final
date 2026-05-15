@@ -3,7 +3,7 @@
 
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Start with Tapr</title>
+  <title>Create Account • Tapr</title>
 
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
@@ -23,92 +23,93 @@
       justify-content: center;
       align-items: center;
       min-height: 100vh;
+      padding: 20px;
+      box-sizing: border-box;
     }
 
     .box {
       background: white;
-      padding: 32px;
-      border-radius: 18px;
       width: 100%;
-      max-width: 380px;
+      max-width: 420px;
+      padding: 32px;
+      border-radius: 24px;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-      text-align: center;
+      box-sizing: border-box;
+    }
+
+    .logo {
+      height: 28px;
+      display: block;
+      margin-bottom: 24px;
     }
 
     h1 {
-      margin-bottom: 8px;
+      margin: 0 0 8px;
+      font-size: 28px;
     }
 
     .sub {
-      font-size: 14px;
       color: var(--muted);
-      margin-bottom: 20px;
-    }
-
-    .value {
-      font-size: 13px;
-      background: #eef2ff;
-      padding: 12px;
-      border-radius: 12px;
-      margin-bottom: 20px;
+      font-size: 14px;
+      margin-bottom: 24px;
+      line-height: 1.5;
     }
 
     input {
       width: 100%;
       padding: 16px;
-      margin-top: 10px;
-      border-radius: 12px;
+      border-radius: 14px;
       border: 1px solid #ddd;
       font-size: 15px;
+      margin-bottom: 12px;
       box-sizing: border-box;
     }
 
     input:focus {
-      border-color: var(--primary);
       outline: none;
-      box-shadow: 0 0 0 2px rgba(43, 57, 109, 0.2);
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(43, 57, 109, 0.15);
     }
 
     button {
       width: 100%;
       padding: 16px;
-      margin-top: 20px;
-      background: var(--primary);
-      color: white;
       border: none;
       border-radius: 14px;
+      background: var(--primary);
+      color: white;
       font-weight: 600;
       font-size: 15px;
       cursor: pointer;
     }
 
     button:hover {
-      filter: brightness(0.9);
+      filter: brightness(0.95);
     }
 
     button:disabled {
-      background: #aaa;
-    }
-
-    .trust {
-      text-align: center;
-      font-size: 12px;
-      color: #888;
-      margin-top: 14px;
+      opacity: 0.6;
+      cursor: not-allowed;
     }
 
     #status {
-      margin-top: 10px;
-      font-size: 13px;
+      margin-top: 16px;
+      font-size: 14px;
       color: red;
       text-align: center;
     }
 
-    .logo {
-      height: 28px;
-      width: auto;
-      display: block;
-      margin: 0 auto 16px;
+    .hidden {
+      display: none;
+    }
+
+    .row {
+      display: flex;
+      gap: 12px;
+    }
+
+    .row input {
+      margin-bottom: 12px;
     }
   </style>
 </head>
@@ -116,98 +117,278 @@
 <body>
 
   <div class="box">
+
     <img src="/images/logo.png" class="logo">
 
-    <h1>Start getting repeat customers</h1>
-    <p class="sub">Set up your loyalty system in under 2 minutes</p>
+    <!-- STEP 1 -->
 
-    <div class="value">
-      ✔ Turn 1-time visitors into regulars
-      <br>
-      ✔ No app required
-      <br>
-      ✔ Free early access
+    <div id="step1">
+
+      <h1>Create your account</h1>
+
+      <p class="sub">
+        Enter your email to continue.
+      </p>
+
+      <input id="email" placeholder="Email" autocomplete="email">
+
+      <button onclick="sendCode()" id="sendBtn">
+        Continue
+      </button>
+
     </div>
 
-    <input id="name" placeholder="Business Name">
-    <input id="email" placeholder="Email">
-    <input id="password" type="password" placeholder="Password">
+    <!-- STEP 2 -->
 
-    <button onclick="signup(event)" id="signupBtn">
-      Create Account
-    </button>
+    <div id="step2" class="hidden">
 
-    <p id="status"></p>
+      <h1>Verify email</h1>
 
-    <p class="trust">No setup fees • No contracts</p>
+      <p class="sub">
+        Enter the 6-digit code sent to your email.
+      </p>
+
+      <input id="code" placeholder="123456" maxlength="6">
+
+      <button onclick="verifyCode()" id="verifyBtn">
+        Verify
+      </button>
+
+    </div>
+
+    <!-- STEP 3 -->
+
+    <div id="step3" class="hidden">
+
+      <h1>Finish setup</h1>
+
+      <p class="sub">
+        Create your merchant account.
+      </p>
+
+      <div class="row">
+        <input id="firstName" placeholder="First Name">
+        <input id="lastName" placeholder="Last Name">
+      </div>
+
+      <input id="businessName" placeholder="Business Name">
+
+      <input id="password" type="password" placeholder="Password">
+
+      <button onclick="createAccount()" id="createBtn">
+        Create Account
+      </button>
+
+    </div>
+
+    <div id="status"></div>
 
   </div>
 
   <script>
-    const API = "https://tapr-backend-final-production.up.railway.app";
 
-    async function signup(event) {
-      const btn = document.getElementById("signupBtn");
-      btn.innerText = "Creating...";
+    const API =
+      "https://tapr-backend-final-production.up.railway.app";
+
+    let verifiedEmail = "";
+
+    function showError(msg) {
+      document.getElementById("status").innerText = msg;
+    }
+
+    function clearError() {
+      document.getElementById("status").innerText = "";
+    }
+
+    async function sendCode() {
+
+      clearError();
+
+      const btn =
+        document.getElementById("sendBtn");
+
       btn.disabled = true;
+      btn.innerText = "Sending...";
 
-      const name = document.getElementById("name").value.trim();
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value;
+      const email =
+        document.getElementById("email")
+          .value
+          .trim()
+          .toLowerCase();
 
-      // 🔒 BASIC VALIDATION
-      if (!name || !email || !password) {
-        showError("Fill all fields");
-        resetBtn();
+      if (!email) {
+        showError("Enter email");
+        reset();
         return;
       }
 
-      if (!/^\S+@\S+\.\S+$/.test(email)) {
-        showError("Enter a valid email");
-        resetBtn();
-        return;
-      }
-
-      if (password.length < 6) {
-        showError("Password must be at least 6 characters");
-        resetBtn();
-        return;
-      }
-
-      try {
-        const res = await fetch(`${API}/merchant/signup`, {
+      const res = await fetch(
+        `${API}/merchant/send-code`,
+        {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
           },
-          body: JSON.stringify({ name, email, password })
-        });
-
-        const data = await res.json();
-
-        if (data.error) {
-          showError(data.error);
-          resetBtn();
-          return;
+          body: JSON.stringify({ email })
         }
+      );
 
-        // 🔥 SUCCESS FLOW
-        window.location.href = "/login";
+      const data = await res.json();
 
-      } catch {
-        showError("Something went wrong");
-        resetBtn();
+      if (data.error) {
+        showError(data.error);
+        reset();
+        return;
       }
 
-      function showError(msg) {
-        document.getElementById("status").innerText = msg;
-      }
+      verifiedEmail = email;
 
-      function resetBtn() {
-        btn.innerText = "Create Account";
+      document
+        .getElementById("step1")
+        .classList.add("hidden");
+
+      document
+        .getElementById("step2")
+        .classList.remove("hidden");
+
+      function reset() {
         btn.disabled = false;
+        btn.innerText = "Continue";
       }
     }
+
+    async function verifyCode() {
+
+      clearError();
+
+      const btn =
+        document.getElementById("verifyBtn");
+
+      btn.disabled = true;
+      btn.innerText = "Verifying...";
+
+      const code =
+        document.getElementById("code")
+          .value
+          .trim();
+
+      const res = await fetch(
+        `${API}/merchant/verify-code`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            email: verifiedEmail,
+            code
+          })
+        }
+      );
+
+      const data = await res.json();
+
+      if (data.error) {
+        showError(data.error);
+
+        btn.disabled = false;
+        btn.innerText = "Verify";
+
+        return;
+      }
+
+      document
+        .getElementById("step2")
+        .classList.add("hidden");
+
+      document
+        .getElementById("step3")
+        .classList.remove("hidden");
+
+    }
+
+    async function createAccount() {
+
+      clearError();
+
+      const btn =
+        document.getElementById("createBtn");
+
+      btn.disabled = true;
+      btn.innerText = "Creating...";
+
+      const first_name =
+        document.getElementById("firstName")
+          .value
+          .trim();
+
+      const last_name =
+        document.getElementById("lastName")
+          .value
+          .trim();
+
+      const name =
+        document.getElementById("businessName")
+          .value
+          .trim();
+
+      const password =
+        document.getElementById("password")
+          .value;
+
+      if (
+        !first_name ||
+        !last_name ||
+        !name ||
+        !password
+      ) {
+        showError("Fill all fields");
+
+        btn.disabled = false;
+        btn.innerText = "Create Account";
+
+        return;
+      }
+
+      const res = await fetch(
+        `${API}/merchant/signup`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            first_name,
+            last_name,
+            name,
+            email: verifiedEmail,
+            password
+          })
+        }
+      );
+
+      const data = await res.json();
+
+      if (data.error) {
+
+        showError(data.error);
+
+        btn.disabled = false;
+        btn.innerText = "Create Account";
+
+        return;
+
+      }
+
+      localStorage.setItem(
+        "token",
+        data.token
+      );
+
+      window.location.href = "/dashboard";
+
+    }
+
   </script>
 
 </body>
