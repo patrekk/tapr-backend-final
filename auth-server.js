@@ -201,6 +201,14 @@ async function updateWalletObject(customer, merchant) {
   }
 
   const updatedObject = {
+
+    cardTitle: {
+      defaultValue: {
+        language: "en-US",
+        value: merchant.name || "Tapr"
+      }
+    },
+
     hexBackgroundColor: merchant.hex_color || "#2B396D",
 
     logo: merchant.logo_url
