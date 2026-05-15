@@ -93,24 +93,12 @@
       table-layout: fixed;
     }
 
-    th:nth-child(1),
-    td:nth-child(1) {
-      width: 25%;
-    }
-
-    th:nth-child(2),
-    td:nth-child(2) {
-      width: 35%;
-    }
-
-    th:nth-child(3),
-    td:nth-child(3) {
-      width: 20%;
-    }
-
-    th:nth-child(4),
-    td:nth-child(4) {
-      width: 20%;
+    th,
+    td {
+      text-align: left;
+      padding: var(--space-2);
+      font-size: var(--text-sm);
+      word-break: break-word;
     }
 
     th {
@@ -642,13 +630,7 @@
           <h3>Customers</h3>
           <table>
             <thead>
-              <tr>
-                <th>Phone</th>
-                <th>Name</th>
-                <th>Loop</th>
-                <th>Total</th>
-                <th>Action</th>
-              </tr>
+              <tr id="customerTableHead"></tr>
             </thead>
             <tbody id="customersTable"></tbody>
           </table>
@@ -904,6 +886,8 @@
         const API = "https://tapr-backend-final-production.up.railway.app";
         const PUBLIC_URL = "https://usetapr.com";
 
+        let merchantMode = "free";
+
         function showPage(page, el) {
           document.getElementById("dashboardPage").style.display = "none";
           document.getElementById("profilePage").style.display = "none";
@@ -958,7 +942,7 @@
         }
 
         async function loadStats() {
-          const res = fetch(`${API}/merchant/stats`, {
+          const res = await fetch(`${API}/merchant/stats`, {
             headers: { authorization: getToken() }
           });
           const data = await res.json();
@@ -975,6 +959,8 @@
           const data = await res.json();
 
           const table = document.getElementById("customersTable");
+          const head =
+            document.getElementById("customerTableHead");
           const stateBox = document.getElementById("dashboardState");
           table.innerHTML = "";
 
@@ -1155,32 +1141,78 @@
 </div>
 `;
 
+          if (merchantMode === "paid") {
+
+            head.innerHTML = `
+    <th>Phone</th>
+    <th>Name</th>
+    <th>Status</th>
+    <th>Total</th>
+    <th>Action</th>
+  `;
+
+          } else {
+
+            head.innerHTML = `
+    <th>Phone</th>
+    <th>Name</th>
+    <th>Visits</th>
+  `;
+
+          }
+
           data.forEach(c => {
-            table.innerHTML += `
-  <tr>
-    <td>${c.phone}</td>
 
-    <td>${c.name || "-"}</td>
+            // PAID MEMBERSHIP MODE
+            if (merchantMode === "paid") {
 
-    <td>
-      ${c.membership_status === "active"
-                ? "🟢 Active"
-                : "🟡 Inactive"}
-    </td>
+              table.innerHTML += `
+      <tr>
 
-    <td>${c.total_visits || 0}</td>
+        <td>${c.phone}</td>
 
-    <td>
-      ${c.membership_status !== "active"
-                ? `
-          <button onclick="activateCustomer('${c.id}')">
-            Activate
-          </button>
-        `
-                : "-"}
-    </td>
-  </tr>
-`;
+        <td>${c.name || "-"}</td>
+
+        <td>
+          ${c.membership_status === "active"
+                  ? "🟢 Active"
+                  : "🟡 Inactive"}
+        </td>
+
+        <td>${c.total_visits || 0}</td>
+
+        <td>
+          ${c.membership_status !== "active"
+                  ? `
+              <button onclick="activateCustomer('${c.id}')">
+                Activate
+              </button>
+            `
+                  : "-"}
+        </td>
+
+      </tr>
+    `;
+
+            }
+
+            // FREE LOYALTY MODE
+            else {
+
+              table.innerHTML += `
+      <tr>
+
+        <td>${c.phone}</td>
+
+        <td>${c.name || "-"}</td>
+
+        <td>${c.total_visits || 0}</td>
+
+      </tr>
+    `;
+
+            }
+
           });
         }
 
@@ -1560,6 +1592,9 @@
             document.getElementById("facebookInput").value = data.facebook;
           }
 
+          merchantMode =
+            data.membership_mode || "free";
+
           if (data.membership_mode) {
 
             const radio = document.querySelector(
@@ -1608,20 +1643,28 @@
           el.style.display = el.style.display === "none" ? "block" : "none";
         }
 
-        document.addEventListener("DOMContentLoaded", () => {
-          applyBranding();
-          loadMerchantName();
-          loadStats();
-          loadCustomers();
-          loadProfile();
-          loadPass();
-          loadLogs();
+        document.addEventListener("DOMContentLoaded", async () => {
+
+          await applyBranding();
+
+          await loadMerchantName();
+
+          await loadPass();
+
+          await loadStats();
+
+          await loadCustomers();
+
+          await loadProfile();
+
+          await loadLogs();
 
           const saved = localStorage.getItem("sidebarCollapsed");
 
           if (saved === "true") {
             document.getElementById("sidebar").classList.add("collapsed");
           }
+
         });
 
         document.addEventListener("keydown", (e) => {
