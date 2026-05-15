@@ -507,6 +507,28 @@
       background: #ecfdf5;
     }
 
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #111;
+      color: white;
+      padding: 14px 18px;
+      border-radius: 12px;
+      font-size: 14px;
+      z-index: 9999;
+      opacity: 0;
+      transform: translateY(10px);
+      transition:
+        opacity 0.2s ease,
+        transform 0.2s ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
     @media (max-width: 767px) {
 
       .app {
@@ -725,7 +747,9 @@
           <input type="password" id="newPassword" placeholder="New Password" style="margin-bottom:10px;">
           <input type="password" id="confirmPassword" placeholder="Re-enter Password" style="margin-bottom:10px;">
 
-          <button onclick="changePassword()">Update Password</button>
+          <button onclick="changePassword(event)">
+            Update Password
+          </button>
         </div>
 
       </div><!-- profilePage -->
@@ -932,6 +956,8 @@
 
       </div>
 
+      <div id="toast" class="toast"></div>
+
       <script>
         const API = "https://tapr-backend-final-production.up.railway.app";
         const PUBLIC_URL = "https://usetapr.com";
@@ -977,6 +1003,20 @@
 
             generateQR();
           }
+        }
+
+        function showToast(message) {
+
+          const toast = document.getElementById("toast");
+
+          toast.innerText = message;
+
+          toast.classList.add("show");
+
+          setTimeout(() => {
+            toast.classList.remove("show");
+          }, 2500);
+
         }
 
         function getToken() {
@@ -1497,13 +1537,13 @@
           const data = await res.json();
 
           if (data.success) {
-            alert("Saved!");
+            showToast("Business profile updated");
 
             document.documentElement.style
               .setProperty('--primary', color);
 
           } else {
-            alert("Failed to save");
+            showToast("Failed to save");
           }
 
           btn.innerText = "Save Changes";
@@ -1570,46 +1610,82 @@
           const data = await res.json();
 
           if (data.success) {
-            alert("Pass updated!");
+            showToast("Pass updated");
           } else {
-            alert("Failed");
+            showToast("Failed to save pass");
           }
 
           btn.innerText = "Save Pass";
           btn.disabled = false;
         }
 
-        async function changePassword() {
-          const pass1 = document.getElementById("newPassword").value;
-          const pass2 = document.getElementById("confirmPassword").value;
+        async function changePassword(event) {
+
+          const btn = event.target;
+
+          btn.disabled = true;
+
+          btn.innerHTML = `
+    <div style="
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+    ">
+      <div class="spinner"></div>
+      Saving
+    </div>
+  `;
+
+          const pass1 =
+            document.getElementById("newPassword").value;
+
+          const pass2 =
+            document.getElementById("confirmPassword").value;
 
           if (!pass1 || pass1 !== pass2) {
-            alert("Passwords do not match");
+
+            showToast("Passwords do not match");
+
+            btn.innerText = "Update Password";
+            btn.disabled = false;
+
             return;
           }
 
-          const res = await fetch(`${API}/merchant/change-password`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              authorization: getToken()
-            },
-            body: JSON.stringify({
-              password: pass1
-            })
-          });
+          const res = await fetch(
+            `${API}/merchant/change-password`,
+            {
+              method: "POST",
+
+              headers: {
+                "Content-Type": "application/json",
+                authorization: getToken()
+              },
+
+              body: JSON.stringify({
+                password: pass1
+              })
+            }
+          );
 
           const data = await res.json();
 
           if (data.success) {
-            alert("Password updated");
+
+            showToast("Password updated");
 
             document.getElementById("newPassword").value = "";
+
             document.getElementById("confirmPassword").value = "";
 
           } else {
-            alert("Failed to update password");
+
+            showToast("Failed to update password");
           }
+
+          btn.innerText = "Update Password";
+          btn.disabled = false;
         }
 
         function logout() {
