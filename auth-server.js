@@ -583,7 +583,11 @@ app.post('/wallet/:slug', async (req, res) => {
         wallet_id,
         visit_count: 0,
         pending_discount: 10,
-        membership_status: "inactive"
+
+        membership_status:
+          merchant.membership_mode === "paid"
+            ? "inactive"
+            : "active"
       }])
       .select()
       .single();
@@ -634,7 +638,9 @@ app.get('/merchant/me', verifySession, async (req, res) => {
     info: req.merchant.info,
     instagram: req.merchant.instagram,
     facebook: req.merchant.facebook,
-    progress_style: req.merchant.progress_style
+    progress_style: req.merchant.progress_style,
+
+    membership_mode: req.merchant.membership_mode
   });
 });
 
@@ -656,7 +662,8 @@ app.post(
       info,
       instagram,
       facebook,
-      progress_style
+      progress_style,
+      membership_mode
     } = req.body;
 
     let logo_url = null;
@@ -710,6 +717,20 @@ app.post(
       hero_url = data.publicUrl;
     }
 
+    if (
+      membership_mode === "free" &&
+      req.merchant.membership_mode === "paid"
+    ) {
+
+      await supabase
+        .from('customers')
+        .update({
+          membership_status: "active"
+        })
+        .eq('merchant_id', req.merchant.id);
+
+    }
+
     const { error } = await supabase
 
       .from('merchants')
@@ -724,7 +745,8 @@ app.post(
         ...(info && { info }),
         ...(instagram && { instagram }),
         ...(facebook && { facebook }),
-        ...(progress_style && { progress_style })
+        ...(progress_style && { progress_style }),
+        ...(membership_mode && { membership_mode })
       })
 
       .eq('id', req.merchant.id);
@@ -1222,7 +1244,10 @@ app.post('/scan', scanLimiter, verifySession, async (req, res) => {
       return res.json({ error: 'Customer not found' });
     }
 
-    if (customer.membership_status !== "active") {
+    if (
+      req.merchant.membership_mode === "paid" &&
+      customer.membership_status !== "active"
+    ) {
       return res.json({
         error: "Membership inactive"
       });

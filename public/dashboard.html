@@ -773,6 +773,65 @@
 
           </div>
 
+          <!-- MEMBERSHIP TYPE -->
+          <div style="margin-bottom:20px;">
+
+            <div style="font-weight:600; margin-bottom:4px;">
+              Membership Type
+            </div>
+
+            <div style="font-size:12px; color:#777; margin-bottom:12px;">
+              Choose whether customers need activation before earning stamps
+            </div>
+
+            <div style="
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  ">
+
+              <label style="
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      cursor:pointer;
+    ">
+                <input type="radio" name="membershipMode" value="free" checked>
+
+                <div>
+                  <div style="font-weight:600; font-size:14px;">
+                    Free Membership
+                  </div>
+
+                  <div style="font-size:12px; color:#777;">
+                    Customers can immediately earn stamps
+                  </div>
+                </div>
+              </label>
+
+              <label style="
+                display:flex;
+                gap:10px;
+                align-items:flex-start;
+                cursor:pointer;
+                ">
+                <input type="radio" name="membershipMode" value="paid">
+
+                <div>
+                  <div style="font-weight:600; font-size:14px;">
+                    Paid Membership
+                  </div>
+
+                  <div style="font-size:12px; color:#777;">
+                    Customers require activation before earning stamps
+                  </div>
+                </div>
+              </label>
+
+            </div>
+
+          </div>
+
           <!-- PROGRESS -->
           <div style="margin-bottom:20px;">
 
@@ -1367,9 +1426,18 @@
           const empty = document.getElementById("emptyInput").value || "○";
           const reward = document.getElementById("rewardInput").value || "🎁";
 
+          const membershipMode =
+            document.querySelector(
+              'input[name="membershipMode"]:checked'
+            ).value;
+
           formData.append("info", info);
           formData.append("instagram", instagram);
           formData.append("facebook", facebook);
+          formData.append(
+            "membership_mode",
+            membershipMode
+          );
           formData.append("progress_style", JSON.stringify({
             filled,
             empty,
@@ -1490,6 +1558,18 @@
 
           if (data.facebook) {
             document.getElementById("facebookInput").value = data.facebook;
+          }
+
+          if (data.membership_mode) {
+
+            const radio = document.querySelector(
+              `input[name="membershipMode"][value="${data.membership_mode}"]`
+            );
+
+            if (radio) {
+              radio.checked = true;
+            }
+
           }
 
           if (data.progress_style) {
