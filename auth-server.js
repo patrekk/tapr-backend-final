@@ -582,7 +582,8 @@ app.post('/wallet/:slug', async (req, res) => {
         merchant_id: merchant.id,
         wallet_id,
         visit_count: 0,
-        pending_discount: 10
+        pending_discount: 10,
+        membership_status: "inactive"
       }])
       .select()
       .single();
@@ -840,6 +841,46 @@ app.get('/merchant/customers', verifySession, async (req, res) => {
     .eq('merchant_id', req.merchant.id);
 
   res.json(data);
+});
+
+app.post('/merchant/activate-customer', verifySession, async (req, res) => {
+
+  const { customer_id } = req.body;
+
+  if (!customer_id) {
+    return res.json({ error: "Missing customer id" });
+  }
+
+  const { data: customer } = await supabase
+    .from('customers')
+    .select('*')
+    .eq('id', customer_id)
+    .eq('merchant_id', req.merchant.id)
+    .single();
+
+  if (!customer) {
+    return res.json({ error: "Customer not found" });
+  }
+
+  const { error } = await supabase
+    .from('customers')
+    .update({
+      membership_status: "active"
+    })
+    .eq('id', customer_id);
+
+  if (error) {
+    console.log("ACTIVATE CUSTOMER ERROR:", error);
+
+    return res.json({
+      error: "Activation failed"
+    });
+  }
+
+  res.json({
+    success: true
+  });
+
 });
 
 // Scan logs
@@ -1179,6 +1220,12 @@ app.post('/scan', scanLimiter, verifySession, async (req, res) => {
 
     if (!customer) {
       return res.json({ error: 'Customer not found' });
+    }
+
+    if (customer.membership_status !== "active") {
+      return res.json({
+        error: "Membership inactive"
+      });
     }
 
     // ⏱️ COOLDOWN CHECK (10 seconds)

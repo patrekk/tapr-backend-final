@@ -647,6 +647,7 @@
                 <th>Name</th>
                 <th>Loop</th>
                 <th>Total</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody id="customersTable"></tbody>
@@ -1097,14 +1098,62 @@
 
           data.forEach(c => {
             table.innerHTML += `
-          <tr>
-            <td>${c.phone}</td>
-            <td>${c.name || "-"}</td>
-            <td>${c.visit_count}</td>
-            <td>${c.total_visits || 0}</td>
-          </tr>
-        `;
+  <tr>
+    <td>${c.phone}</td>
+
+    <td>${c.name || "-"}</td>
+
+    <td>
+      ${c.membership_status === "active"
+                ? "🟢 Active"
+                : "🟡 Inactive"}
+    </td>
+
+    <td>${c.total_visits || 0}</td>
+
+    <td>
+      ${c.membership_status !== "active"
+                ? `
+          <button onclick="activateCustomer('${c.id}')">
+            Activate
+          </button>
+        `
+                : "-"}
+    </td>
+  </tr>
+`;
           });
+        }
+
+        async function activateCustomer(customerId) {
+
+          const res = await fetch(`${API}/merchant/activate-customer`, {
+            method: "POST",
+
+            headers: {
+              "Content-Type": "application/json",
+              authorization: getToken()
+            },
+
+            body: JSON.stringify({
+              customer_id: customerId
+            })
+          });
+
+          const data = await res.json();
+
+          if (data.success) {
+
+            alert("Membership activated");
+
+            loadCustomers();
+
+          } else {
+
+            alert(data.error || "Activation failed");
+
+          }
+
         }
 
         async function loadLogs() {
