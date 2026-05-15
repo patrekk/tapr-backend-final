@@ -10,8 +10,11 @@ import bcrypt from 'bcrypt';
 import rateLimit from 'express-rate-limit';
 import multer from 'multer';
 import { info } from 'console';
+import { Resend } from 'resend';
 
 dotenv.config();
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 console.log("ENV CHECK:", {
   SUPABASE_URL: process.env.SUPABASE_URL,
