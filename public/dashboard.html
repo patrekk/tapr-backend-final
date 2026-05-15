@@ -1147,16 +1147,18 @@
     <th>Phone</th>
     <th>Name</th>
     <th>Status</th>
-    <th>Total</th>
+    <th>Loop</th>
+    <th>Total Visits</th>
     <th>Action</th>
   `;
 
           } else {
 
             head.innerHTML = `
-    <th>Phone</th>
-    <th>Name</th>
-    <th>Visits</th>
+              <th>Phone</th>
+              <th>Name</th>
+              <th>Loop</th>
+              <th>Total Visits</th>
   `;
 
           }
@@ -1179,6 +1181,8 @@
                   : "🟡 Inactive"}
         </td>
 
+        <td>${c.visit_count || 0}/5</td>
+
         <td>${c.total_visits || 0}</td>
 
         <td>
@@ -1200,16 +1204,18 @@
             else {
 
               table.innerHTML += `
-      <tr>
+                <tr>
 
-        <td>${c.phone}</td>
+                <td>${c.phone}</td>
 
-        <td>${c.name || "-"}</td>
+                <td>${c.name || "-"}</td>
 
-        <td>${c.total_visits || 0}</td>
+                <td>${c.visit_count || 0}/5</td>
 
-      </tr>
-    `;
+                <td>${c.total_visits || 0}</td>
+
+  </tr>
+`;
 
             }
 
