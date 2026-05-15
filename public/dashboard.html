@@ -384,6 +384,46 @@
       justify-content: flex-start;
     }
 
+    .upload-box {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px 18px;
+      border-radius: 12px;
+      border: 1px dashed #ccc;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      background: #fafafa;
+      transition: 0.15s ease;
+    }
+
+    .upload-box:hover {
+      background: #f3f4f6;
+      border-color: #999;
+    }
+
+    .file-name {
+      margin-top: 8px;
+      font-size: 12px;
+      color: #777;
+    }
+
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
     @media (min-width: 768px) {
       .sidebar {
         height: 100dvh;
@@ -665,7 +705,12 @@
           </div>
 
           <div style="margin-bottom:10px;">
-            <input type="file" id="logoInput">
+            <label class="upload-box">
+              <input type="file" id="logoInput" hidden>
+              <span>Upload Logo</span>
+            </label>
+
+            <div id="logoFileName" class="file-name"></div>
             <p style="font-size:12px; color:#777; margin-top:6px;">
               Recommended: square logo (1:1), at least 300x300px
             </p>
@@ -701,7 +746,12 @@
               This image appears at the bottom of your pass
             </div>
 
-            <input type="file" id="passHeroInput">
+            <label class="upload-box">
+              <input type="file" id="passHeroInput" hidden>
+              <span>Upload Hero Image</span>
+            </label>
+
+            <div id="heroFileName" class="file-name"></div>
 
             <p style="font-size:12px; color:#777; margin-top:6px;">
               Hero image (3:1 ratio recommended)
@@ -1364,7 +1414,17 @@
 
         async function saveProfile(event) {
           const btn = event.target;
-          btn.innerText = "Saving...";
+          btn.innerHTML = `
+  <div style="
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+  ">
+    <div class="spinner"></div>
+    <span>Saving</span>
+  </div>
+`;
           btn.disabled = true;
 
           const name = document.getElementById("nameInput").value;
@@ -1649,27 +1709,41 @@
           el.style.display = el.style.display === "none" ? "block" : "none";
         }
 
-        document.addEventListener("DOMContentLoaded", async () => {
+        document.addEventListener("DOMContentLoaded", () => {
 
-          await applyBranding();
-
-          await loadMerchantName();
-
-          await loadPass();
-
-          await loadStats();
-
-          await loadCustomers();
-
-          await loadProfile();
-
-          await loadLogs();
+          applyBranding();
+          loadMerchantName();
+          loadStats();
+          loadCustomers();
+          loadProfile();
+          loadPass();
+          loadLogs();
 
           const saved = localStorage.getItem("sidebarCollapsed");
 
           if (saved === "true") {
             document.getElementById("sidebar").classList.add("collapsed");
           }
+
+          // 🔥 FILE NAME DISPLAY
+
+          document.getElementById("logoInput")
+            .addEventListener("change", e => {
+
+              const file = e.target.files[0];
+
+              document.getElementById("logoFileName")
+                .innerText = file ? file.name : "";
+            });
+
+          document.getElementById("passHeroInput")
+            .addEventListener("change", e => {
+
+              const file = e.target.files[0];
+
+              document.getElementById("heroFileName")
+                .innerText = file ? file.name : "";
+            });
 
         });
 
