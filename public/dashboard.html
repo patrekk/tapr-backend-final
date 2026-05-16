@@ -690,6 +690,49 @@
         </div>
 
         <div class="section">
+
+          <h3>Subscription</h3>
+
+          <div id="billingBox">
+
+            <div style="
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:20px;
+      flex-wrap:wrap;
+    ">
+
+              <div>
+
+                <div style="
+          font-size:14px;
+          color:#777;
+          margin-bottom:6px;
+        ">
+                  Current Plan
+                </div>
+
+                <div id="subscriptionStatus" style="
+            font-size:22px;
+            font-weight:700;
+          ">
+                  Loading...
+                </div>
+
+              </div>
+
+              <button onclick="startCheckout(event)">
+                Upgrade
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+        <div class="section">
           <h3>Customers</h3>
           <table>
             <thead>
@@ -1582,6 +1625,13 @@
 
           const data = await res.json();
 
+          const status =
+            data.subscription_status || "inactive";
+
+          document.getElementById(
+            "subscriptionStatus"
+          ).innerText = status;
+
           if (data.name) document.getElementById("nameInput").value = data.name;
           if (data.email) document.getElementById("emailInput").value = data.email;
           if (data.hex_color) document.getElementById("colorInput").value = data.hex_color;
@@ -1925,6 +1975,65 @@
               document.getElementById("rewardInput").value = style.reward || "";
             } catch { }
           }
+        }
+
+        async function startCheckout(event) {
+
+          const btn = event.target;
+
+          btn.disabled = true;
+
+          btn.innerHTML = `
+    <div style="
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+    ">
+      <div class="spinner"></div>
+      Redirecting
+    </div>
+  `;
+
+          try {
+
+            const res = await fetch(
+              `${API}/merchant/create-checkout`,
+              {
+                method: "POST",
+
+                headers: {
+                  authorization: getToken()
+                }
+              }
+            );
+
+            const data = await res.json();
+
+            console.log(data);
+
+            if (data.checkout_url) {
+
+              window.location.href =
+                data.checkout_url;
+
+              return;
+            }
+
+            showToast(
+              data.error || "Checkout failed"
+            );
+
+          } catch (err) {
+
+            console.log(err);
+
+            showToast("Something went wrong");
+          }
+
+          btn.disabled = false;
+
+          btn.innerText = "Upgrade";
         }
 
         function getContrastColor(hex) {

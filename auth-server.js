@@ -24,6 +24,12 @@ console.log("ENV CHECK:", {
 const app = express();
 app.set('trust proxy', 1);
 app.use(cors());
+app.use(
+  '/paymongo/webhook',
+  express.raw({
+    type: 'application/json'
+  })
+);
 app.use(express.json());
 
 const upload = multer({ storage: multer.memoryStorage() });
@@ -423,6 +429,53 @@ function generateSaveJWT(objectId) {
     PRIVATE_KEY,
     { algorithm: "RS256" }
   );
+}
+
+async function activateMerchantSubscription(
+  merchantId,
+  months = 1
+) {
+
+  const expiresAt = new Date(
+    Date.now() +
+    months * 30 * 24 * 60 * 60 * 1000
+  ).toISOString();
+
+  const { error } = await supabase
+    .from('merchants')
+    .update({
+      subscription_status: "active",
+
+      subscription_expires_at:
+        expiresAt
+    })
+    .eq('id', merchantId);
+
+  if (error) {
+    console.log(
+      "ACTIVATE SUB ERROR:",
+      error
+    );
+  }
+}
+
+async function cancelMerchantSubscription(
+  merchantId
+) {
+
+  const { error } = await supabase
+    .from('merchants')
+    .update({
+      subscription_status: "cancelled"
+    })
+    .eq('id', merchantId);
+
+  if (error) {
+    console.log(
+      "CANCEL SUB ERROR:",
+      error
+    );
+  }
 }
 
 // ---------- ROUTES ----------
@@ -1364,6 +1417,108 @@ app.post('/scan', scanLimiter, verifySession, async (req, res) => {
   }
 });
 
+app.post('/billing/webhook', async (req, res) => {
+
+  console.log("WEBHOOK RECEIVED");
+
+  res.sendStatus(200);
+
+});
+
+app.post(
+  '/paymongo/webhook',
+  async (req, res) => {
+
+    try {
+
+      const payload =
+        JSON.parse(req.body.toString());
+
+      console.log(
+        "PAYMONGO WEBHOOK:",
+        JSON.stringify(payload, null, 2)
+      );
+
+      const eventType =
+        payload.data.attributes.type;
+
+      // SUCCESSFUL PAYMENT
+      if (
+        eventType ===
+        "checkout_session.payment.paid"
+      ) {
+
+        const attributes =
+          payload.data.attributes.data.attributes;
+
+        const metadata =
+          attributes.metadata || {};
+
+        const merchantId =
+          metadata.merchant_id;
+
+        if (!merchantId) {
+
+          console.log(
+            "NO MERCHANT ID"
+          );
+
+          return res.sendStatus(200);
+        }
+
+        // 🔥 EXTEND 30 DAYS
+
+        const expires =
+          new Date(
+            Date.now()
+            + 30 * 24 * 60 * 60 * 1000
+          );
+
+        const { error } = await supabase
+
+          .from('merchants')
+
+          .update({
+
+            subscription_status: "active",
+
+            subscription_plan: "monthly",
+
+            subscription_expires_at:
+              expires.toISOString()
+
+          })
+
+          .eq('id', merchantId);
+
+        if (error) {
+
+          console.log(
+            "SUBSCRIPTION UPDATE ERROR:",
+            error
+          );
+        }
+
+        console.log(
+          "SUBSCRIPTION ACTIVATED:",
+          merchantId
+        );
+      }
+
+      res.sendStatus(200);
+
+    } catch (err) {
+
+      console.log(
+        "PAYMONGO WEBHOOK ERROR:",
+        err
+      );
+
+      res.sendStatus(500);
+    }
+  }
+);
+
 // ---------- TEST ROUTE ----------
 
 app.get('/test-live', (req, res) => {
@@ -1413,6 +1568,122 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.get(/^\/merchant\/.*/, (req, res) => {
   res.status(404).json({ error: "Not found" });
 });
+
+app.post(
+  '/merchant/create-checkout',
+  verifySession,
+  async (req, res) => {
+
+    try {
+
+      const merchant = req.merchant;
+
+      const secretKey =
+        process.env.PAYMONGO_SECRET_KEY;
+
+      const auth = Buffer
+        .from(secretKey + ":")
+        .toString("base64");
+
+      const response = await fetch(
+        "https://api.paymongo.com/v1/checkout_sessions",
+        {
+          method: "POST",
+
+          headers: {
+            accept: "application/json",
+            "content-type": "application/json",
+            authorization: `Basic ${auth}`
+          },
+
+          body: JSON.stringify({
+            data: {
+              attributes: {
+
+                billing: {
+                  name: merchant.name,
+                  email: merchant.email
+                },
+
+                send_email_receipt: true,
+
+                show_description: true,
+                show_line_items: true,
+
+                line_items: [
+                  {
+                    currency: "PHP",
+
+                    amount: 99000,
+
+                    name: "Tapr Monthly Subscription",
+
+                    quantity: 1,
+
+                    metadata: {
+                      merchant_id: merchant.id
+                    }
+                  }
+                ],
+
+                payment_method_types: [
+                  "gcash",
+                  "paymaya",
+                  "card"
+                ],
+
+                success_url:
+                  "https://usetapr.com/dashboard?payment=success",
+
+                cancel_url:
+                  "https://usetapr.com/dashboard?payment=cancelled",
+
+              }
+            }
+          })
+        }
+      );
+
+      const data = await response.json();
+
+      console.log("PAYMONGO:", data);
+
+      if (!response.ok) {
+
+        return res.json({
+          error: "checkout_failed",
+          details: data
+        });
+      }
+
+      const checkout =
+        data.data.attributes.checkout_url;
+
+      await supabase
+        .from('merchants')
+        .update({
+          paymongo_checkout_id:
+            data.data.id
+        })
+        .eq('id', merchant.id);
+
+      res.json({
+        checkout_url: checkout
+      });
+
+    } catch (err) {
+
+      console.log(
+        "CREATE CHECKOUT ERROR:",
+        err
+      );
+
+      res.json({
+        error: "server_error"
+      });
+    }
+  }
+);
 
 // fallback
 app.use((req, res) => {
