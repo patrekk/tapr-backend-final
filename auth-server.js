@@ -1670,6 +1670,10 @@ app.post(
             data: {
               attributes: {
 
+                metadata: {
+                  merchant_id: merchant.id
+                },
+
                 billing: {
                   name: merchant.name,
                   email: merchant.email
