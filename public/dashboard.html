@@ -1916,10 +1916,15 @@
 
           let status = "🟡 Inactive";
 
-          if (customer.membership_status === "active") {
-            status = expired
-              ? "🔴 Expired"
-              : "🟢 Active";
+          if (expired) {
+
+            status = "🔴 Expired";
+
+          } else if (
+            customer.membership_status === "active"
+          ) {
+
+            status = "🟢 Active";
           }
 
           content.innerHTML = `
