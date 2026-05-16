@@ -693,82 +693,110 @@
 
           <h3>Subscription</h3>
 
-          <div id="billingBox">
+          <div style="
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+  ">
 
-            <div style="
-      display:flex;
-      gap:12px;
-      margin-bottom:20px;
-      flex-wrap:wrap;
-    ">
-
-              <button id="growthBtn" class="secondary" onclick="selectPlan('growth')">
-                Growth
-              </button>
-
-              <button id="proBtn" class="secondary" onclick="selectPlan('pro')">
-                Pro
-              </button>
-
-            </div>
-
-            <div style="
-      display:flex;
-      gap:12px;
-      margin-bottom:20px;
-      flex-wrap:wrap;
-    ">
-
-              <button id="monthlyBtn" class="secondary" onclick="selectInterval('monthly')">
-                Monthly
-              </button>
-
-              <button id="yearlyBtn" class="secondary" onclick="selectInterval('yearly')">
-                Yearly
-              </button>
-
-            </div>
-
-            <div style="
-      margin-bottom:20px;
-    ">
+            <!-- CURRENT PLAN -->
+            <div>
 
               <div style="
-        font-size:14px;
+        font-size:13px;
         color:#777;
         margin-bottom:6px;
       ">
-                Current Plan
+                Current Subscription
               </div>
 
-              <div id="subscriptionStatus" style="
-          font-size:22px;
-          font-weight:700;
-          margin-bottom:16px;
-        ">
+              <div id="currentSubscription" style="
+        font-size:24px;
+        font-weight:700;
+      ">
                 Loading...
               </div>
 
-              <div id="dynamicPrice" style="
-          font-size:36px;
-          font-weight:700;
-        ">
+            </div>
+
+            <!-- PLAN SELECT -->
+            <div>
+
+              <div style="
+        font-size:13px;
+        color:#777;
+        margin-bottom:10px;
+      ">
+                Select Plan
+              </div>
+
+              <div style="display:flex; gap:10px;">
+
+                <button id="growthBtn" class="secondary" onclick="selectPlan('growth')">
+                  Growth
+                </button>
+
+                <button id="proBtn" class="secondary" onclick="selectPlan('pro')">
+                  Pro
+                </button>
+
+              </div>
+
+            </div>
+
+            <!-- INTERVAL -->
+            <div>
+
+              <div style="
+        font-size:13px;
+        color:#777;
+        margin-bottom:10px;
+      ">
+                Billing
+              </div>
+
+              <div style="display:flex; gap:10px;">
+
+                <button id="monthlyBtn" class="secondary" onclick="selectInterval('monthly')">
+                  Monthly
+                </button>
+
+                <button id="yearlyBtn" class="secondary" onclick="selectInterval('yearly')">
+                  Yearly
+                </button>
+
+              </div>
+
+            </div>
+
+            <!-- PRICE -->
+            <div>
+
+              <div id="selectedPrice" style="
+        font-size:48px;
+        font-weight:700;
+        line-height:1;
+      ">
                 ₱999
               </div>
 
-              <div id="dynamicLabel" style="
-          font-size:14px;
+              <div id="selectedLabel" style="
           color:#777;
-          margin-top:4px;
+          margin-top:8px;
         ">
                 Growth Monthly
               </div>
 
             </div>
 
-            <button onclick="startCheckout(event)">
-              Upgrade
-            </button>
+            <!-- CTA -->
+            <div>
+
+              <button onclick="startCheckout(event)">
+                Upgrade
+              </button>
+
+            </div>
 
           </div>
 
@@ -1091,6 +1119,7 @@
         let merchantMode = "free";
         let selectedPlan = "growth";
         let selectedInterval = "monthly";
+        let currentMerchant = null;
 
         function showPage(page, el) {
           document.getElementById("dashboardPage").style.display = "none";
@@ -1145,87 +1174,6 @@
             toast.classList.remove("show");
           }, 2500);
 
-        }
-
-        function updateBillingUI() {
-
-          const growthBtn =
-            document.getElementById("growthBtn");
-
-          const proBtn =
-            document.getElementById("proBtn");
-
-          const monthlyBtn =
-            document.getElementById("monthlyBtn");
-
-          const yearlyBtn =
-            document.getElementById("yearlyBtn");
-
-          growthBtn.classList.remove("active");
-          proBtn.classList.remove("active");
-          monthlyBtn.classList.remove("active");
-          yearlyBtn.classList.remove("active");
-
-          if (selectedPlan === "growth") {
-            growthBtn.classList.add("active");
-          } else {
-            proBtn.classList.add("active");
-          }
-
-          if (selectedInterval === "monthly") {
-            monthlyBtn.classList.add("active");
-          } else {
-            yearlyBtn.classList.add("active");
-          }
-
-          let price = "₱999";
-          let label = "Growth Monthly";
-
-          if (
-            selectedPlan === "growth" &&
-            selectedInterval === "yearly"
-          ) {
-            price = "₱9,990";
-            label = "Growth Yearly";
-          }
-
-          if (
-            selectedPlan === "pro" &&
-            selectedInterval === "monthly"
-          ) {
-            price = "₱2,499";
-            label = "Pro Monthly";
-          }
-
-          if (
-            selectedPlan === "pro" &&
-            selectedInterval === "yearly"
-          ) {
-            price = "₱24,990";
-            label = "Pro Yearly";
-          }
-
-          document.getElementById(
-            "dynamicPrice"
-          ).innerText = price;
-
-          document.getElementById(
-            "dynamicLabel"
-          ).innerText = label;
-        }
-
-        function selectPlan(plan) {
-
-          selectedPlan = plan;
-
-          updateBillingUI();
-        }
-
-        function selectInterval(interval) {
-
-          selectedInterval = interval;
-
-          updateBillingUI();
         }
 
         function renderBillingBanner(merchant) {
@@ -1744,26 +1692,56 @@
         }
 
         async function loadProfile() {
-          const res = await fetch(`${API}/merchant/me`, {
-            headers: { authorization: getToken() }
-          });
+
+          const res = await fetch(
+            `${API}/merchant/me`,
+            {
+              headers: {
+                authorization: getToken()
+              }
+            }
+          );
 
           const data = await res.json();
 
+          currentMerchant = data;
+
           const plan =
             data.subscription_plan || "starter";
+
+          const interval =
+            data.subscription_interval || "monthly";
 
           const formattedPlan =
             plan.charAt(0).toUpperCase()
             + plan.slice(1);
 
-          document.getElementById(
-            "subscriptionStatus"
-          ).innerText = formattedPlan;
+          const formattedInterval =
+            interval.charAt(0).toUpperCase()
+            + interval.slice(1);
 
-          if (data.name) document.getElementById("nameInput").value = data.name;
-          if (data.email) document.getElementById("emailInput").value = data.email;
-          if (data.hex_color) document.getElementById("colorInput").value = data.hex_color;
+          document.getElementById(
+            "currentSubscription"
+          ).innerText =
+            `${formattedPlan} ${formattedInterval}`;
+
+          if (data.name) {
+            document.getElementById(
+              "nameInput"
+            ).value = data.name;
+          }
+
+          if (data.email) {
+            document.getElementById(
+              "emailInput"
+            ).value = data.email;
+          }
+
+          if (data.hex_color) {
+            document.getElementById(
+              "colorInput"
+            ).value = data.hex_color;
+          }
         }
 
         async function applyBranding() {
@@ -2195,6 +2173,87 @@
         function toggleLoop() {
           const el = document.getElementById("loopContent");
           el.style.display = el.style.display === "none" ? "block" : "none";
+        }
+
+        function selectPlan(plan) {
+
+          selectedPlan = plan;
+
+          updateBillingUI();
+        }
+
+        function selectInterval(interval) {
+
+          selectedInterval = interval;
+
+          updateBillingUI();
+        }
+
+        function updateBillingUI() {
+
+          const growthBtn =
+            document.getElementById("growthBtn");
+
+          const proBtn =
+            document.getElementById("proBtn");
+
+          const monthlyBtn =
+            document.getElementById("monthlyBtn");
+
+          const yearlyBtn =
+            document.getElementById("yearlyBtn");
+
+          growthBtn.classList.remove("active");
+          proBtn.classList.remove("active");
+          monthlyBtn.classList.remove("active");
+          yearlyBtn.classList.remove("active");
+
+          if (selectedPlan === "growth") {
+            growthBtn.classList.add("active");
+          } else {
+            proBtn.classList.add("active");
+          }
+
+          if (selectedInterval === "monthly") {
+            monthlyBtn.classList.add("active");
+          } else {
+            yearlyBtn.classList.add("active");
+          }
+
+          let price = "₱999";
+          let label = "Growth Monthly";
+
+          if (
+            selectedPlan === "growth" &&
+            selectedInterval === "yearly"
+          ) {
+            price = "₱9,990";
+            label = "Growth Yearly";
+          }
+
+          if (
+            selectedPlan === "pro" &&
+            selectedInterval === "monthly"
+          ) {
+            price = "₱2,499";
+            label = "Pro Monthly";
+          }
+
+          if (
+            selectedPlan === "pro" &&
+            selectedInterval === "yearly"
+          ) {
+            price = "₱24,990";
+            label = "Pro Yearly";
+          }
+
+          document.getElementById(
+            "selectedPrice"
+          ).innerText = price;
+
+          document.getElementById(
+            "selectedLabel"
+          ).innerText = label;
         }
 
         function closeCustomerModal() {
