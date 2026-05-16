@@ -1519,6 +1519,69 @@ app.post(
   }
 );
 
+app.post(
+  '/paymongo/register-webhook',
+  async (req, res) => {
+
+    try {
+
+      const secretKey =
+        process.env.PAYMONGO_SECRET_KEY;
+
+      const auth = Buffer
+        .from(secretKey + ":")
+        .toString("base64");
+
+      const response = await fetch(
+        "https://api.paymongo.com/v1/webhooks",
+        {
+          method: "POST",
+
+          headers: {
+            accept: "application/json",
+            "content-type": "application/json",
+            authorization: `Basic ${auth}`
+          },
+
+          body: JSON.stringify({
+            data: {
+              attributes: {
+
+                events: [
+                  "checkout_session.payment.paid"
+                ],
+
+                url:
+                  "https://tapr-backend-final-production.up.railway.app/paymongo/webhook"
+              }
+            }
+          })
+        }
+      );
+
+      const data = await response.json();
+
+      console.log(
+        "REGISTER WEBHOOK:",
+        data
+      );
+
+      res.json(data);
+
+    } catch (err) {
+
+      console.log(
+        "REGISTER WEBHOOK ERROR:",
+        err
+      );
+
+      res.json({
+        error: "failed"
+      });
+    }
+  }
+);
+
 // ---------- TEST ROUTE ----------
 
 app.get('/test-live', (req, res) => {
