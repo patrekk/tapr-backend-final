@@ -1961,6 +1961,52 @@ app.use((req, res) => {
   res.status(404).sendFile(path.join(__dirname, 'public', '404.html'));
 });
 
+app.get(
+  '/test-webhook-replay',
+  async (req, res) => {
+
+    const fakeEventId =
+      "test_duplicate_event";
+
+    // 🔥 CHECK EXISTING
+
+    const { data: existingWebhook } =
+      await supabase
+        .from('processed_webhooks')
+        .select('id')
+        .eq('event_id', fakeEventId)
+        .maybeSingle();
+
+    if (existingWebhook) {
+
+      console.log(
+        "DUPLICATE WEBHOOK BLOCKED"
+      );
+
+      return res.json({
+        blocked: true
+      });
+    }
+
+    // 🔥 INSERT FIRST TIME
+
+    await supabase
+      .from('processed_webhooks')
+      .insert([{
+        event_id: fakeEventId
+      }]);
+
+    console.log(
+      "WEBHOOK PROCESSED FIRST TIME"
+    );
+
+    res.json({
+      processed: true
+    });
+
+  }
+);
+
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on ${PORT}`);
 });
