@@ -644,6 +644,9 @@ app.get('/merchant/me', verifySession, async (req, res) => {
     subscription_expires_at:
       req.merchant.subscription_expires_at,
 
+    subscription_interval:
+      req.merchant.subscription_interval,
+
     trial_ends_at:
       req.merchant.trial_ends_at
   });
