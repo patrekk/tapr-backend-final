@@ -797,12 +797,34 @@ app.get('/merchant/stats', verifySession, async (req, res) => {
 
 // Customers list
 app.get('/merchant/customers', verifySession, async (req, res) => {
+
   const { data } = await supabase
     .from('customers')
     .select('*')
     .eq('merchant_id', req.merchant.id);
 
-  res.json(data);
+  const now = new Date();
+
+  const customers = (data || []).map(customer => {
+
+    let computed_status = customer.membership_status;
+
+    if (
+      customer.membership_expires_at &&
+      new Date() > new Date(customer.membership_expires_at)
+    ) {
+      computed_status = "expired";
+    }
+
+    return {
+      ...customer,
+      computed_status
+    };
+
+  });
+
+  res.json(customers);
+
 });
 
 app.post('/merchant/activate-customer', verifySession, async (req, res) => {

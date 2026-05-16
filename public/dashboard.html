@@ -1266,9 +1266,11 @@
         <td>${c.name || "-"}</td>
 
         <td>
-          ${c.membership_status === "active"
+          ${c.computed_status === "active"
                   ? "🟢 Active"
-                  : "🟡 Inactive"}
+                  : c.computed_status === "expired"
+                    ? "🔴 Expired"
+                    : "🟡 Inactive"}
         </td>
 
         <td>${c.visit_count || 0}/5</td>
