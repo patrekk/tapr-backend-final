@@ -1519,7 +1519,7 @@ app.post(
   }
 );
 
-app.post(
+app.get(
   '/paymongo/register-webhook',
   async (req, res) => {
 
