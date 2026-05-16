@@ -1431,7 +1431,8 @@ app.post(
 
     try {
 
-      const payload = req.body;
+      const payload =
+        JSON.parse(req.body.toString());
 
       console.log(
         "PAYMONGO WEBHOOK:",
