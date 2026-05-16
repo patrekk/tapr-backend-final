@@ -958,6 +958,46 @@
 
       <div id="toast" class="toast"></div>
 
+      <div id="customerModal" style="
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.45);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+  padding:20px;
+">
+
+        <div style="
+    background:white;
+    width:100%;
+    max-width:420px;
+    border-radius:20px;
+    padding:24px;
+    box-sizing:border-box;
+    position:relative;
+  ">
+
+          <button onclick="closeCustomerModal()" style="
+      position:absolute;
+      top:14px;
+      right:14px;
+      border:none;
+      background:none;
+      font-size:20px;
+      cursor:pointer;
+      color:#777;
+    ">
+            ✕
+          </button>
+
+          <div id="customerModalContent"></div>
+
+        </div>
+
+      </div>
+
       <script>
         const API = "https://tapr-backend-final-production.up.railway.app";
         const PUBLIC_URL = "https://usetapr.com";
@@ -1239,7 +1279,6 @@
     <th>Status</th>
     <th>Loop</th>
     <th>Total Visits</th>
-    <th>Action</th>
   `;
 
           } else {
@@ -1259,7 +1298,10 @@
             if (merchantMode === "paid") {
 
               table.innerHTML += `
-      <tr>
+      <tr
+  onclick='openCustomerModal(${JSON.stringify(c)})'
+  style="cursor:pointer;"
+>
 
         <td>${c.phone}</td>
 
@@ -1277,16 +1319,6 @@
 
         <td>${c.total_visits || 0}</td>
 
-        <td>
-          ${c.membership_status !== "active"
-                  ? `
-              <button onclick="activateCustomer('${c.id}')">
-                Activate
-              </button>
-            `
-                  : "-"}
-        </td>
-
       </tr>
     `;
 
@@ -1296,7 +1328,10 @@
             else {
 
               table.innerHTML += `
-                <tr>
+                <tr
+  onclick='openCustomerModal(${JSON.stringify(c)})'
+  style="cursor:pointer;"
+>
 
                 <td>${c.phone}</td>
 
@@ -1795,6 +1830,194 @@
         function toggleLoop() {
           const el = document.getElementById("loopContent");
           el.style.display = el.style.display === "none" ? "block" : "none";
+        }
+
+        function closeCustomerModal() {
+
+          document.getElementById("customerModal")
+            .style.display = "none";
+        }
+
+        async function renewMembership(customerId, btn) {
+
+          btn.disabled = true;
+
+          btn.innerHTML = `
+    <div style="
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+    ">
+      <div class="spinner"></div>
+      Renewing
+    </div>
+  `;
+
+          const res = await fetch(
+            `${API}/merchant/activate-customer`,
+            {
+              method: "POST",
+
+              headers: {
+                "Content-Type": "application/json",
+                authorization: getToken()
+              },
+
+              body: JSON.stringify({
+                customer_id: customerId
+              })
+            }
+          );
+
+          const data = await res.json();
+
+          if (data.success) {
+
+            showToast("Membership renewed");
+
+            closeCustomerModal();
+
+            loadCustomers();
+
+          } else {
+
+            showToast(data.error || "Renew failed");
+
+            btn.disabled = false;
+            btn.innerText = "Renew Membership";
+          }
+        }
+
+        function openCustomerModal(customer) {
+
+          const modal =
+            document.getElementById("customerModal");
+
+          const content =
+            document.getElementById("customerModalContent");
+
+          const expired =
+            customer.membership_expires_at &&
+            new Date() > new Date(customer.membership_expires_at);
+
+          const daysLeft =
+            customer.membership_expires_at
+              ? Math.max(
+                0,
+                Math.ceil(
+                  (
+                    new Date(customer.membership_expires_at)
+                    - new Date()
+                  ) / (1000 * 60 * 60 * 24)
+                )
+              )
+              : null;
+
+          let status = "🟡 Inactive";
+
+          if (customer.membership_status === "active") {
+            status = expired
+              ? "🔴 Expired"
+              : "🟢 Active";
+          }
+
+          content.innerHTML = `
+
+    <div style="
+      font-size:22px;
+      font-weight:700;
+      margin-bottom:20px;
+    ">
+      ${customer.name || "Customer"}
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:14px;">
+
+      <div>
+        <div style="font-size:12px; color:#777;">
+          Phone
+        </div>
+
+        <div>${customer.phone}</div>
+      </div>
+
+      <div>
+        <div style="font-size:12px; color:#777;">
+          Birthday
+        </div>
+
+        <div>${customer.birthday || "-"}</div>
+      </div>
+
+      <div>
+        <div style="font-size:12px; color:#777;">
+          Membership Status
+        </div>
+
+        <div>${status}</div>
+      </div>
+
+      <div>
+        <div style="font-size:12px; color:#777;">
+          Expiration
+        </div>
+
+        <div>
+          ${customer.membership_expires_at
+              ? new Date(
+                customer.membership_expires_at
+              ).toLocaleDateString()
+              : "-"
+            }
+        </div>
+      </div>
+
+      <div>
+        <div style="font-size:12px; color:#777;">
+          Days Remaining
+        </div>
+
+        <div>
+          ${daysLeft !== null
+              ? daysLeft + " days"
+              : "-"
+            }
+        </div>
+      </div>
+
+      <div>
+        <div style="font-size:12px; color:#777;">
+          Total Visits
+        </div>
+
+        <div>${customer.total_visits || 0}</div>
+      </div>
+
+      <div>
+        <div style="font-size:12px; color:#777;">
+          Current Progress
+        </div>
+
+        <div>${customer.visit_count || 0}/5</div>
+      </div>
+
+      ${customer.membership_status !== "active" || expired
+              ? `
+            <button
+              onclick="renewMembership('${customer.id}', this)"
+              style="margin-top:10px;"
+            >
+              Renew Membership
+            </button>
+          `
+              : ""
+            }
+
+    </div>
+  `;
+
+          modal.style.display = "flex";
         }
 
         document.addEventListener("DOMContentLoaded", () => {
