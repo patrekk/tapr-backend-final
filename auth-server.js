@@ -168,6 +168,54 @@ const verifySession = async (req, res, next) => {
   }
 };
 
+function getResolvedSubscriptionStatus(merchant) {
+
+  // ACTIVE PAID SUBSCRIPTION
+  if (
+    merchant.subscription_status === "active"
+    &&
+    merchant.subscription_expires_at
+    &&
+    new Date() < new Date(merchant.subscription_expires_at)
+  ) {
+
+    return "active";
+  }
+
+  // ACTIVE TRIAL
+  if (
+    merchant.subscription_status === "trial"
+    &&
+    merchant.trial_ends_at
+    &&
+    new Date() < new Date(merchant.trial_ends_at)
+  ) {
+
+    return "trial";
+  }
+
+  return "inactive";
+}
+
+function requireActiveSubscription(req, res, next) {
+
+  const resolvedStatus =
+    getResolvedSubscriptionStatus(req.merchant);
+
+  if (
+    resolvedStatus === "active"
+    ||
+    resolvedStatus === "trial"
+  ) {
+
+    return next();
+  }
+
+  return res.status(403).json({
+    error: "Subscription inactive"
+  });
+}
+
 function generateCustomerToken(customer, merchant) {
   return jwt.sign({
     phone: customer.phone,
@@ -622,6 +670,9 @@ app.get('/merchant/me', verifySession, async (req, res) => {
     return res.json({ debug: "NO MERCHANT ATTACHED" });
   }
 
+  const resolvedStatus =
+    getResolvedSubscriptionStatus(req.merchant);
+
   res.json({
     name: req.merchant.name,
     slug: req.merchant.slug,
@@ -636,7 +687,7 @@ app.get('/merchant/me', verifySession, async (req, res) => {
     membership_mode: req.merchant.membership_mode,
 
     subscription_status:
-      req.merchant.subscription_status,
+      resolvedStatus,
 
     subscription_plan:
       req.merchant.subscription_plan,
@@ -824,76 +875,84 @@ app.post('/merchant/change-password', verifySession, async (req, res) => {
 });
 
 // Stats
-app.get('/merchant/stats', verifySession, async (req, res) => {
-  try {
-    const merchantId = req.merchant.id;
+app.get(
+  '/merchant/stats',
+  verifySession,
+  requireActiveSubscription,
+  async (req, res) => {
+    try {
+      const merchantId = req.merchant.id;
 
-    const { data: customers } = await supabase
-      .from('customers')
-      .select('total_visits')
-      .eq('merchant_id', merchantId);
+      const { data: customers } = await supabase
+        .from('customers')
+        .select('total_visits')
+        .eq('merchant_id', merchantId);
 
-    const safeCustomers = customers || [];
+      const safeCustomers = customers || [];
 
-    const totalCustomers = safeCustomers.length;
+      const totalCustomers = safeCustomers.length;
 
-    const totalVisits = safeCustomers.reduce(
-      (sum, c) => sum + (c.total_visits || 0),
-      0
-    );
+      const totalVisits = safeCustomers.reduce(
+        (sum, c) => sum + (c.total_visits || 0),
+        0
+      );
 
-    const avgVisits =
-      totalCustomers > 0
-        ? (totalVisits / totalCustomers).toFixed(1)
-        : 0;
+      const avgVisits =
+        totalCustomers > 0
+          ? (totalVisits / totalCustomers).toFixed(1)
+          : 0;
 
-    res.json({
-      total_customers: totalCustomers,
-      total_visits: totalVisits,
-      avg_visits: avgVisits
-    });
+      res.json({
+        total_customers: totalCustomers,
+        total_visits: totalVisits,
+        avg_visits: avgVisits
+      });
 
-  } catch (err) {
-    console.log("STATS ERROR:", err);
-    res.json({
-      total_customers: 0,
-      total_visits: 0,
-      avg_visits: 0
-    });
-  }
-});
-
-// Customers list
-app.get('/merchant/customers', verifySession, async (req, res) => {
-
-  const { data } = await supabase
-    .from('customers')
-    .select('*')
-    .eq('merchant_id', req.merchant.id);
-
-  const now = new Date();
-
-  const customers = (data || []).map(customer => {
-
-    let computed_status = customer.membership_status;
-
-    if (
-      customer.membership_expires_at &&
-      new Date() > new Date(customer.membership_expires_at)
-    ) {
-      computed_status = "expired";
+    } catch (err) {
+      console.log("STATS ERROR:", err);
+      res.json({
+        total_customers: 0,
+        total_visits: 0,
+        avg_visits: 0
+      });
     }
-
-    return {
-      ...customer,
-      computed_status
-    };
-
   });
 
-  res.json(customers);
+// Customers list
+app.get(
+  '/merchant/customers',
+  verifySession,
+  requireActiveSubscription,
+  async (req, res) => {
 
-});
+    const { data } = await supabase
+      .from('customers')
+      .select('*')
+      .eq('merchant_id', req.merchant.id);
+
+    const now = new Date();
+
+    const customers = (data || []).map(customer => {
+
+      let computed_status = customer.membership_status;
+
+      if (
+        customer.membership_expires_at &&
+        new Date() > new Date(customer.membership_expires_at)
+      ) {
+        computed_status = "expired";
+      }
+
+      return {
+        ...customer,
+        computed_status
+      };
+
+    });
+
+    res.json(customers);
+
+  });
 
 app.post('/merchant/activate-customer', verifySession, async (req, res) => {
 
@@ -941,27 +1000,31 @@ app.post('/merchant/activate-customer', verifySession, async (req, res) => {
 });
 
 // Scan logs
-app.get('/merchant/scan-logs', verifySession, async (req, res) => {
-  const { data, error } = await supabase
-    .from('scan_logs')
-    .select(`
+app.get(
+  '/merchant/scan-logs',
+  verifySession,
+  requireActiveSubscription,
+  async (req, res) => {
+    const { data, error } = await supabase
+      .from('scan_logs')
+      .select(`
     phone,
     scanned_at,
     result,
     customers ( name )
   `)
-    .eq('merchant_id', req.merchant.id)
-    .order('scanned_at', { ascending: false });
+      .eq('merchant_id', req.merchant.id)
+      .order('scanned_at', { ascending: false });
 
-  if (error) {
-    console.log("SCAN LOGS ERROR:", error);
-    return res.status(500).json({
-      error: "failed_to_load_scan_logs"
-    });
-  }
+    if (error) {
+      console.log("SCAN LOGS ERROR:", error);
+      return res.status(500).json({
+        error: "failed_to_load_scan_logs"
+      });
+    }
 
-  res.json(data);
-});
+    res.json(data);
+  });
 
 app.get('/merchant/:slug', async (req, res) => {
   const { slug } = req.params;
@@ -1252,173 +1315,178 @@ const scanLimiter = rateLimit({
   max: 10
 });
 
-app.post('/scan', scanLimiter, verifySession, async (req, res) => {
-  try {
-    const { token } = req.body;
-
-    if (!token) return res.json({ error: 'No token' });
-
-    // 🔐 Decode QR
-    let decoded;
+app.post(
+  '/scan',
+  scanLimiter,
+  verifySession,
+  requireActiveSubscription,
+  async (req, res) => {
     try {
-      decoded = jwt.verify(token, process.env.JWT_SECRET);
-    } catch {
-      return res.json({ error: 'Invalid or expired QR' });
-    }
+      const { token } = req.body;
 
-    // 🔒 Merchant isolation
-    if (decoded.merchant_id !== req.merchant.id) {
-      return res.json({ error: 'Invalid customer for this merchant' });
-    }
+      if (!token) return res.json({ error: 'No token' });
 
-    const phone = decoded.phone;
+      // 🔐 Decode QR
+      let decoded;
+      try {
+        decoded = jwt.verify(token, process.env.JWT_SECRET);
+      } catch {
+        return res.json({ error: 'Invalid or expired QR' });
+      }
 
-    // 🔎 Find customer
-    const { data: customer } = await supabase
-      .from('customers')
-      .select('*')
-      .eq('phone', phone)
-      .eq('merchant_id', req.merchant.id)
-      .single();
+      // 🔒 Merchant isolation
+      if (decoded.merchant_id !== req.merchant.id) {
+        return res.json({ error: 'Invalid customer for this merchant' });
+      }
 
-    if (!customer) {
-      return res.json({ error: 'Customer not found' });
-    }
+      const phone = decoded.phone;
 
-    if (req.merchant.membership_mode === "paid") {
+      // 🔎 Find customer
+      const { data: customer } = await supabase
+        .from('customers')
+        .select('*')
+        .eq('phone', phone)
+        .eq('merchant_id', req.merchant.id)
+        .single();
 
-      const expired =
-        customer.membership_expires_at &&
-        new Date() > new Date(customer.membership_expires_at);
+      if (!customer) {
+        return res.json({ error: 'Customer not found' });
+      }
 
-      // 🔥 AUTO EXPIRE
-      if (expired) {
+      if (req.merchant.membership_mode === "paid") {
 
-        await supabase
-          .from('customers')
-          .update({
-            membership_status: "inactive"
-          })
-          .eq('id', customer.id);
+        const expired =
+          customer.membership_expires_at &&
+          new Date() > new Date(customer.membership_expires_at);
 
+        // 🔥 AUTO EXPIRE
+        if (expired) {
+
+          await supabase
+            .from('customers')
+            .update({
+              membership_status: "inactive"
+            })
+            .eq('id', customer.id);
+
+          return res.json({
+            error: "Membership expired"
+          });
+        }
+
+        if (customer.membership_status !== "active") {
+
+          return res.json({
+            error: "Membership inactive"
+          });
+        }
+      }
+
+      // ⏱️ COOLDOWN CHECK (10 seconds)
+      const now = new Date();
+
+      // 🎯 APPLY CURRENT REWARD (important: reward from previous visit)
+      const applied_discount = customer.pending_discount;
+
+
+      // 🔁 NEXT VISIT CALCULATION
+      let visit = customer.visit_count + 1;
+
+      let loopRestarted = false;
+
+      // 🔥 HANDLE RESET
+      if (visit > 5) {
+        visit = 1;
+        loopRestarted = true;
+      }
+
+      // 🔥 FIX: NEXT reward should be for NEXT visit
+      const next_index = visit % 5;
+      const next_reward = LOOP[next_index];
+
+      const localDate = new Date(
+        now.getTime() - now.getTimezoneOffset() * 60000
+      ).toISOString().split('T')[0];
+
+      const insertData = {
+        merchant_id: String(req.merchant.id),
+        customer_id: customer.id,
+        phone: customer.phone,
+        scanned_at: now.toISOString(),
+        scan_date: localDate, // ✅ ADD THIS LINE
+        result: {
+          visit: customer.visit_count + 1,
+          discount: customer.pending_discount
+        }
+      };
+
+      const { error: insertError } = await supabase
+        .from('scan_logs')
+        .insert([insertData]);
+
+      if (insertError) {
+        console.log("❌ SCAN ERROR:", insertError);
+
+        const msg = insertError.message || "";
+
+        // ✅ ONLY map duplicate error (no assumptions about name)
+        if (msg.includes("duplicate key value")) {
+          return res.json({
+            error: "Already Claimed Today. Come Back Tomorrow"
+          });
+        }
+
+        // fallback (real error)
         return res.json({
-          error: "Membership expired"
+          error: msg
         });
       }
 
-      if (customer.membership_status !== "active") {
+      // 💾 UPDATE CUSTOMER (ONLY AFTER INSERT SUCCESS)
+      const { data: updated, error } = await supabase
+        .from('customers')
+        .update({
+          visit_count: visit,
+          total_visits: (customer.total_visits || 0) + 1,
+          pending_discount: next_reward,
+          last_scan_at: now.toISOString()
+        })
+        .eq('id', customer.id)
+        .select()
+        .single();
 
-        return res.json({
-          error: "Membership inactive"
-        });
-      }
-    }
-
-    // ⏱️ COOLDOWN CHECK (10 seconds)
-    const now = new Date();
-
-    // 🎯 APPLY CURRENT REWARD (important: reward from previous visit)
-    const applied_discount = customer.pending_discount;
-
-
-    // 🔁 NEXT VISIT CALCULATION
-    let visit = customer.visit_count + 1;
-
-    let loopRestarted = false;
-
-    // 🔥 HANDLE RESET
-    if (visit > 5) {
-      visit = 1;
-      loopRestarted = true;
-    }
-
-    // 🔥 FIX: NEXT reward should be for NEXT visit
-    const next_index = visit % 5;
-    const next_reward = LOOP[next_index];
-
-    const localDate = new Date(
-      now.getTime() - now.getTimezoneOffset() * 60000
-    ).toISOString().split('T')[0];
-
-    const insertData = {
-      merchant_id: String(req.merchant.id),
-      customer_id: customer.id,
-      phone: customer.phone,
-      scanned_at: now.toISOString(),
-      scan_date: localDate, // ✅ ADD THIS LINE
-      result: {
-        visit: customer.visit_count + 1,
-        discount: customer.pending_discount
-      }
-    };
-
-    const { error: insertError } = await supabase
-      .from('scan_logs')
-      .insert([insertData]);
-
-    if (insertError) {
-      console.log("❌ SCAN ERROR:", insertError);
-
-      const msg = insertError.message || "";
-
-      // ✅ ONLY map duplicate error (no assumptions about name)
-      if (msg.includes("duplicate key value")) {
-        return res.json({
-          error: "Already Claimed Today. Come Back Tomorrow"
-        });
+      if (error) {
+        console.log("SCAN UPDATE ERROR:", error);
+        return res.json({ error: 'Update failed' });
       }
 
-      // fallback (real error)
-      return res.json({
-        error: msg
+      console.log("🚀 START WALLET UPDATE");
+
+      try {
+        await updateWalletObject(updated, req.merchant);
+        console.log("✅ WALLET UPDATED");
+      } catch (err) {
+        console.log("❌ WALLET UPDATE ERROR:", err.message);
+      }
+
+      console.log("TRYING TO LOG SCAN:", {
+        merchant_id: req.merchant.id,
+        phone: customer.phone
       });
-    }
 
-    // 💾 UPDATE CUSTOMER (ONLY AFTER INSERT SUCCESS)
-    const { data: updated, error } = await supabase
-      .from('customers')
-      .update({
-        visit_count: visit,
-        total_visits: (customer.total_visits || 0) + 1,
-        pending_discount: next_reward,
-        last_scan_at: now.toISOString()
-      })
-      .eq('id', customer.id)
-      .select()
-      .single();
+      // ✅ RESPONSE
+      res.json({
+        visit: updated.visit_count,
+        applied_discount,
+        next_reward,
+        message: loopRestarted ? "You’re back in the loop 🔥" : null
+      });
 
-    if (error) {
-      console.log("SCAN UPDATE ERROR:", error);
-      return res.json({ error: 'Update failed' });
-    }
-
-    console.log("🚀 START WALLET UPDATE");
-
-    try {
-      await updateWalletObject(updated, req.merchant);
-      console.log("✅ WALLET UPDATED");
     } catch (err) {
-      console.log("❌ WALLET UPDATE ERROR:", err.message);
+      console.log("SCAN ERROR:", err);
+      res.json({ error: 'Scan failed' });
     }
-
-    console.log("TRYING TO LOG SCAN:", {
-      merchant_id: req.merchant.id,
-      phone: customer.phone
-    });
-
-    // ✅ RESPONSE
-    res.json({
-      visit: updated.visit_count,
-      applied_discount,
-      next_reward,
-      message: loopRestarted ? "You’re back in the loop 🔥" : null
-    });
-
-  } catch (err) {
-    console.log("SCAN ERROR:", err);
-    res.json({ error: 'Scan failed' });
-  }
-});
+  });
 
 app.post('/billing/webhook', async (req, res) => {
 
@@ -1445,11 +1513,42 @@ app.post(
       const eventType =
         payload.data.attributes.type;
 
+      const webhookEventId =
+        payload.data.id;
+
+      if (!webhookEventId) {
+
+        console.log(
+          "NO WEBHOOK EVENT ID"
+        );
+
+        return res.sendStatus(200);
+      }
+
       // SUCCESSFUL PAYMENT
       if (
         eventType ===
         "checkout_session.payment.paid"
       ) {
+
+        // 🔥 REPLAY PROTECTION
+
+        const { data: existingWebhook } =
+          await supabase
+            .from('processed_webhooks')
+            .select('id')
+            .eq('event_id', webhookEventId)
+            .maybeSingle();
+
+        if (existingWebhook) {
+
+          console.log(
+            "DUPLICATE WEBHOOK BLOCKED:",
+            webhookEventId
+          );
+
+          return res.sendStatus(200);
+        }
 
         const attributes =
           payload.data.attributes.data.attributes;
@@ -1485,16 +1584,48 @@ app.post(
           return res.sendStatus(200);
         }
 
-        // 🔥 EXTEND 30 DAYS
+        // 🔥 EXTEND FROM CURRENT EXPIRATION
+        // IF STILL ACTIVE
 
         const duration =
           interval === "yearly"
             ? 365
             : 30;
 
+        // 🔥 LOAD CURRENT MERCHANT
+
+        const { data: existingMerchant } =
+          await supabase
+            .from('merchants')
+            .select('subscription_expires_at')
+            .eq('id', merchantId)
+            .single();
+
+        // 🔥 DETERMINE BASE DATE
+
+        let baseDate = new Date();
+
+        if (
+          existingMerchant?.subscription_expires_at
+        ) {
+
+          const existingExpiry =
+            new Date(
+              existingMerchant.subscription_expires_at
+            );
+
+          // if still active → extend from expiry
+          if (existingExpiry > new Date()) {
+
+            baseDate = existingExpiry;
+          }
+        }
+
+        // 🔥 ADD DURATION
+
         const expires =
           new Date(
-            Date.now()
+            baseDate.getTime()
             + duration * 24 * 60 * 60 * 1000
           );
 
@@ -1530,6 +1661,14 @@ app.post(
           "SUBSCRIPTION ACTIVATED:",
           merchantId
         );
+
+        // 🔥 MARK WEBHOOK AS PROCESSED
+
+        await supabase
+          .from('processed_webhooks')
+          .insert([{
+            event_id: webhookEventId
+          }]);
       }
 
       res.sendStatus(200);
