@@ -662,6 +662,7 @@
     <div class="main">
       <div id="dashboardPage">
         <div id="dashboardState"></div>
+        <div id="billingBanner"></div>
         <div class="topbar">
           <div>
             <h2 id="pageTitle">Dashboard</h2>
@@ -1057,6 +1058,121 @@
             toast.classList.remove("show");
           }, 2500);
 
+        }
+
+        function renderBillingBanner(merchant) {
+
+          const el =
+            document.getElementById("billingBanner");
+
+          if (!el) return;
+
+          // RESET
+          el.innerHTML = "";
+
+          // 🔥 TRIAL
+          if (merchant.subscription_status === "trial") {
+
+            const daysLeft = Math.max(
+              0,
+              Math.ceil(
+                (
+                  new Date(merchant.trial_ends_at)
+                  - new Date()
+                ) / (1000 * 60 * 60 * 24)
+              )
+            );
+
+            el.innerHTML = `
+      <div style="
+        background:#fff7ed;
+        border:1px solid #fdba74;
+        padding:16px;
+        border-radius:16px;
+        margin-bottom:20px;
+      ">
+
+        <div style="
+          font-weight:700;
+          margin-bottom:6px;
+        ">
+          🚀 Free Trial
+        </div>
+
+        <div style="
+          font-size:14px;
+          color:#555;
+        ">
+          Your trial ends in
+          <strong>${daysLeft} days</strong>.
+        </div>
+
+      </div>
+    `;
+          }
+
+          // 🔥 ACTIVE SUBSCRIPTION
+          else if (
+            merchant.subscription_status === "active"
+          ) {
+
+            el.innerHTML = `
+      <div style="
+        background:#ecfdf5;
+        border:1px solid #6ee7b7;
+        padding:16px;
+        border-radius:16px;
+        margin-bottom:20px;
+      ">
+
+        <div style="
+          font-weight:700;
+          margin-bottom:6px;
+        ">
+          ✅ Subscription Active
+        </div>
+
+        <div style="
+          font-size:14px;
+          color:#555;
+        ">
+          Your merchant subscription is active.
+        </div>
+
+      </div>
+    `;
+          }
+
+          // 🔥 EXPIRED / PAST DUE
+          else {
+
+            el.innerHTML = `
+      <div style="
+        background:#fef2f2;
+        border:1px solid #fca5a5;
+        padding:16px;
+        border-radius:16px;
+        margin-bottom:20px;
+      ">
+
+        <div style="
+          font-weight:700;
+          margin-bottom:6px;
+        ">
+          ⚠️ Subscription Inactive
+        </div>
+
+        <div style="
+          font-size:14px;
+          color:#555;
+        ">
+          Renew your subscription to continue
+          using Tapr.
+        </div>
+
+      </div>
+    `;
+          }
         }
 
         function getToken() {
@@ -1783,6 +1899,8 @@
 
           merchantMode =
             data.membership_mode || "free";
+
+          renderBillingBanner(data);
 
           if (data.membership_mode) {
 

@@ -580,7 +580,19 @@ app.get('/merchant/me', verifySession, async (req, res) => {
     facebook: req.merchant.facebook,
     progress_style: req.merchant.progress_style,
 
-    membership_mode: req.merchant.membership_mode
+    membership_mode: req.merchant.membership_mode,
+
+    subscription_status:
+      req.merchant.subscription_status,
+
+    subscription_plan:
+      req.merchant.subscription_plan,
+
+    subscription_expires_at:
+      req.merchant.subscription_expires_at,
+
+    trial_ends_at:
+      req.merchant.trial_ends_at
   });
 });
 
@@ -1134,7 +1146,13 @@ app.post('/merchant/signup', async (req, res) => {
       name,
       email: normalizedEmail,
       password: hashed,
-      slug
+      slug,
+      subscription_status: "trial",
+      subscription_plan: "starter",
+      trial_ends_at:
+        new Date(
+          Date.now() + 14 * 24 * 60 * 60 * 1000
+        ).toISOString()
     }])
     .select()
     .single();
