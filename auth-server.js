@@ -1456,8 +1456,17 @@ app.post(
           JSON.stringify(attributes, null, 2)
         );
 
+        const metadata =
+          attributes.metadata || {};
+
         const merchantId =
-          attributes.metadata?.merchant_id;
+          metadata.merchant_id;
+
+        const plan =
+          metadata.plan;
+
+        const interval =
+          metadata.interval;
 
         console.log(
           "MERCHANT ID:",
@@ -1475,10 +1484,15 @@ app.post(
 
         // 🔥 EXTEND 30 DAYS
 
+        const duration =
+          interval === "yearly"
+            ? 365
+            : 30;
+
         const expires =
           new Date(
             Date.now()
-            + 30 * 24 * 60 * 60 * 1000
+            + duration * 24 * 60 * 60 * 1000
           );
 
         const { error } = await supabase
@@ -1489,7 +1503,10 @@ app.post(
 
             subscription_status: "active",
 
-            subscription_plan: "monthly",
+            subscription_plan: plan,
+
+            subscription_interval:
+              interval,
 
             subscription_expires_at:
               expires.toISOString()
@@ -1553,6 +1570,11 @@ app.get(
           body: JSON.stringify({
             data: {
               attributes: {
+                metadata: {
+                  merchant_id: merchant.id,
+                  plan,
+                  interval
+                },
 
                 events: [
                   "checkout_session.payment.paid"
@@ -1647,6 +1669,45 @@ app.post(
     try {
 
       const merchant = req.merchant;
+      const {
+        plan,
+        interval
+      } = req.body;
+
+      let amount = 0;
+      let label = "";
+
+      if (
+        plan === "growth" &&
+        interval === "monthly"
+      ) {
+        amount = 99000;
+        label = "Tapr Growth Monthly";
+      }
+
+      if (
+        plan === "growth" &&
+        interval === "yearly"
+      ) {
+        amount = 999000;
+        label = "Tapr Growth Yearly";
+      }
+
+      if (
+        plan === "pro" &&
+        interval === "monthly"
+      ) {
+        amount = 249900;
+        label = "Tapr Pro Monthly";
+      }
+
+      if (
+        plan === "pro" &&
+        interval === "yearly"
+      ) {
+        amount = 2499000;
+        label = "Tapr Pro Yearly";
+      }
 
       const secretKey =
         process.env.PAYMONGO_SECRET_KEY;
@@ -1688,9 +1749,9 @@ app.post(
                   {
                     currency: "PHP",
 
-                    amount: 99000,
+                    amount,
 
-                    name: "Tapr Monthly Subscription",
+                    name: label,
 
                     quantity: 1,
 

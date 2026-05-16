@@ -2003,10 +2003,21 @@
                 method: "POST",
 
                 headers: {
+                  "Content-Type": "application/json",
                   authorization: getToken()
-                }
+                },
+
+                body: JSON.stringify({
+                  plan: "growth",
+                  interval: "monthly"
+                })
               }
             );
+
+            const data = await res.json();
+
+            window.location.href =
+              data.checkout_url;
 
             const data = await res.json();
 
