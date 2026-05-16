@@ -827,7 +827,12 @@ app.post('/merchant/activate-customer', verifySession, async (req, res) => {
   const { error } = await supabase
     .from('customers')
     .update({
-      membership_status: "active"
+      membership_status: "active",
+
+      membership_expires_at:
+        new Date(
+          Date.now() + 30 * 24 * 60 * 60 * 1000
+        ).toISOString()
     })
     .eq('id', customer_id);
 
@@ -1184,13 +1189,33 @@ app.post('/scan', scanLimiter, verifySession, async (req, res) => {
       return res.json({ error: 'Customer not found' });
     }
 
-    if (
-      req.merchant.membership_mode === "paid" &&
-      customer.membership_status !== "active"
-    ) {
-      return res.json({
-        error: "Membership inactive"
-      });
+    if (req.merchant.membership_mode === "paid") {
+
+      const expired =
+        customer.membership_expires_at &&
+        new Date() > new Date(customer.membership_expires_at);
+
+      // 🔥 AUTO EXPIRE
+      if (expired) {
+
+        await supabase
+          .from('customers')
+          .update({
+            membership_status: "inactive"
+          })
+          .eq('id', customer.id);
+
+        return res.json({
+          error: "Membership expired"
+        });
+      }
+
+      if (customer.membership_status !== "active") {
+
+        return res.json({
+          error: "Membership inactive"
+        });
+      }
     }
 
     // ⏱️ COOLDOWN CHECK (10 seconds)
