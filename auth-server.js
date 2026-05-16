@@ -1570,11 +1570,6 @@ app.get(
           body: JSON.stringify({
             data: {
               attributes: {
-                metadata: {
-                  merchant_id: merchant.id,
-                  plan,
-                  interval
-                },
 
                 events: [
                   "checkout_session.payment.paid"
@@ -1681,7 +1676,7 @@ app.post(
         plan === "growth" &&
         interval === "monthly"
       ) {
-        amount = 99000;
+        amount = 99900;
         label = "Tapr Growth Monthly";
       }
 
@@ -1732,7 +1727,9 @@ app.post(
               attributes: {
 
                 metadata: {
-                  merchant_id: merchant.id
+                  merchant_id: merchant.id,
+                  plan,
+                  interval
                 },
 
                 billing: {

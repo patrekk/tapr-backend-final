@@ -697,36 +697,78 @@
 
             <div style="
       display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:20px;
+      gap:12px;
+      margin-bottom:20px;
       flex-wrap:wrap;
     ">
 
-              <div>
+              <button id="growthBtn" class="secondary" onclick="selectPlan('growth')">
+                Growth
+              </button>
 
-                <div style="
-          font-size:14px;
-          color:#777;
-          margin-bottom:6px;
-        ">
-                  Current Plan
-                </div>
-
-                <div id="subscriptionStatus" style="
-            font-size:22px;
-            font-weight:700;
-          ">
-                  Loading...
-                </div>
-
-              </div>
-
-              <button onclick="startCheckout(event)">
-                Upgrade
+              <button id="proBtn" class="secondary" onclick="selectPlan('pro')">
+                Pro
               </button>
 
             </div>
+
+            <div style="
+      display:flex;
+      gap:12px;
+      margin-bottom:20px;
+      flex-wrap:wrap;
+    ">
+
+              <button id="monthlyBtn" class="secondary" onclick="selectInterval('monthly')">
+                Monthly
+              </button>
+
+              <button id="yearlyBtn" class="secondary" onclick="selectInterval('yearly')">
+                Yearly
+              </button>
+
+            </div>
+
+            <div style="
+      margin-bottom:20px;
+    ">
+
+              <div style="
+        font-size:14px;
+        color:#777;
+        margin-bottom:6px;
+      ">
+                Current Plan
+              </div>
+
+              <div id="subscriptionStatus" style="
+          font-size:22px;
+          font-weight:700;
+          margin-bottom:16px;
+        ">
+                Loading...
+              </div>
+
+              <div id="dynamicPrice" style="
+          font-size:36px;
+          font-weight:700;
+        ">
+                ₱999
+              </div>
+
+              <div id="dynamicLabel" style="
+          font-size:14px;
+          color:#777;
+          margin-top:4px;
+        ">
+                Growth Monthly
+              </div>
+
+            </div>
+
+            <button onclick="startCheckout(event)">
+              Upgrade
+            </button>
 
           </div>
 
@@ -1047,6 +1089,8 @@
         const PUBLIC_URL = "https://usetapr.com";
 
         let merchantMode = "free";
+        let selectedPlan = "growth";
+        let selectedInterval = "monthly";
 
         function showPage(page, el) {
           document.getElementById("dashboardPage").style.display = "none";
@@ -1101,6 +1145,87 @@
             toast.classList.remove("show");
           }, 2500);
 
+        }
+
+        function updateBillingUI() {
+
+          const growthBtn =
+            document.getElementById("growthBtn");
+
+          const proBtn =
+            document.getElementById("proBtn");
+
+          const monthlyBtn =
+            document.getElementById("monthlyBtn");
+
+          const yearlyBtn =
+            document.getElementById("yearlyBtn");
+
+          growthBtn.classList.remove("active");
+          proBtn.classList.remove("active");
+          monthlyBtn.classList.remove("active");
+          yearlyBtn.classList.remove("active");
+
+          if (selectedPlan === "growth") {
+            growthBtn.classList.add("active");
+          } else {
+            proBtn.classList.add("active");
+          }
+
+          if (selectedInterval === "monthly") {
+            monthlyBtn.classList.add("active");
+          } else {
+            yearlyBtn.classList.add("active");
+          }
+
+          let price = "₱999";
+          let label = "Growth Monthly";
+
+          if (
+            selectedPlan === "growth" &&
+            selectedInterval === "yearly"
+          ) {
+            price = "₱9,990";
+            label = "Growth Yearly";
+          }
+
+          if (
+            selectedPlan === "pro" &&
+            selectedInterval === "monthly"
+          ) {
+            price = "₱2,499";
+            label = "Pro Monthly";
+          }
+
+          if (
+            selectedPlan === "pro" &&
+            selectedInterval === "yearly"
+          ) {
+            price = "₱24,990";
+            label = "Pro Yearly";
+          }
+
+          document.getElementById(
+            "dynamicPrice"
+          ).innerText = price;
+
+          document.getElementById(
+            "dynamicLabel"
+          ).innerText = label;
+        }
+
+        function selectPlan(plan) {
+
+          selectedPlan = plan;
+
+          updateBillingUI();
+        }
+
+        function selectInterval(interval) {
+
+          selectedInterval = interval;
+
+          updateBillingUI();
         }
 
         function renderBillingBanner(merchant) {
@@ -1625,12 +1750,16 @@
 
           const data = await res.json();
 
-          const status =
-            data.subscription_status || "inactive";
+          const plan =
+            data.subscription_plan || "starter";
+
+          const formattedPlan =
+            plan.charAt(0).toUpperCase()
+            + plan.slice(1);
 
           document.getElementById(
             "subscriptionStatus"
-          ).innerText = status;
+          ).innerText = formattedPlan;
 
           if (data.name) document.getElementById("nameInput").value = data.name;
           if (data.email) document.getElementById("emailInput").value = data.email;
@@ -2008,8 +2137,8 @@
                 },
 
                 body: JSON.stringify({
-                  plan: "growth",
-                  interval: "monthly"
+                  plan: selectedPlan,
+                  interval: selectedInterval
                 })
               }
             );
@@ -2270,6 +2399,7 @@
           loadProfile();
           loadPass();
           loadLogs();
+          updateBillingUI();
 
           const saved = localStorage.getItem("sidebarCollapsed");
 
