@@ -1690,9 +1690,6 @@ app.post(
 
                     quantity: 1,
 
-                    metadata: {
-                      merchant_id: merchant.id
-                    }
                   }
                 ],
 
