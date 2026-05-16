@@ -1451,11 +1451,18 @@ app.post(
         const attributes =
           payload.data.attributes.data.attributes;
 
-        const metadata =
-          attributes.metadata || {};
+        console.log(
+          "FULL ATTRIBUTES:",
+          JSON.stringify(attributes, null, 2)
+        );
 
         const merchantId =
-          metadata.merchant_id;
+          attributes.metadata?.merchant_id;
+
+        console.log(
+          "MERCHANT ID:",
+          merchantId
+        );
 
         if (!merchantId) {
 
