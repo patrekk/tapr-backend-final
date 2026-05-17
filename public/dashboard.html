@@ -1423,6 +1423,9 @@
           // 🔥 EXPIRED / PAST DUE
           else {
 
+            document.getElementById("pageSubtitle").innerText =
+              "Your subscription is inactive. Renew to continue scanning customers.";
+
             if (statsCards) {
               statsCards.style.opacity = "0.4";
               statsCards.style.pointerEvents = "none";
