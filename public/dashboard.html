@@ -1196,6 +1196,7 @@
         let selectedInterval = "monthly";
         let currentMerchant = null;
         let merchantHasAccess = true;
+        let merchantData = null;
 
         function showPage(page, el) {
           document.getElementById("dashboardPage").style.display = "none";
@@ -1510,6 +1511,30 @@
           }
 
           return false;
+        }
+
+        async function loadMerchant() {
+
+          const res = await fetch(`${API}/merchant/me`, {
+            headers: {
+              authorization: getToken()
+            }
+          });
+
+          const data = await res.json();
+
+          if (!res.ok || data.error) {
+
+            console.log("MERCHANT LOAD ERROR:", data);
+
+            showToast("Failed to load merchant");
+
+            return null;
+          }
+
+          merchantData = data;
+
+          return data;
         }
 
         function getToken() {
@@ -1917,16 +1942,9 @@
 
         async function loadProfile() {
 
-          const res = await fetch(
-            `${API}/merchant/me`,
-            {
-              headers: {
-                authorization: getToken()
-              }
-            }
-          );
+          const data = merchantData;
 
-          const data = await res.json();
+          if (!data) return;
 
           currentMerchant = data;
 
@@ -1983,11 +2001,10 @@
         }
 
         async function applyBranding() {
-          const res = await fetch(`${API}/merchant/me`, {
-            headers: { authorization: getToken() }
-          });
 
-          const data = await res.json();
+          const data = merchantData;
+
+          if (!data) return;
 
           if (data.hex_color) {
             document.documentElement.style.setProperty('--primary', data.hex_color);
@@ -2242,11 +2259,9 @@
         }
 
         async function loadMerchantName() {
-          const res = await fetch(`${API}/merchant/me`, {
-            headers: { authorization: getToken() }
-          });
+          const data = merchantData;
 
-          const data = await res.json();
+          if (!data) return;
 
           if (data.name) {
             const sidebar = document.getElementById("merchantSidebarName");
@@ -2274,11 +2289,9 @@
         }
 
         async function loadPass() {
-          const res = await fetch(`${API}/merchant/me`, {
-            headers: { authorization: getToken() }
-          });
+          const data = merchantData;
 
-          const data = await res.json();
+          if (!data) return;
 
           if (data.info) {
             document.getElementById("infoInput").value = data.info;
@@ -2690,15 +2703,19 @@
           modal.style.display = "flex";
         }
 
-        document.addEventListener("DOMContentLoaded", () => {
+        document.addEventListener("DOMContentLoaded", async () => {
+
+          await loadMerchant();
 
           applyBranding();
           loadMerchantName();
-          loadStats();
-          loadCustomers();
           loadProfile();
           loadPass();
+
+          loadStats();
+          loadCustomers();
           loadLogs();
+
           updateBillingUI();
 
           const saved = localStorage.getItem("sidebarCollapsed");
