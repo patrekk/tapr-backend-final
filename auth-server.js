@@ -905,7 +905,6 @@ app.post('/merchant/change-password', verifySession, async (req, res) => {
 app.get(
   '/merchant/stats',
   verifySession,
-  requireActiveSubscription,
   async (req, res) => {
     try {
       const merchantId = req.merchant.id;
@@ -949,7 +948,6 @@ app.get(
 app.get(
   '/merchant/customers',
   verifySession,
-  requireActiveSubscription,
   async (req, res) => {
 
     const { data } = await supabase
@@ -1030,7 +1028,6 @@ app.post('/merchant/activate-customer', verifySession, async (req, res) => {
 app.get(
   '/merchant/scan-logs',
   verifySession,
-  requireActiveSubscription,
   async (req, res) => {
     const { data, error } = await supabase
       .from('scan_logs')
