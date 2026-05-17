@@ -1275,6 +1275,9 @@
           const logsSection =
             document.getElementById("logsSection");
 
+          const pageSubtitle =
+            document.getElementById("pageSubtitle");
+
           if (!el) return;
 
           // RESET
@@ -1296,6 +1299,9 @@
             }
 
             expiredInfoBox.innerHTML = "";
+
+            pageSubtitle.innerText =
+              "Your loyalty system is active and ready to scan customers.";
 
             const daysLeft = Math.max(
               0,
@@ -1352,6 +1358,9 @@
               logsSection.style.display = "block";
             }
 
+            pageSubtitle.innerText =
+              "Your loyalty system is active and ready to scan customers.";
+
             expiredInfoBox.innerHTML = "";
 
             el.innerHTML = `
@@ -1406,6 +1415,9 @@
 
               scannerBtn.innerText =
                 "Subscription Required";
+
+              pageSubtitle.innerText =
+                "Your subscription is inactive. Renew to continue scanning customers.";
             }
 
             el.innerHTML = `
