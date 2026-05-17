@@ -1298,6 +1298,21 @@
               logsSection.style.display = "block";
             }
 
+            if (statsCards) {
+              statsCards.style.opacity = "1";
+              statsCards.style.pointerEvents = "auto";
+            }
+
+            if (customersSection) {
+              customersSection.style.opacity = "1";
+              customersSection.style.pointerEvents = "auto";
+            }
+
+            if (logsSection) {
+              logsSection.style.opacity = "1";
+              logsSection.style.pointerEvents = "auto";
+            }
+
             expiredInfoBox.innerHTML = "";
 
             pageSubtitle.innerText =
@@ -1358,6 +1373,21 @@
               logsSection.style.display = "block";
             }
 
+            if (statsCards) {
+              statsCards.style.opacity = "1";
+              statsCards.style.pointerEvents = "auto";
+            }
+
+            if (customersSection) {
+              customersSection.style.opacity = "1";
+              customersSection.style.pointerEvents = "auto";
+            }
+
+            if (logsSection) {
+              logsSection.style.opacity = "1";
+              logsSection.style.pointerEvents = "auto";
+            }
+
             pageSubtitle.innerText =
               "Your loyalty system is active and ready to scan customers.";
 
@@ -1394,15 +1424,18 @@
           else {
 
             if (statsCards) {
-              statsCards.style.display = "none";
+              statsCards.style.opacity = "0.4";
+              statsCards.style.pointerEvents = "none";
             }
 
             if (customersSection) {
-              customersSection.style.display = "none";
+              customersSection.style.opacity = "0.4";
+              customersSection.style.pointerEvents = "none";
             }
 
             if (logsSection) {
-              logsSection.style.display = "none";
+              logsSection.style.opacity = "0.4";
+              logsSection.style.pointerEvents = "none";
             }
 
             if (scannerBtn) {
