@@ -332,6 +332,33 @@ function getContrastColor(hex) {
   return brightness > 150 ? "#000000" : "#FFFFFF";
 }
 
+function hasActiveAccess(merchant) {
+
+  const now = new Date();
+
+  // ACTIVE PAID SUBSCRIPTION
+
+  if (
+    merchant.subscription_status === "active" &&
+    merchant.subscription_expires_at &&
+    new Date(merchant.subscription_expires_at) > now
+  ) {
+    return true;
+  }
+
+  // ACTIVE TRIAL
+
+  if (
+    merchant.subscription_status === "trial" &&
+    merchant.trial_ends_at &&
+    new Date(merchant.trial_ends_at) > now
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
 // ---------- GOOGLE WALLET ----------
 
 async function getAccessToken() {
@@ -1323,6 +1350,16 @@ app.post(
   async (req, res) => {
     try {
       const { token } = req.body;
+
+      // 🔒 SUBSCRIPTION ENFORCEMENT
+
+      if (!hasActiveAccess(req.merchant)) {
+
+        return res.json({
+          error: "Subscription inactive"
+        });
+
+      }
 
       if (!token) return res.json({ error: 'No token' });
 
