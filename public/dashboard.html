@@ -678,7 +678,9 @@
               Your loyalty system is active and ready to scan customers.
             </p>
           </div>
-          <button onclick="goScanner()">Open Scanner</button>
+          <button id="scannerBtn" onclick="goScanner()">
+            Open Scanner
+          </button>
         </div>
 
         <div class="cards">
@@ -1192,6 +1194,7 @@
         let selectedPlan = "growth";
         let selectedInterval = "monthly";
         let currentMerchant = null;
+        let merchantHasAccess = true;
 
         function showPage(page, el) {
           document.getElementById("dashboardPage").style.display = "none";
@@ -1255,6 +1258,9 @@
 
           const el =
             document.getElementById("billingBanner");
+
+          const scannerBtn =
+            document.getElementById("scannerBtn");
 
           if (!el) return;
 
@@ -1337,6 +1343,18 @@
           // 🔥 EXPIRED / PAST DUE
           else {
 
+            if (scannerBtn) {
+
+              scannerBtn.disabled = true;
+
+              scannerBtn.style.opacity = "0.5";
+
+              scannerBtn.style.cursor = "not-allowed";
+
+              scannerBtn.innerText =
+                "Subscription Required";
+            }
+
             el.innerHTML = `
       <div style="
         background:#fef2f2;
@@ -1364,6 +1382,33 @@
       </div>
     `;
           }
+        }
+
+        function computeMerchantAccess(merchant) {
+
+          const now = new Date();
+
+          // ACTIVE SUBSCRIPTION
+
+          if (
+            merchant.subscription_status === "active" &&
+            merchant.subscription_expires_at &&
+            new Date(merchant.subscription_expires_at) > now
+          ) {
+            return true;
+          }
+
+          // ACTIVE TRIAL
+
+          if (
+            merchant.subscription_status === "trial" &&
+            merchant.trial_ends_at &&
+            new Date(merchant.trial_ends_at) > now
+          ) {
+            return true;
+          }
+
+          return false;
         }
 
         function getToken() {
@@ -2145,6 +2190,9 @@
 
           merchantMode =
             data.membership_mode || "free";
+
+          merchantHasAccess =
+            computeMerchantAccess(data);
 
           renderBillingBanner(data);
 
