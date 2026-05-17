@@ -671,6 +671,7 @@
       <div id="dashboardPage">
         <div id="dashboardState"></div>
         <div id="billingBanner"></div>
+        <div id="expiredInfoBox"></div>
         <div class="topbar">
           <div>
             <h2 id="pageTitle">Dashboard</h2>
@@ -683,7 +684,7 @@
           </button>
         </div>
 
-        <div class="cards">
+        <div id="statsCards" class="cards">
           <div id="loopSection" class="card"></div>
           <div class="card">
             <h3 id="customers">0</h3>
@@ -699,7 +700,7 @@
           </div>
         </div>
 
-        <div class="section">
+        <div id="customersSection" class="section">
           <h3>Customers</h3>
           <table>
             <thead>
@@ -709,7 +710,7 @@
           </table>
         </div>
 
-        <div class="section">
+        <div id="logsSection" class="section">
           <h3>Recent Scans</h3>
           <table>
             <thead>
@@ -1262,6 +1263,18 @@
           const scannerBtn =
             document.getElementById("scannerBtn");
 
+          const expiredInfoBox =
+            document.getElementById("expiredInfoBox");
+
+          const statsCards =
+            document.getElementById("statsCards");
+
+          const customersSection =
+            document.getElementById("customersSection");
+
+          const logsSection =
+            document.getElementById("logsSection");
+
           if (!el) return;
 
           // RESET
@@ -1269,6 +1282,20 @@
 
           // 🔥 TRIAL
           if (merchant.subscription_status === "trial") {
+
+            if (statsCards) {
+              statsCards.style.display = "flex";
+            }
+
+            if (customersSection) {
+              customersSection.style.display = "block";
+            }
+
+            if (logsSection) {
+              logsSection.style.display = "block";
+            }
+
+            expiredInfoBox.innerHTML = "";
 
             const daysLeft = Math.max(
               0,
@@ -1313,6 +1340,20 @@
             merchant.subscription_status === "active"
           ) {
 
+            if (statsCards) {
+              statsCards.style.display = "flex";
+            }
+
+            if (customersSection) {
+              customersSection.style.display = "block";
+            }
+
+            if (logsSection) {
+              logsSection.style.display = "block";
+            }
+
+            expiredInfoBox.innerHTML = "";
+
             el.innerHTML = `
       <div style="
         background:#ecfdf5;
@@ -1342,6 +1383,18 @@
 
           // 🔥 EXPIRED / PAST DUE
           else {
+
+            if (statsCards) {
+              statsCards.style.display = "none";
+            }
+
+            if (customersSection) {
+              customersSection.style.display = "none";
+            }
+
+            if (logsSection) {
+              logsSection.style.display = "none";
+            }
 
             if (scannerBtn) {
 
@@ -1453,79 +1506,28 @@
 
           if (data.length === 0) {
 
-            // 🔒 EXPIRED MERCHANT EMPTY STATE
-
-            if (!merchantHasAccess) {
-
-              stateBox.innerHTML = `
-      <div style="
-        background:#fef2f2;
-        padding:20px;
-        border-radius:12px;
-        margin-bottom:20px;
-        border:1px solid #fca5a5;
-      ">
-
-        <div style="
-          font-weight:700;
-          margin-bottom:8px;
-        ">
-          ⚠ Subscription Expired
-        </div>
-
-        <div style="
-          font-size:13px;
-          color:#555;
-          margin-bottom:14px;
-          line-height:1.5;
-        ">
-          Your loyalty system is paused.
-          <br><br>
-          Customers can still join your pass,
-          but scanning is disabled until renewal.
-        </div>
-
-        <button
-          onclick="showPage(
-            'billing',
-            document.querySelector('[data-label=Billing]')
-          )"
-        >
-          Renew Subscription
-        </button>
-
+            stateBox.innerHTML = `
+    <div style="
+      background:#eef2ff;
+      padding:20px;
+      border-radius:12px;
+      margin-bottom:20px;
+    ">
+      <div style="font-weight:600; margin-bottom:6px;">
+        🚀 Get Started
       </div>
-    `;
 
-            }
-
-            // 🚀 NEW MERCHANT EMPTY STATE
-
-            else {
-
-              stateBox.innerHTML = `
-      <div style="
-        background:#eef2ff;
-        padding:20px;
-        border-radius:12px;
-        margin-bottom:20px;
-      ">
-        <div style="font-weight:600; margin-bottom:6px;">
-          🚀 Get Started
-        </div>
-
-        <div style="font-size:13px; color:#555; margin-bottom:12px;">
-          1. Generate your QR<br>
-          2. Place it at your cashier<br>
-          3. Scan your first customer
-        </div>
-
-        <button onclick="showPage('qr', document.querySelector('[onclick*=qr]'))">
-          Generate QR
-        </button>
+      <div style="font-size:13px; color:#555; margin-bottom:12px;">
+        1. Generate your QR<br>
+        2. Place it at your cashier<br>
+        3. Scan your first customer
       </div>
-    `;
-            }
+
+      <button onclick="showPage('qr', document.querySelector('[onclick*=qr]'))">
+        Generate QR
+      </button>
+    </div>
+  `;
 
             table.innerHTML = `
     <tr>
