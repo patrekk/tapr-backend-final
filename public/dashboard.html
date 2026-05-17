@@ -1453,34 +1453,88 @@
 
           if (data.length === 0) {
 
-            stateBox.innerHTML = `
-    <div style="
-      background:#eef2ff;
-      padding:20px;
-      border-radius:12px;
-      margin-bottom:20px;
-    ">
-      <div style="font-weight:600; margin-bottom:6px;">
-        🚀 Get Started
-      </div>
+            // 🔒 EXPIRED MERCHANT EMPTY STATE
 
-      <div style="font-size:13px; color:#555; margin-bottom:12px;">
-        1. Generate your QR<br>
-        2. Place it at your cashier<br>
-        3. Scan your first customer
-      </div>
+            if (!merchantHasAccess) {
 
-      <button onclick="showPage('qr', document.querySelector('[onclick*=qr]'))">
-        Generate QR
-      </button>
-    </div>
-  `;
+              stateBox.innerHTML = `
+      <div style="
+        background:#fef2f2;
+        padding:20px;
+        border-radius:12px;
+        margin-bottom:20px;
+        border:1px solid #fca5a5;
+      ">
+
+        <div style="
+          font-weight:700;
+          margin-bottom:8px;
+        ">
+          ⚠ Subscription Expired
+        </div>
+
+        <div style="
+          font-size:13px;
+          color:#555;
+          margin-bottom:14px;
+          line-height:1.5;
+        ">
+          Your loyalty system is paused.
+          <br><br>
+          Customers can still join your pass,
+          but scanning is disabled until renewal.
+        </div>
+
+        <button
+          onclick="showPage(
+            'billing',
+            document.querySelector('[data-label=Billing]')
+          )"
+        >
+          Renew Subscription
+        </button>
+
+      </div>
+    `;
+
+            }
+
+            // 🚀 NEW MERCHANT EMPTY STATE
+
+            else {
+
+              stateBox.innerHTML = `
+      <div style="
+        background:#eef2ff;
+        padding:20px;
+        border-radius:12px;
+        margin-bottom:20px;
+      ">
+        <div style="font-weight:600; margin-bottom:6px;">
+          🚀 Get Started
+        </div>
+
+        <div style="font-size:13px; color:#555; margin-bottom:12px;">
+          1. Generate your QR<br>
+          2. Place it at your cashier<br>
+          3. Scan your first customer
+        </div>
+
+        <button onclick="showPage('qr', document.querySelector('[onclick*=qr]'))">
+          Generate QR
+        </button>
+      </div>
+    `;
+            }
 
             table.innerHTML = `
     <tr>
-      <td colspan="4" style="text-align:center; padding:30px; color:#777;">
-        No customers yet.<br>
-        <span style="font-size:12px;">Scan your first customer to get started.</span>
+      <td colspan="4" style="
+        text-align:center;
+        padding:30px;
+        color:#777;
+      ">
+        No customers yet.
       </td>
     </tr>
   `;
