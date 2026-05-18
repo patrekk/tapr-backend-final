@@ -145,14 +145,11 @@
     loadMerchant();
 
     async function startScanner() {
-      let isScanning = true;
       const status = document.getElementById("status");
 
       if (scannerBusy || scannerInstance !== null) {
         return;
       }
-
-      scannerBusy = true;
 
       scannerInstance = new Html5Qrcode("reader");
 
@@ -163,14 +160,12 @@
           { fps: 10, qrbox: 250 },
           async (decodedText) => {
 
-            if (!isScanning) {
-
-              scannerBusy = false;
-
+            if (scannerBusy) {
               return;
             }
 
-            isScanning = false;
+            scannerBusy = true;
+
             status.innerText = "Processing...";
 
             let data;
@@ -223,11 +218,13 @@
 `;
             }
 
-            try {
-              await scannerInstance.stop();
-            } catch (e) { }
-            scannerInstance = null;
-            scannerBusy = false;
+            setTimeout(() => {
+
+              scannerBusy = false;
+
+              status.innerText = "Ready to scan";
+
+            }, 1500);
           } // closes callback
         ); // closes start()
 
