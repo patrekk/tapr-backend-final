@@ -109,14 +109,19 @@
       return localStorage.getItem("token");
     }
 
+    function logout() {
+
+      localStorage.removeItem("token");
+
+      window.location.href = "/login";
+    }
+
     async function loadMerchant() {
 
       const token = getToken();
 
       if (!token) {
-
-        window.location.href = "/login";
-
+        logout();
         return;
       }
 
@@ -138,7 +143,7 @@
         data.error === "Invalid session"
       ) {
 
-        window.location.href = "/login";
+        logout();
 
         return;
       }
@@ -219,7 +224,7 @@
               } catch (e) { }
               scannerInstance = null;
               scannerBusy = false;
-              window.location.href = "/login";
+              logout();
               return;
             }
 

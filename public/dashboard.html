@@ -1527,6 +1527,17 @@
 
             console.log("MERCHANT LOAD ERROR:", data);
 
+            if (
+              data.error === "No session"
+              ||
+              data.error === "Invalid session"
+            ) {
+
+              logout();
+
+              return null;
+            }
+
             showToast("Failed to load merchant");
 
             return null;
