@@ -83,6 +83,7 @@
   <script>
     const API = "https://tapr-backend-final-production.up.railway.app";
     let scannerInstance = null;
+    let scannerBusy = false;
     function getToken() {
       return localStorage.getItem("token");
     }
@@ -147,7 +148,11 @@
       let isScanning = true;
       const status = document.getElementById("status");
 
-      if (scannerInstance !== null) return;
+      if (scannerBusy || scannerInstance !== null) {
+        return;
+      }
+
+      scannerBusy = true;
 
       scannerInstance = new Html5Qrcode("reader");
 
@@ -158,7 +163,12 @@
           { fps: 10, qrbox: 250 },
           async (decodedText) => {
 
-            if (!isScanning) return;
+            if (!isScanning) {
+
+              scannerBusy = false;
+
+              return;
+            }
 
             isScanning = false;
             status.innerText = "Processing...";
@@ -181,6 +191,7 @@
               status.innerText = "❌ Network error. Try again.";
               try { await scannerInstance.stop(); } catch (e) { }
               scannerInstance = null;
+              scannerBusy = false;
               return;
             }
 
@@ -189,6 +200,7 @@
                 await scannerInstance.stop();
               } catch (e) { }
               scannerInstance = null;
+              scannerBusy = false;
               window.location.href = "/login";
               return;
             }
@@ -215,14 +227,18 @@
               await scannerInstance.stop();
             } catch (e) { }
             scannerInstance = null;
+            scannerBusy = false;
           } // closes callback
         ); // closes start()
 
         status.innerText = "Camera ready";
 
       } catch (err) {
-        status.innerText = "❌ Camera error. Allow camera access.";
+
+        status.innerText =
+          "❌ Camera error. Allow camera access.";
         scannerInstance = null;
+        scannerBusy = false;
       }
     }
 
