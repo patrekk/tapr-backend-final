@@ -88,14 +88,55 @@
     }
 
     async function loadMerchant() {
+
+      const token = getToken();
+
+      if (!token) {
+
+        window.location.href = "/login";
+
+        return;
+      }
+
       const res = await fetch(`${API}/merchant/me`, {
         headers: {
-          "authorization": getToken()
+          "authorization": token
         }
       });
 
       const data = await res.json();
+
       console.log("SCAN RESPONSE:", data);
+
+      // 🔥 INVALID SESSION
+
+      if (
+        data.error === "No session"
+        ||
+        data.error === "Invalid session"
+      ) {
+
+        window.location.href = "/login";
+
+        return;
+      }
+
+      // 🔥 SUBSCRIPTION ENFORCEMENT
+
+      const inactive =
+        data.subscription_status !== "active"
+        &&
+        data.subscription_status !== "trial";
+
+      if (inactive) {
+
+        alert("Subscription inactive");
+
+        window.location.href = "/dashboard";
+
+        return;
+      }
+
       document.getElementById("merchantName").innerText =
         data.name || "Error loading";
     }
