@@ -9,7 +9,6 @@ import { fileURLToPath } from 'url';
 import bcrypt from 'bcrypt';
 import rateLimit from 'express-rate-limit';
 import multer from 'multer';
-import { info } from 'console';
 import { Resend } from 'resend';
 
 dotenv.config();
@@ -78,6 +77,29 @@ function validateLength(value, max) {
   return value.length <= max;
 }
 
+function isValidHexColor(color) {
+
+  return /^#[0-9A-Fa-f]{6}$/.test(color);
+}
+
+function isValidMembershipMode(mode) {
+
+  return (
+    mode === "free"
+    ||
+    mode === "paid"
+    ||
+    mode === ""
+  );
+}
+
+function isValidUrl(url) {
+
+  if (!url) return true;
+
+  return /^(https?:\/\/)?([\w\-]+\.)+[\w\-]+(\/[\w\-._~:/?#[\]@!$&'()*+,;=]*)?$/.test(url);
+}
+
 // ---------- HELPERS ----------
 
 function getRewardText(visit, pending) {
@@ -138,8 +160,32 @@ function getProgressText(visit, progressStyleRaw) {
   return `   ${stamps.trim()}`;
 }
 
-function generateSlug(name) {
-  return name.toLowerCase().replace(/[^a-z0-9]/g, '');
+async function generateSlug(name) {
+
+  const baseSlug =
+    name.toLowerCase()
+      .replace(/[^a-z0-9]/g, '');
+
+  let slug = baseSlug;
+
+  let counter = 2;
+
+  while (true) {
+
+    const { data: existing } = await supabase
+      .from('merchants')
+      .select('id')
+      .eq('slug', slug)
+      .maybeSingle();
+
+    if (!existing) {
+      return slug;
+    }
+
+    slug = `${baseSlug}${counter}`;
+
+    counter++;
+  }
 }
 
 const getMerchantBySlug = async (slug) => {
@@ -341,16 +387,6 @@ async function updateWalletObject(customer, merchant) {
   console.log("MERCHANT IN WALLET:", merchant);
 }
 
-function getContrastColor(hex) {
-  const r = parseInt(hex.substr(1, 2), 16);
-  const g = parseInt(hex.substr(3, 2), 16);
-  const b = parseInt(hex.substr(5, 2), 16);
-
-  const brightness = (r * 299 + g * 587 + b * 114) / 1000;
-
-  return brightness > 150 ? "#000000" : "#FFFFFF";
-}
-
 function hasActiveAccess(merchant) {
 
   const now = new Date();
@@ -525,53 +561,6 @@ function generateSaveJWT(objectId) {
   );
 }
 
-async function activateMerchantSubscription(
-  merchantId,
-  months = 1
-) {
-
-  const expiresAt = new Date(
-    Date.now() +
-    months * 30 * 24 * 60 * 60 * 1000
-  ).toISOString();
-
-  const { error } = await supabase
-    .from('merchants')
-    .update({
-      subscription_status: "active",
-
-      subscription_expires_at:
-        expiresAt
-    })
-    .eq('id', merchantId);
-
-  if (error) {
-    console.log(
-      "ACTIVATE SUB ERROR:",
-      error
-    );
-  }
-}
-
-async function cancelMerchantSubscription(
-  merchantId
-) {
-
-  const { error } = await supabase
-    .from('merchants')
-    .update({
-      subscription_status: "cancelled"
-    })
-    .eq('id', merchantId);
-
-  if (error) {
-    console.log(
-      "CANCEL SUB ERROR:",
-      error
-    );
-  }
-}
-
 // ---------- ROUTES ----------
 
 app.get('/join/:slug', (req, res) => {
@@ -744,6 +733,42 @@ app.post(
     let logo_url = null;
     let hero_url = null;
 
+    if (
+      email &&
+      !isValidEmail(email)
+    ) {
+      return res.json({
+        error: "Invalid email"
+      });
+    }
+
+    if (
+      hex_color &&
+      !isValidHexColor(hex_color)
+    ) {
+      return res.json({
+        error: "Invalid hex color"
+      });
+    }
+
+    if (
+      !isValidMembershipMode(membership_mode)
+    ) {
+      return res.json({
+        error: "Invalid membership mode"
+      });
+    }
+
+    if (
+      !isValidUrl(instagram)
+      ||
+      !isValidUrl(facebook)
+    ) {
+      return res.json({
+        error: "Invalid URL"
+      });
+    }
+
     // 🔹 LOGO
     if (req.files?.logo?.[0]) {
       const file = req.files.logo[0];
@@ -876,6 +901,12 @@ app.post('/merchant/change-password', verifySession, async (req, res) => {
     });
   }
 
+  if (password.length < 8) {
+    return res.json({
+      error: "Password too short"
+    });
+  }
+
   if (!validateLength(password, 120)) {
     return res.json({
       error: "Password too long"
@@ -957,8 +988,6 @@ app.get(
       .from('customers')
       .select('*')
       .eq('merchant_id', req.merchant.id);
-
-    const now = new Date();
 
     const customers = (data || []).map(customer => {
 
@@ -1078,6 +1107,12 @@ app.post('/merchant/send-code', async (req, res) => {
   }
 
   const normalizedEmail = email.trim().toLowerCase();
+
+  if (!isValidEmail(normalizedEmail)) {
+    return res.json({
+      error: "Invalid email"
+    });
+  }
 
   const { data: existingMerchant } = await supabase
     .from('merchants')
@@ -1254,6 +1289,12 @@ app.post('/merchant/signup', async (req, res) => {
     return res.json({ error: "Missing fields" });
   }
 
+  if (password.length < 8) {
+    return res.json({
+      error: "Password too short"
+    });
+  }
+
   if (!isValidEmail(email)) {
     return res.json({ error: "Invalid email" });
   }
@@ -1307,7 +1348,7 @@ app.post('/merchant/signup', async (req, res) => {
 
   // ✅ GENERATE SLUG
 
-  const slug = generateSlug(name);
+  const slug = await generateSlug(name);
 
   // ✅ CREATE MERCHANT
 
@@ -1394,6 +1435,14 @@ app.post(
       let decoded;
       try {
         decoded = jwt.verify(token, process.env.JWT_SECRET);
+        if (
+          !decoded.phone ||
+          !decoded.merchant_id
+        ) {
+          return res.json({
+            error: "Invalid QR payload"
+          });
+        }
       } catch {
         return res.json({ error: 'Invalid or expired QR' });
       }
