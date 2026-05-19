@@ -31,7 +31,35 @@ app.use(
 );
 app.use(express.json());
 
-const upload = multer({ storage: multer.memoryStorage() });
+const allowedMimeTypes = [
+  "image/png",
+  "image/jpeg",
+  "image/webp"
+];
+
+const upload = multer({
+
+  storage: multer.memoryStorage(),
+
+  limits: {
+    fileSize: 5 * 1024 * 1024 // 5MB
+  },
+
+  fileFilter: (req, file, cb) => {
+
+    if (
+      !allowedMimeTypes.includes(file.mimetype)
+    ) {
+
+      return cb(
+        new Error("Invalid file type"),
+        false
+      );
+    }
+
+    cb(null, true);
+  }
+});
 
 const limiter = rateLimit({
   windowMs: 60 * 1000,
@@ -711,6 +739,32 @@ app.post(
   ]),
   async (req, res) => {
 
+    if (
+      req.files?.logo?.[0]
+      &&
+      !allowedMimeTypes.includes(
+        req.files.logo[0].mimetype
+      )
+    ) {
+
+      return res.json({
+        error: "Invalid logo file type"
+      });
+    }
+
+    if (
+      req.files?.hero?.[0]
+      &&
+      !allowedMimeTypes.includes(
+        req.files.hero[0].mimetype
+      )
+    ) {
+
+      return res.json({
+        error: "Invalid hero file type"
+      });
+    }
+
     let {
       name,
       email,
@@ -773,7 +827,11 @@ app.post(
     if (req.files?.logo?.[0]) {
       const file = req.files.logo[0];
 
-      const filePath = `logos/${req.merchant.id}_${Date.now()}.png`;
+      const extension =
+        file.mimetype.split('/')[1];
+
+      const filePath =
+        `logos/${req.merchant.id}_${Date.now()}.${extension}`;
 
       const { error: uploadError } = await supabase.storage
         .from('logos')
@@ -797,7 +855,11 @@ app.post(
     if (req.files?.hero?.[0]) {
       const file = req.files.hero[0];
 
-      const filePath = `heroes/${req.merchant.id}_${Date.now()}.png`;
+      const extension =
+        file.mimetype.split('/')[1];
+
+      const filePath =
+        `heroes/${req.merchant.id}_${Date.now()}.${extension}`;
 
       const { error: uploadError } = await supabase.storage
         .from('heroes')
@@ -837,7 +899,6 @@ app.post(
 
       .update({
         ...(name && { name }),
-        ...(email && { email }),
         ...(hex_color && { hex_color }),
         ...(logo_url && { logo_url }),
         ...(hero_url && { hero_url }),
@@ -1143,7 +1204,6 @@ app.post('/merchant/send-code', async (req, res) => {
       email: normalizedEmail,
       code,
       expires_at: expires.toISOString(),
-      verified: false
     }]);
 
   try {
@@ -1215,16 +1275,99 @@ app.post('/merchant/verify-code', async (req, res) => {
     return res.json({ error: "Invalid code" });
   }
 
-  await supabase
-    .from('merchant_email_codes')
-    .update({
-      verified: true
-    })
-    .eq('id', record.id);
-
-  res.json({ success: true });
+  res.json({
+    success: true
+  });
 
 });
+
+app.post(
+  '/merchant/change-email',
+  verifySession,
+  async (req, res) => {
+
+    let { email, code } = req.body;
+
+    email = cleanString(email).toLowerCase();
+    code = cleanString(code);
+
+    if (!email || !code) {
+      return res.json({
+        error: "Missing fields"
+      });
+    }
+
+    if (!isValidEmail(email)) {
+      return res.json({
+        error: "Invalid email"
+      });
+    }
+
+    const { data: record } = await supabase
+      .from('merchant_email_codes')
+      .select('*')
+      .eq('email', email)
+      .maybeSingle();
+
+    if (!record) {
+      return res.json({
+        error: "Email not verified"
+      });
+    }
+
+    if (new Date() > new Date(record.expires_at)) {
+      return res.json({
+        error: "Code expired"
+      });
+    }
+
+    if (record.code !== code) {
+      return res.json({
+        error: "Invalid code"
+      });
+    }
+
+    const { data: existingMerchant } = await supabase
+      .from('merchants')
+      .select('id')
+      .eq('email', email)
+      .maybeSingle();
+
+    if (existingMerchant) {
+      return res.json({
+        error: "Email already in use"
+      });
+    }
+
+    const { error } = await supabase
+      .from('merchants')
+      .update({
+        email
+      })
+      .eq('id', req.merchant.id);
+
+    if (error) {
+
+      console.log(
+        "CHANGE EMAIL ERROR:",
+        error
+      );
+
+      return res.json({
+        error: "Change failed"
+      });
+    }
+
+    await supabase
+      .from('merchant_email_codes')
+      .delete()
+      .eq('email', email);
+
+    res.json({
+      success: true
+    });
+  }
+);
 
 // ---------- MERCHANT LOGIN ----------
 
@@ -1242,7 +1385,7 @@ app.post('/merchant/login', async (req, res) => {
     .from('merchants')
     .select('*')
     .eq('email', email)
-    .single();
+    .maybeSingle();
 
   const valid = merchant
 
@@ -1270,7 +1413,8 @@ app.post('/merchant/signup', async (req, res) => {
     last_name,
     name,
     email,
-    password
+    password,
+    code
   } = req.body;
 
   first_name = cleanString(first_name);
@@ -1278,13 +1422,15 @@ app.post('/merchant/signup', async (req, res) => {
   name = cleanString(name);
   email = cleanString(email).toLowerCase();
   password = cleanString(password);
+  code = cleanString(code);
 
   if (
     !first_name ||
     !last_name ||
     !name ||
     !email ||
-    !password
+    !password ||
+    !code
   ) {
     return res.json({ error: "Missing fields" });
   }
@@ -1319,12 +1465,26 @@ app.post('/merchant/signup', async (req, res) => {
     .from('merchant_email_codes')
     .select('*')
     .eq('email', normalizedEmail)
-    .eq('verified', true)
     .maybeSingle();
 
   if (!verifiedEmail) {
     return res.json({
-      error: "Email not verified"
+      error: "No verification code found"
+    });
+  }
+
+  if (
+    new Date() >
+    new Date(verifiedEmail.expires_at)
+  ) {
+    return res.json({
+      error: "Code expired"
+    });
+  }
+
+  if (verifiedEmail.code !== code) {
+    return res.json({
+      error: "Invalid code"
     });
   }
 
@@ -1543,7 +1703,9 @@ app.post(
         const msg = insertError.message || "";
 
         // ✅ ONLY map duplicate error (no assumptions about name)
-        if (msg.includes("duplicate key value")) {
+        if (
+          msg.includes("unique_daily_scan")
+        ) {
           return res.json({
             error: "Already Claimed Today. Come Back Tomorrow"
           });
@@ -2119,6 +2281,30 @@ app.post(
 );
 
 // fallback
+
+app.use((err, req, res, next) => {
+
+  if (
+    err instanceof multer.MulterError
+  ) {
+
+    return res.status(400).json({
+      error: err.message
+    });
+  }
+
+  if (
+    err.message === "Invalid file type"
+  ) {
+
+    return res.status(400).json({
+      error: "Only PNG, JPEG, and WEBP allowed"
+    });
+  }
+
+  next(err);
+});
+
 app.use((req, res) => {
   res.status(404).sendFile(path.join(__dirname, 'public', '404.html'));
 });
