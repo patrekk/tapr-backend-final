@@ -559,71 +559,9 @@ app.get('/join/:slug', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'join.html'));
 });
 
-// ---------- OTP ROUTE ----------
-app.post('/send-otp', async (req, res) => {
-  const { phone } = req.body;
-
-  if (!phone) return res.json({ error: "No phone" });
-
-  // 🔥 STEP 1: CHECK IF RECENT OTP EXISTS
-  const { data: existing } = await supabase
-    .from('otp_codes')
-    .select('*')
-    .eq('phone', phone)
-    .maybeSingle();
-
-  // 🔒 BLOCK CHECK (ADD THIS PART)
-  const now = new Date();
-
-  if (existing?.blocked_until) {
-
-    const blocked = new Date(existing.blocked_until);
-
-    if (now < blocked) {
-
-      return res.json({ error: "Too many attempts. Try again later." });
-
-    }
-
-  }
-
-  if (existing) {
-    const expires = new Date(existing.expires_at);
-
-    // if OTP still valid → block resend
-    if (now < expires) {
-      return res.json({ error: "Wait before requesting another code" });
-    }
-  }
-
-  // 🔥 STEP 2: GENERATE CODE (ONLY AFTER CHECK)
-  const code = Math.floor(100000 + Math.random() * 900000).toString();
-
-  const expires = new Date(Date.now() + 5 * 60 * 1000);
-
-  // 🔥 STEP 3: DELETE OLD OTP
-  await supabase
-    .from('otp_codes')
-    .delete()
-    .eq('phone', phone);
-
-  // 🔥 STEP 4: INSERT NEW OTP
-  await supabase.from('otp_codes').insert([{
-    phone,
-    code,
-    expires_at: expires.toISOString(),
-    attempts: 0,
-    locked: false
-  }]);
-
-  console.log("🔥 OTP CODE:", phone, code);
-
-  res.json({ success: true });
-});
-
 app.post('/wallet/:slug', async (req, res) => {
   const { slug } = req.params;
-  const { phone, name, email, birthday, otp } = req.body;
+  const { phone, name, email, birthday } = req.body;
 
   const merchant = await getMerchantBySlug(slug);
   if (!merchant) return res.json({ error: 'Invalid merchant' });
@@ -1817,10 +1755,6 @@ app.get('/signup', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'signup.html'));
 });
 
-app.get('/otp', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'otp.html'));
-});
-
 // OPTIONAL: block direct .html access
 app.get(/\.html$/, (req, res) => {
   return res.redirect(req.path.replace('.html', ''));
@@ -1980,6 +1914,59 @@ app.post(
 
       console.log(
         "CREATE CHECKOUT ERROR:",
+        err
+      );
+
+      res.json({
+        error: "server_error"
+      });
+    }
+  }
+);
+
+app.post(
+  '/merchant/cancel-subscription',
+  verifySession,
+  async (req, res) => {
+
+    try {
+
+      const merchant =
+        req.merchant;
+
+      const { error } = await supabase
+
+        .from('merchants')
+
+        .update({
+
+          subscription_status:
+            "cancelled"
+
+        })
+
+        .eq('id', merchant.id);
+
+      if (error) {
+
+        console.log(
+          "CANCEL SUBSCRIPTION ERROR:",
+          error
+        );
+
+        return res.json({
+          error: "cancel_failed"
+        });
+      }
+
+      res.json({
+        success: true
+      });
+
+    } catch (err) {
+
+      console.log(
+        "CANCEL ROUTE ERROR:",
         err
       );
 

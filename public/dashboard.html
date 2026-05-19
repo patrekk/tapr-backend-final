@@ -1114,7 +1114,7 @@
                 Change Plan
               </button>
 
-              <button class="secondary">
+              <button class="secondary" onclick="cancelSubscription(event)">
                 Cancel Subscription
               </button>
 
@@ -1148,36 +1148,36 @@
       <div id="toast" class="toast"></div>
 
       <div id="customerModal" style="
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,0.45);
-  display:none;
-  align-items:center;
-  justify-content:center;
-  z-index:9999;
-  padding:20px;
-">
+          position:fixed;
+          inset:0;
+          background:rgba(0,0,0,0.45);
+          display:none;
+          align-items:center;
+          justify-content:center;
+          z-index:9999;
+          padding:20px;
+          ">
 
         <div style="
-    background:white;
-    width:100%;
-    max-width:420px;
-    border-radius:20px;
-    padding:24px;
-    box-sizing:border-box;
-    position:relative;
-  ">
+          background:white;
+          width:100%;
+          max-width:420px;
+          border-radius:20px;
+          padding:24px;
+          box-sizing:border-box;
+          position:relative;
+          ">
 
           <button onclick="closeCustomerModal()" style="
-      position:absolute;
-      top:14px;
-      right:14px;
-      border:none;
-      background:none;
-      font-size:20px;
-      cursor:pointer;
-      color:#777;
-    ">
+            position:absolute;
+            top:14px;
+            right:14px;
+            border:none;
+            background:none;
+            font-size:20px;
+            cursor:pointer;
+            color:#777;
+          ">
             ✕
           </button>
 
@@ -2415,6 +2415,76 @@
           btn.disabled = false;
 
           btn.innerText = "Upgrade";
+        }
+
+        async function cancelSubscription(event) {
+
+          const confirmed = confirm(
+            "Are you sure you want to cancel your subscription?"
+          );
+
+          if (!confirmed) {
+            return;
+          }
+
+          const btn = event.target;
+
+          btn.disabled = true;
+
+          btn.innerHTML = `
+    <div style="
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+    ">
+      <div class="spinner"></div>
+      Cancelling
+    </div>
+  `;
+
+          try {
+
+            const res = await fetch(
+              `${API}/merchant/cancel-subscription`,
+              {
+                method: "POST",
+
+                headers: {
+                  "Content-Type": "application/json",
+                  authorization: getToken()
+                }
+              }
+            );
+
+            const data = await res.json();
+
+            if (data.success) {
+
+              showToast("Subscription cancelled");
+
+              await loadMerchant();
+
+              loadProfile();
+              loadPass();
+
+            } else {
+
+              showToast(
+                data.error || "Cancellation failed"
+              );
+            }
+
+          } catch (err) {
+
+            console.log(err);
+
+            showToast("Something went wrong");
+          }
+
+          btn.disabled = false;
+
+          btn.innerText = "End Subscription";
         }
 
         function getContrastColor(hex) {
