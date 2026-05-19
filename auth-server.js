@@ -59,6 +59,25 @@ const CLASS_ID = `${ISSUER_ID}.tapr_class_v2`;
 
 const LOOP = [10, 10, 20, 0, 50];
 
+function cleanString(value) {
+
+  if (typeof value !== "string") {
+    return "";
+  }
+
+  return value.trim();
+}
+
+function isValidEmail(email) {
+
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function validateLength(value, max) {
+
+  return value.length <= max;
+}
+
 // ---------- HELPERS ----------
 
 function getRewardText(visit, pending) {
@@ -561,7 +580,31 @@ app.get('/join/:slug', (req, res) => {
 
 app.post('/wallet/:slug', async (req, res) => {
   const { slug } = req.params;
-  const { phone, name, email, birthday } = req.body;
+  let { phone, name, email, birthday } = req.body;
+
+  phone = cleanString(phone);
+  name = cleanString(name);
+  email = cleanString(email).toLowerCase();
+  birthday = cleanString(birthday);
+
+  if (
+    !phone ||
+    !name
+  ) {
+    return res.json({ error: "Missing fields" });
+  }
+
+  if (email && !isValidEmail(email)) {
+    return res.json({ error: "Invalid email" });
+  }
+
+  if (
+    !validateLength(phone, 30) ||
+    !validateLength(name, 80) ||
+    !validateLength(email, 120)
+  ) {
+    return res.json({ error: "Input too long" });
+  }
 
   const merchant = await getMerchantBySlug(slug);
   if (!merchant) return res.json({ error: 'Invalid merchant' });
@@ -679,7 +722,7 @@ app.post(
   ]),
   async (req, res) => {
 
-    const {
+    let {
       name,
       email,
       hex_color,
@@ -689,6 +732,14 @@ app.post(
       progress_style,
       membership_mode
     } = req.body;
+
+    name = cleanString(name);
+    email = cleanString(email).toLowerCase();
+    hex_color = cleanString(hex_color);
+    info = cleanString(info);
+    instagram = cleanString(instagram);
+    facebook = cleanString(facebook);
+    membership_mode = cleanString(membership_mode);
 
     let logo_url = null;
     let hero_url = null;
@@ -815,7 +866,21 @@ app.post(
 
 app.post('/merchant/change-password', verifySession, async (req, res) => {
 
-  const { password } = req.body;
+  let { password } = req.body;
+
+  password = cleanString(password);
+
+  if (!password) {
+    return res.json({
+      error: "Missing password"
+    });
+  }
+
+  if (!validateLength(password, 120)) {
+    return res.json({
+      error: "Password too long"
+    });
+  }
 
   const hashed = await bcrypt.hash(password, 10);
 
@@ -1129,7 +1194,14 @@ app.post('/merchant/verify-code', async (req, res) => {
 // ---------- MERCHANT LOGIN ----------
 
 app.post('/merchant/login', async (req, res) => {
-  const { email, password } = req.body;
+  let { email, password } = req.body;
+
+  email = cleanString(email).toLowerCase();
+  password = cleanString(password);
+
+  if (!email || !password) {
+    return res.json({ error: "Missing credentials" });
+  }
 
   const { data: merchant } = await supabase
     .from('merchants')
@@ -1158,13 +1230,19 @@ app.post('/merchant/login', async (req, res) => {
 // ---------- MERCHANT SIGNUP ----------
 app.post('/merchant/signup', async (req, res) => {
 
-  const {
+  let {
     first_name,
     last_name,
     name,
     email,
     password
   } = req.body;
+
+  first_name = cleanString(first_name);
+  last_name = cleanString(last_name);
+  name = cleanString(name);
+  email = cleanString(email).toLowerCase();
+  password = cleanString(password);
 
   if (
     !first_name ||
@@ -1174,6 +1252,20 @@ app.post('/merchant/signup', async (req, res) => {
     !password
   ) {
     return res.json({ error: "Missing fields" });
+  }
+
+  if (!isValidEmail(email)) {
+    return res.json({ error: "Invalid email" });
+  }
+
+  if (
+    !validateLength(first_name, 50) ||
+    !validateLength(last_name, 50) ||
+    !validateLength(name, 80) ||
+    !validateLength(email, 120) ||
+    !validateLength(password, 120)
+  ) {
+    return res.json({ error: "Input too long" });
   }
 
   const normalizedEmail = email
