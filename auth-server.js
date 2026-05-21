@@ -1669,72 +1669,66 @@ app.post(
         now.getTime() - now.getTimezoneOffset() * 60000
       ).toISOString().split('T')[0];
 
-      const insertData = {
-        merchant_id: String(req.merchant.id),
-        customer_id: customer.id,
-        phone: customer.phone,
-        scanned_at: now.toISOString(),
-        scan_date: localDate, // ✅ ADD THIS LINE
-        result: {
-          visit: customer.visit_count + 1,
-          discount: customer.pending_discount
-        }
-      };
+      const { data: rpcResult, error: rpcError } =
+        await supabase.rpc(
+          'process_scan',
+          {
+            p_merchant_id: req.merchant.id,
+            p_customer_id: customer.id,
+            p_phone: customer.phone,
+            p_scan_date: localDate
+          }
+        );
 
-      const { error: insertError } = await supabase
-        .from('scan_logs')
-        .insert([insertData]);
+      if (rpcError) {
 
-      if (insertError) {
-        console.log("❌ SCAN ERROR:", insertError);
+        console.log(
+          "RPC ERROR:",
+          rpcError
+        );
 
-        const msg = insertError.message || "";
-
-        // ✅ ONLY map duplicate error (no assumptions about name)
-        if (
-          msg.includes("unique_daily_scan")
-        ) {
-          return res.json({
-            error: "Already Claimed Today. Come Back Tomorrow"
-          });
-        }
-
-        // fallback (real error)
         return res.json({
-          error: msg
+          error: "Scan failed"
         });
       }
 
-      // 💾 UPDATE CUSTOMER (ONLY AFTER INSERT SUCCESS)
-      const { data: updated, error } = await supabase
-        .from('customers')
-        .update({
-          visit_count: visit,
-          total_visits: (customer.total_visits || 0) + 1,
-          pending_discount: next_reward,
-          last_scan_at: now.toISOString()
-        })
-        .eq('id', customer.id)
-        .select()
-        .single();
+      if (rpcResult.error) {
 
-      if (error) {
-        console.log("SCAN UPDATE ERROR:", error);
-        return res.json({ error: 'Update failed' });
+        return res.json({
+          error: rpcResult.error
+        });
       }
 
+      const { data: refreshedCustomer } =
+        await supabase
+          .from('customers')
+          .select('*')
+          .eq('id', customer.id)
+          .single();
+
       try {
-        await updateWalletObject(updated, req.merchant);
+        await updateWalletObject(
+          refreshedCustomer,
+          req.merchant
+        );
       } catch (err) {
         console.log("❌ WALLET UPDATE ERROR:", err.message);
       }
 
       // ✅ RESPONSE
       res.json({
-        visit: updated.visit_count,
-        applied_discount,
-        next_reward,
-        message: loopRestarted ? "You’re back in the loop 🔥" : null
+        visit: rpcResult.visit,
+
+        applied_discount:
+          rpcResult.applied_discount,
+
+        next_reward:
+          rpcResult.next_reward,
+
+        message:
+          rpcResult.loop_restarted
+            ? "You’re back in the loop 🔥"
+            : null
       });
 
     } catch (err) {
