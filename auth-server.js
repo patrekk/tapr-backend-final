@@ -1822,7 +1822,7 @@ app.post(
       );
 
       const receivedSignature =
-        parsed.v1;
+        parsed.te;
 
       if (!receivedSignature) {
 
