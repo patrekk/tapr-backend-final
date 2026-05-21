@@ -1833,13 +1833,18 @@ app.post(
         return res.sendStatus(401);
       }
 
+      const timestamp = parsed.t;
+
+      const signedPayload =
+        `${timestamp}.${rawBody}`;
+
       const expectedSignature =
         crypto
           .createHmac(
             'sha256',
             process.env.PAYMONGO_WEBHOOK_SECRET
           )
-          .update(rawBody)
+          .update(signedPayload)
           .digest('hex');
 
       if (receivedSignature !== expectedSignature) {
