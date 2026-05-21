@@ -10,8 +10,25 @@ import bcrypt from 'bcrypt';
 import rateLimit from 'express-rate-limit';
 import multer from 'multer';
 import { Resend } from 'resend';
+import crypto from 'crypto';
 
 dotenv.config();
+
+const requiredEnv = [
+  "SUPABASE_URL",
+  "SUPABASE_SERVICE_ROLE_KEY",
+  "JWT_SECRET",
+  "PRIVATE_KEY",
+  "SERVICE_ACCOUNT_EMAIL",
+  "PAYMONGO_SECRET_KEY",
+  "RESEND_API_KEY"
+];
+
+for (const key of requiredEnv) {
+  if (!process.env[key]) {
+    throw new Error(`Missing env variable: ${key}`);
+  }
+}
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -26,6 +43,40 @@ app.use(
 );
 app.use(express.json());
 
+const CONFIG = {
+
+  LOOP: [10, 10, 20, 0, 50],
+
+  RATE_LIMITS: {
+    GLOBAL_MAX: 50,
+    SCAN_MAX: 10,
+    WINDOW_MS: 60 * 1000
+  },
+
+  FILES: {
+    MAX_SIZE: 5 * 1024 * 1024,
+    ALLOWED_MIME_TYPES: [
+      "image/png",
+      "image/jpeg",
+      "image/webp"
+    ]
+  },
+
+  TRIAL: {
+    DAYS: 14
+  },
+
+  MEMBERSHIP: {
+    ACTIVE_DAYS: 30
+  },
+
+  SUBSCRIPTIONS: {
+    MONTHLY_DAYS: 30,
+    YEARLY_DAYS: 365
+  }
+
+};
+
 const allowedMimeTypes = [
   "image/png",
   "image/jpeg",
@@ -37,7 +88,7 @@ const upload = multer({
   storage: multer.memoryStorage(),
 
   limits: {
-    fileSize: 5 * 1024 * 1024 // 5MB
+    fileSize: CONFIG.FILES.MAX_SIZE // 5MB
   },
 
   fileFilter: (req, file, cb) => {
@@ -57,8 +108,8 @@ const upload = multer({
 });
 
 const limiter = rateLimit({
-  windowMs: 60 * 1000,
-  max: 50
+  windowMs: CONFIG.RATE_LIMITS.WINDOW_MS,
+  max: CONFIG.RATE_LIMITS.GLOBAL_MAX
 });
 
 app.use(limiter);
@@ -79,7 +130,7 @@ const SERVICE_ACCOUNT_EMAIL = process.env.SERVICE_ACCOUNT_EMAIL;
 const ISSUER_ID = "3388000000023096184";
 const CLASS_ID = `${ISSUER_ID}.tapr_class_v2`;
 
-const LOOP = [10, 10, 20, 0, 50];
+const LOOP = CONFIG.LOOP;
 
 function cleanString(value) {
 
@@ -225,7 +276,9 @@ const verifySession = async (req, res, next) => {
   const token = req.headers['authorization'];
 
   if (!token) {
-    return res.json({ error: 'No session' });
+    return res.status(401).json({
+      error: 'No session'
+    });
   }
 
   try {
@@ -238,7 +291,9 @@ const verifySession = async (req, res, next) => {
       .single();
 
     if (!merchant) {
-      return res.json({ error: 'Invalid session' });
+      return res.status(401).json({
+        error: 'Invalid session'
+      });
     }
 
     req.merchant = merchant;
@@ -246,7 +301,9 @@ const verifySession = async (req, res, next) => {
 
   } catch (err) {
     console.log("JWT ERROR:", err.message);
-    res.json({ error: 'Invalid session' });
+    return res.status(401).json({
+      error: 'Invalid session'
+    });
   }
 };
 
@@ -1086,7 +1143,7 @@ app.post('/merchant/activate-customer', verifySession, async (req, res) => {
 
       membership_expires_at:
         new Date(
-          Date.now() + 30 * 24 * 60 * 60 * 1000
+          Date.now() + CONFIG.MEMBERSHIP.ACTIVE_DAYS * 24 * 60 * 60 * 1000
         ).toISOString()
     })
     .eq('id', customer_id);
@@ -1170,7 +1227,9 @@ app.post('/merchant/send-code', async (req, res) => {
     .maybeSingle();
 
   if (existingMerchant) {
-    return res.json({ error: "Email already in use" });
+    return res.status(409).json({
+      error: "Email already in use"
+    });
   }
 
   const code = Math.floor(
@@ -1322,7 +1381,7 @@ app.post(
       .maybeSingle();
 
     if (existingMerchant) {
-      return res.json({
+      return res.status(409).json({
         error: "Email already in use"
       });
     }
@@ -1381,7 +1440,9 @@ app.post('/merchant/login', async (req, res) => {
     : false;
 
   if (!merchant || !valid) {
-    return res.json({ error: 'Invalid credentials' });
+    return res.status(401).json({
+      error: 'Invalid credentials'
+    });
   }
 
   const token = jwt.sign(
@@ -1485,7 +1546,7 @@ app.post('/merchant/signup', async (req, res) => {
     .maybeSingle();
 
   if (existing) {
-    return res.json({
+    return res.status(409).json({
       error: "Email already in use"
     });
   }
@@ -1513,7 +1574,7 @@ app.post('/merchant/signup', async (req, res) => {
       subscription_plan: "starter",
       trial_ends_at:
         new Date(
-          Date.now() + 14 * 24 * 60 * 60 * 1000
+          Date.now() + CONFIG.TRIAL.DAYS * 24 * 60 * 60 * 1000
         ).toISOString()
     }])
     .select()
@@ -1554,8 +1615,8 @@ app.post('/merchant/signup', async (req, res) => {
 // ---------- SCAN ROUTE ----------
 
 const scanLimiter = rateLimit({
-  windowMs: 60 * 1000,
-  max: 10
+  windowMs: CONFIG.RATE_LIMITS.WINDOW_MS,
+  max: CONFIG.RATE_LIMITS.SCAN_MAX
 });
 
 app.post(
@@ -1597,7 +1658,9 @@ app.post(
 
       // 🔒 Merchant isolation
       if (decoded.merchant_id !== req.merchant.id) {
-        return res.json({ error: 'Invalid customer for this merchant' });
+        return res.status(403).json({
+          error: 'Invalid customer for this merchant'
+        });
       }
 
       const phone = decoded.phone;
@@ -1611,7 +1674,9 @@ app.post(
         .single();
 
       if (!customer) {
-        return res.json({ error: 'Customer not found' });
+        return res.status(404).json({
+          error: 'Customer not found'
+        });
       }
 
       if (req.merchant.membership_mode === "paid") {
@@ -1645,25 +1710,6 @@ app.post(
 
       // ⏱️ COOLDOWN CHECK (10 seconds)
       const now = new Date();
-
-      // 🎯 APPLY CURRENT REWARD (important: reward from previous visit)
-      const applied_discount = customer.pending_discount;
-
-
-      // 🔁 NEXT VISIT CALCULATION
-      let visit = customer.visit_count + 1;
-
-      let loopRestarted = false;
-
-      // 🔥 HANDLE RESET
-      if (visit > 5) {
-        visit = 1;
-        loopRestarted = true;
-      }
-
-      // 🔥 FIX: NEXT reward should be for NEXT visit
-      const next_index = visit % 5;
-      const next_reward = LOOP[next_index];
 
       const localDate = new Date(
         now.getTime() - now.getTimezoneOffset() * 60000
@@ -1749,6 +1795,39 @@ app.post(
 
     try {
 
+      const signature =
+        req.headers['paymongo-signature'];
+
+      if (!signature) {
+
+        console.log(
+          "MISSING PAYMONGO SIGNATURE"
+        );
+
+        return res.sendStatus(401);
+      }
+
+      const rawBody =
+        req.body.toString();
+
+      const expectedSignature =
+        crypto
+          .createHmac(
+            'sha256',
+            process.env.PAYMONGO_WEBHOOK_SECRET
+          )
+          .update(rawBody)
+          .digest('hex');
+
+      if (signature !== expectedSignature) {
+
+        console.log(
+          "INVALID PAYMONGO SIGNATURE"
+        );
+
+        return res.sendStatus(401);
+      }
+
       const payload =
         JSON.parse(req.body.toString());
 
@@ -1821,8 +1900,8 @@ app.post(
 
         const duration =
           interval === "yearly"
-            ? 365
-            : 30;
+            ? CONFIG.SUBSCRIPTIONS.YEARLY_DAYS
+            : CONFIG.SUBSCRIPTIONS.MONTHLY_DAYS;
 
         // 🔥 LOAD CURRENT MERCHANT
 
