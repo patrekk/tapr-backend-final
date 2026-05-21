@@ -1795,10 +1795,10 @@ app.post(
 
     try {
 
-      const signature =
+      const signatureHeader =
         req.headers['paymongo-signature'];
 
-      if (!signature) {
+      if (!signatureHeader) {
 
         console.log(
           "MISSING PAYMONGO SIGNATURE"
@@ -1810,6 +1810,24 @@ app.post(
       const rawBody =
         req.body.toString();
 
+      const parsed = Object.fromEntries(
+        signatureHeader
+          .split(',')
+          .map(part => part.split('='))
+      );
+
+      const receivedSignature =
+        parsed.v1;
+
+      if (!receivedSignature) {
+
+        console.log(
+          "INVALID SIGNATURE FORMAT"
+        );
+
+        return res.sendStatus(401);
+      }
+
       const expectedSignature =
         crypto
           .createHmac(
@@ -1819,10 +1837,20 @@ app.post(
           .update(rawBody)
           .digest('hex');
 
-      if (signature !== expectedSignature) {
+      if (receivedSignature !== expectedSignature) {
 
         console.log(
           "INVALID PAYMONGO SIGNATURE"
+        );
+
+        console.log(
+          "RECEIVED:",
+          receivedSignature
+        );
+
+        console.log(
+          "EXPECTED:",
+          expectedSignature
         );
 
         return res.sendStatus(401);
