@@ -15,11 +15,6 @@ dotenv.config();
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-console.log("ENV CHECK:", {
-  SUPABASE_URL: process.env.SUPABASE_URL,
-  JWT_SECRET: process.env.JWT_SECRET
-});
-
 const app = express();
 app.set('trust proxy', 1);
 app.use(cors());
@@ -161,15 +156,16 @@ function getProgressText(visit, progressStyleRaw) {
         ? JSON.parse(progressStyleRaw)
         : progressStyleRaw;
 
-      console.log("PARSED STYLE:", parsed); // ✅ HERE
-
       style = {
         filled: parsed.filled !== undefined ? parsed.filled : "●",
         empty: parsed.empty !== undefined ? parsed.empty : "○",
         reward: parsed.reward !== undefined ? parsed.reward : "🎁"
       };
     } catch (e) {
-      console.log("PROGRESS STYLE PARSE ERROR");
+      console.log(
+        "PROGRESS STYLE PARSE ERROR:",
+        e.message
+      );
     }
   }
 
@@ -228,16 +224,12 @@ const getMerchantBySlug = async (slug) => {
 const verifySession = async (req, res, next) => {
   const token = req.headers['authorization'];
 
-  console.log("TOKEN:", token);
-
   if (!token) {
-    console.log("NO TOKEN");
     return res.json({ error: 'No session' });
   }
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log("DECODED:", decoded);
 
     const { data: merchant } = await supabase
       .from('merchants')
@@ -245,10 +237,7 @@ const verifySession = async (req, res, next) => {
       .eq('id', decoded.merchant_id)
       .single();
 
-    console.log("MERCHANT FROM DB:", merchant);
-
     if (!merchant) {
-      console.log("MERCHANT NOT FOUND");
       return res.json({ error: 'Invalid session' });
     }
 
@@ -411,8 +400,6 @@ async function updateWalletObject(customer, merchant) {
   if (!res.ok) {
     console.log("WALLET PATCH ERROR:", data);
   }
-
-  console.log("MERCHANT IN WALLET:", merchant);
 }
 
 function hasActiveAccess(merchant) {
@@ -689,10 +676,11 @@ app.post('/wallet/:slug', async (req, res) => {
 
 // Get current merchant
 app.get('/merchant/me', verifySession, async (req, res) => {
-  console.log("REQ.MERCHANT:", req.merchant);
 
   if (!req.merchant) {
-    return res.json({ debug: "NO MERCHANT ATTACHED" });
+    return res.status(401).json({
+      error: "Unauthorized"
+    });
   }
 
   const resolvedStatus =
@@ -1735,19 +1723,11 @@ app.post(
         return res.json({ error: 'Update failed' });
       }
 
-      console.log("🚀 START WALLET UPDATE");
-
       try {
         await updateWalletObject(updated, req.merchant);
-        console.log("✅ WALLET UPDATED");
       } catch (err) {
         console.log("❌ WALLET UPDATE ERROR:", err.message);
       }
-
-      console.log("TRYING TO LOG SCAN:", {
-        merchant_id: req.merchant.id,
-        phone: customer.phone
-      });
 
       // ✅ RESPONSE
       res.json({
@@ -1765,8 +1745,6 @@ app.post(
 
 app.post('/billing/webhook', async (req, res) => {
 
-  console.log("WEBHOOK RECEIVED");
-
   res.sendStatus(200);
 
 });
@@ -1779,11 +1757,6 @@ app.post(
 
       const payload =
         JSON.parse(req.body.toString());
-
-      console.log(
-        "PAYMONGO WEBHOOK:",
-        JSON.stringify(payload, null, 2)
-      );
 
       const eventType =
         payload.data.attributes.type;
@@ -1828,11 +1801,6 @@ app.post(
         const attributes =
           payload.data.attributes.data.attributes;
 
-        console.log(
-          "FULL ATTRIBUTES:",
-          JSON.stringify(attributes, null, 2)
-        );
-
         const metadata =
           attributes.metadata || {};
 
@@ -1844,11 +1812,6 @@ app.post(
 
         const interval =
           metadata.interval;
-
-        console.log(
-          "MERCHANT ID:",
-          merchantId
-        );
 
         if (!merchantId) {
 
@@ -2002,11 +1965,6 @@ app.get(
 
       const data = await response.json();
 
-      console.log(
-        "REGISTER WEBHOOK:",
-        data
-      );
-
       res.json(data);
 
     } catch (err) {
@@ -2026,8 +1984,6 @@ app.get(
 // ---------- TEST ROUTE ----------
 
 app.get('/test-live', (req, res) => {
-
-  console.log("🔥 TEST ROUTE HIT");
 
   res.json({ status: "LIVE CODE" });
 
@@ -2188,8 +2144,6 @@ app.post(
 
       const data = await response.json();
 
-      console.log("PAYMONGO:", data);
-
       if (!response.ok) {
 
         return res.json({
@@ -2312,8 +2266,3 @@ app.use((req, res) => {
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on ${PORT}`);
 });
-
-// 🔥 KEEP PROCESS ALIVE (temporary fix)
-setInterval(() => {
-  console.log("alive");
-}, 10000);
