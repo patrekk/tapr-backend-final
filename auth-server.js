@@ -1798,6 +1798,11 @@ app.post(
       const signatureHeader =
         req.headers['paymongo-signature'];
 
+      console.log(
+        "PAYMONGO SIGNATURE HEADER:",
+        signatureHeader
+      );
+
       if (!signatureHeader) {
 
         console.log(
