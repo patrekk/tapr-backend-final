@@ -768,6 +768,9 @@ app.get('/merchant/me', verifySession, async (req, res) => {
     subscription_interval:
       req.merchant.subscription_interval,
 
+    cancel_at_period_end:
+      req.merchant.cancel_at_period_end,
+
     trial_ends_at:
       req.merchant.trial_ends_at
   });
@@ -2308,8 +2311,7 @@ app.post(
 
         .update({
 
-          subscription_status:
-            "cancelled"
+          cancel_at_period_end: true
 
         })
 

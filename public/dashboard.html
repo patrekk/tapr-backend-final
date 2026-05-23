@@ -1114,7 +1114,7 @@
                 Change Plan
               </button>
 
-              <button class="secondary" onclick="cancelSubscription(event)">
+              <button id="cancelSubscriptionBtn" class="secondary" onclick="cancelSubscription(event)">
                 Cancel Subscription
               </button>
 
@@ -1394,7 +1394,43 @@
 
             expiredInfoBox.innerHTML = "";
 
-            el.innerHTML = `
+            // 🔥 NEW STATE
+            if (merchant.cancel_at_period_end) {
+
+              el.innerHTML = `
+      <div style="
+        background:#fff7ed;
+        border:1px solid #fdba74;
+        padding:16px;
+        border-radius:16px;
+        margin-bottom:20px;
+      ">
+
+        <div style="
+          font-weight:700;
+          margin-bottom:6px;
+        ">
+          ⚠️ Cancellation Scheduled
+        </div>
+
+        <div style="
+          font-size:14px;
+          color:#555;
+        ">
+          Your subscription remains active until
+          <strong>
+            ${new Date(
+                merchant.subscription_expires_at
+              ).toLocaleDateString()}
+          </strong>.
+        </div>
+
+      </div>
+    `;
+
+            } else {
+
+              el.innerHTML = `
       <div style="
         background:#ecfdf5;
         border:1px solid #6ee7b7;
@@ -1419,6 +1455,7 @@
 
       </div>
     `;
+            }
           }
 
           // 🔥 EXPIRED / PAST DUE
@@ -1959,6 +1996,36 @@
 
           currentMerchant = data;
 
+          const cancelBtn =
+            document.getElementById(
+              "cancelSubscriptionBtn"
+            );
+
+          if (
+            data.cancel_at_period_end
+          ) {
+
+            cancelBtn.disabled = true;
+
+            cancelBtn.style.opacity = "0.5";
+
+            cancelBtn.style.cursor = "not-allowed";
+
+            cancelBtn.innerText =
+              "Cancellation Scheduled";
+
+          } else {
+
+            cancelBtn.disabled = false;
+
+            cancelBtn.style.opacity = "1";
+
+            cancelBtn.style.cursor = "pointer";
+
+            cancelBtn.innerText =
+              "Cancel Subscription";
+          }
+
           const plan =
             data.subscription_plan || "starter";
 
@@ -1978,14 +2045,44 @@
           ).innerText =
             `${formattedPlan} ${formattedInterval}`;
 
-          document.getElementById(
-            "billingStatus"
-          ).innerText =
-            data.subscription_status || "-";
+          const billingStatus =
+            document.getElementById("billingStatus");
 
-          document.getElementById(
-            "billingRenewal"
-          ).innerText =
+          if (
+            data.subscription_status === "active"
+            &&
+            data.cancel_at_period_end
+          ) {
+
+            billingStatus.innerText =
+              "Cancelling at period end";
+
+          } else {
+
+            billingStatus.innerText =
+              data.subscription_status || "-";
+          }
+
+          const renewalEl =
+            document.getElementById("billingRenewal");
+
+          const renewalLabel =
+            renewalEl.previousElementSibling;
+
+          if (
+            data.subscription_status === "active"
+            &&
+            data.cancel_at_period_end
+          ) {
+
+            renewalLabel.innerText = "Ends";
+
+          } else {
+
+            renewalLabel.innerText = "Renews";
+          }
+
+          renewalEl.innerText =
             data.subscription_expires_at
               ? new Date(
                 data.subscription_expires_at
