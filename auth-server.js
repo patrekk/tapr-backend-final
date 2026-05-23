@@ -307,39 +307,66 @@ const verifySession = async (req, res, next) => {
   }
 };
 
-function getResolvedSubscriptionStatus(merchant) {
+async function getResolvedSubscriptionStatus(
+  merchant
+) {
+
+  const now = new Date();
 
   // ACTIVE PAID SUBSCRIPTION
+
   if (
     merchant.subscription_status === "active"
     &&
     merchant.subscription_expires_at
     &&
-    new Date() < new Date(merchant.subscription_expires_at)
+    now < new Date(
+      merchant.subscription_expires_at
+    )
   ) {
 
     return "active";
   }
 
   // ACTIVE TRIAL
+
   if (
     merchant.subscription_status === "trial"
     &&
     merchant.trial_ends_at
     &&
-    new Date() < new Date(merchant.trial_ends_at)
+    now < new Date(
+      merchant.trial_ends_at
+    )
   ) {
 
     return "trial";
   }
 
+  // 🔥 CLEANUP EXPIRED ACTIVE
+
+  if (
+    merchant.subscription_status === "active"
+  ) {
+
+    await supabase
+      .from("merchants")
+      .update({
+        subscription_status: "inactive",
+        cancel_at_period_end: false
+      })
+      .eq("id", merchant.id);
+  }
+
   return "inactive";
 }
 
-function requireActiveSubscription(req, res, next) {
+async function requireActiveSubscription(req, res, next) {
 
   const resolvedStatus =
-    getResolvedSubscriptionStatus(req.merchant);
+    await getResolvedSubscriptionStatus(
+      req.merchant
+    );
 
   if (
     resolvedStatus === "active"
@@ -741,7 +768,9 @@ app.get('/merchant/me', verifySession, async (req, res) => {
   }
 
   const resolvedStatus =
-    getResolvedSubscriptionStatus(req.merchant);
+    await getResolvedSubscriptionStatus(
+      req.merchant
+    );
 
   res.json({
     name: req.merchant.name,
@@ -1997,7 +2026,9 @@ app.post(
             subscription_expires_at:
               expires.toISOString(),
 
-            cancel_at_period_end: false
+            cancel_at_period_end: false,
+
+            active_checkout_id: null
 
           })
 
@@ -2189,6 +2220,13 @@ app.post(
         label = "Tapr Pro Yearly";
       }
 
+      if (merchant.active_checkout_id) {
+
+        return res.json({
+          error: "Existing checkout session pending"
+        });
+      }
+
       const secretKey =
         process.env.PAYMONGO_SECRET_KEY;
 
@@ -2275,6 +2313,9 @@ app.post(
         .from('merchants')
         .update({
           paymongo_checkout_id:
+            data.data.id,
+
+          active_checkout_id:
             data.data.id
         })
         .eq('id', merchant.id);
