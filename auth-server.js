@@ -1995,7 +1995,9 @@ app.post(
               interval,
 
             subscription_expires_at:
-              expires.toISOString()
+              expires.toISOString(),
+
+            cancel_at_period_end: false
 
           })
 
