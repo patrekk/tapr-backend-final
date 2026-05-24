@@ -2772,12 +2772,14 @@
 
           let status = "🟡 Inactive";
 
-          if (expired) {
+          if (
+            customer.computed_status === "expired"
+          ) {
 
             status = "🔴 Expired";
 
           } else if (
-            customer.membership_status === "active"
+            customer.computed_status === "active"
           ) {
 
             status = "🟢 Active";
@@ -2863,7 +2865,7 @@
         <div>${customer.visit_count || 0}/5</div>
       </div>
 
-      ${customer.membership_status !== "active" || expired
+      ${customer.computed_status !== "active"
               ? `
             <button
               onclick="renewMembership('${customer.id}', this)"

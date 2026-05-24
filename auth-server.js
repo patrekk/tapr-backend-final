@@ -513,6 +513,45 @@ function hasActiveAccess(merchant) {
   return false;
 }
 
+function getCustomerComputedStatus(customer) {
+
+  if (
+    customer.membership_expires_at &&
+    new Date() > new Date(customer.membership_expires_at)
+  ) {
+    return "expired";
+  }
+
+  return customer.membership_status;
+}
+
+async function getCheckoutSession(checkoutId) {
+
+  const secretKey =
+    process.env.PAYMONGO_SECRET_KEY;
+
+  const auth = Buffer
+    .from(secretKey + ":")
+    .toString("base64");
+
+  const response = await fetch(
+    `https://api.paymongo.com/v1/checkout_sessions/${checkoutId}`,
+    {
+      headers: {
+        accept: "application/json",
+        authorization: `Basic ${auth}`
+      }
+    }
+  );
+
+  const data = await response.json();
+
+  return {
+    ok: response.ok,
+    data
+  };
+}
+
 // ---------- GOOGLE WALLET ----------
 
 async function getAccessToken() {
@@ -1129,14 +1168,8 @@ app.get(
 
     const customers = (data || []).map(customer => {
 
-      let computed_status = customer.membership_status;
-
-      if (
-        customer.membership_expires_at &&
-        new Date() > new Date(customer.membership_expires_at)
-      ) {
-        computed_status = "expired";
-      }
+      const computed_status =
+        getCustomerComputedStatus(customer);
 
       return {
         ...customer,
@@ -1713,12 +1746,11 @@ app.post(
 
       if (req.merchant.membership_mode === "paid") {
 
-        const expired =
-          customer.membership_expires_at &&
-          new Date() > new Date(customer.membership_expires_at);
+        const computedStatus =
+          getCustomerComputedStatus(customer);
 
         // 🔥 AUTO EXPIRE
-        if (expired) {
+        if (computedStatus === "expired") {
 
           await supabase
             .from('customers')
@@ -1732,7 +1764,7 @@ app.post(
           });
         }
 
-        if (customer.membership_status !== "active") {
+        if (computedStatus !== "active") {
 
           return res.json({
             error: "Membership inactive"
@@ -2028,7 +2060,8 @@ app.post(
 
             cancel_at_period_end: false,
 
-            active_checkout_id: null
+            active_checkout_id: null,
+            checkout_created_at: null
 
           })
 
@@ -2220,11 +2253,89 @@ app.post(
         label = "Tapr Pro Yearly";
       }
 
-      if (merchant.active_checkout_id) {
+      const { data: freshMerchant } =
+        await supabase
+          .from('merchants')
+          .select(`
+            active_checkout_id,
+            checkout_created_at
+          `)
+          .eq('id', merchant.id)
+          .single();
 
-        return res.json({
-          error: "Existing checkout session pending"
-        });
+      // 🔥 AUTO CLEAR STALE CHECKOUT
+
+      if (
+        freshMerchant?.active_checkout_id &&
+        freshMerchant?.checkout_created_at
+      ) {
+
+        const createdAt =
+          new Date(
+            freshMerchant.checkout_created_at
+          );
+
+        const ageMs =
+          Date.now() - createdAt.getTime();
+
+        const THIRTY_MINUTES =
+          30 * 60 * 1000;
+
+        if (ageMs > THIRTY_MINUTES) {
+
+          await supabase
+            .from('merchants')
+            .update({
+              active_checkout_id: null,
+              checkout_created_at: null
+            })
+            .eq('id', merchant.id);
+
+          freshMerchant.active_checkout_id = null;
+          freshMerchant.checkout_created_at = null;
+        }
+      }
+
+      if (freshMerchant?.active_checkout_id) {
+
+        const session =
+          await getCheckoutSession(
+            freshMerchant.active_checkout_id
+          );
+
+        // FAILED REQUEST → safest behavior is block
+        if (!session.ok) {
+
+          return res.json({
+            error: "Unable to verify checkout session"
+          });
+        }
+
+        const paymentStatus =
+          session.data?.data?.attributes?.payment_intent
+            ?.attributes?.status;
+
+        // STILL PENDING
+        if (
+          paymentStatus !== "succeeded"
+          &&
+          paymentStatus !== "failed"
+          &&
+          paymentStatus !== "cancelled"
+        ) {
+
+          return res.json({
+            error: "Existing checkout session pending"
+          });
+        }
+
+        // CLEAN STALE CHECKOUT
+        await supabase
+          .from('merchants')
+          .update({
+            active_checkout_id: null
+          })
+          .eq('id', merchant.id);
       }
 
       const secretKey =
@@ -2316,7 +2427,10 @@ app.post(
             data.data.id,
 
           active_checkout_id:
-            data.data.id
+            data.data.id,
+
+          checkout_created_at:
+            new Date().toISOString()
         })
         .eq('id', merchant.id);
 
