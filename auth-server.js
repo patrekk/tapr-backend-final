@@ -482,7 +482,16 @@ async function updateWalletObject(customer, merchant) {
   const data = await res.json();
 
   if (!res.ok) {
-    console.log("WALLET PATCH ERROR:", data);
+
+    console.log(
+      "WALLET PATCH ERROR:",
+      data
+    );
+
+    throw new Error(
+      data?.error?.message
+      || "Wallet update failed"
+    );
   }
 }
 
@@ -1040,6 +1049,9 @@ app.post(
       .select('*')
       .eq('merchant_id', req.merchant.id);
 
+    let walletSyncSuccess = 0;
+    let walletSyncFailed = 0;
+
     for (const customer of customers || []) {
       try {
         await updateWalletObject(customer, {
@@ -1055,12 +1067,21 @@ app.post(
           ...(progress_style !== undefined && progress_style !== "" && { progress_style })
         });
 
+        walletSyncSuccess++;
+
       } catch (err) {
+        walletSyncFailed++;
         console.log("SYNC ERROR:", err.message);
       }
     }
 
-    res.json({ success: true });
+    res.json({
+      success: true,
+      wallet_sync: {
+        success: walletSyncSuccess,
+        failed: walletSyncFailed
+      }
+    });
 
   });
 
