@@ -1823,6 +1823,17 @@ app.post(
         });
       }
 
+      if (!rpcResult) {
+
+        console.log(
+          "RPC RESULT EMPTY"
+        );
+
+        return res.json({
+          error: "Scan failed"
+        });
+      }
+
       if (rpcResult.error) {
 
         return res.json({
@@ -1838,12 +1849,20 @@ app.post(
           .single();
 
       try {
+
         await updateWalletObject(
           refreshedCustomer,
           req.merchant
         );
+
       } catch (err) {
-        console.log("❌ WALLET UPDATE ERROR:", err.message);
+
+        console.log(
+          "❌ WALLET UPDATE ERROR:",
+          err.message
+        );
+
+        // DO NOT FAIL SCAN
       }
 
       // ✅ RESPONSE
