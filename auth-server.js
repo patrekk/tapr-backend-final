@@ -1809,7 +1809,7 @@ app.post(
             p_merchant_id: req.merchant.id,
             p_customer_id: customer.id,
             p_phone: customer.phone,
-            p_scan_date: `${localDate}T00:00:00.000Z`
+            p_scan_date: localDate
           }
         );
 
