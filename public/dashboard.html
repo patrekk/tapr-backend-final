@@ -2667,11 +2667,20 @@
 
           rows.forEach(row => {
 
+            const cells =
+              row.querySelectorAll("td");
+
+            const searchableText = `
+              ${cells[0]?.innerText || ""}
+              ${cells[1]?.innerText || ""}
+            `
+              .toLowerCase();
+
             const text =
               row.innerText.toLowerCase();
 
             let visible =
-              text.includes(query);
+              searchableText.includes(query);
 
             if (filter === "active") {
               visible =
