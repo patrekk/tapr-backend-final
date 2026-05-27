@@ -1235,6 +1235,7 @@
         let currentMerchant = null;
         let merchantHasAccess = true;
         let merchantData = null;
+        let historyLimit = 5;
         let allCustomers = [];
 
         function showPage(page, el) {
@@ -2810,6 +2811,16 @@
             .style.display = "none";
         }
 
+        function changeHistoryLimit(value) {
+
+          historyLimit = Number(value);
+
+          if (window.currentCustomerModalId) {
+
+            openCustomerModal(window.currentCustomerModalId);
+          }
+        }
+
         async function renewMembership(customerId, btn) {
 
           btn.disabled = true;
@@ -2897,18 +2908,20 @@
     `;
           }
 
-          return data.map(item => {
+          return data
+            .slice(0, historyLimit)
+            .map(item => {
 
-            let parsed = {};
+              let parsed = {};
 
-            try {
-              parsed =
-                typeof item.result === "string"
-                  ? JSON.parse(item.result)
-                  : item.result || {};
-            } catch { }
+              try {
+                parsed =
+                  typeof item.result === "string"
+                    ? JSON.parse(item.result)
+                    : item.result || {};
+              } catch { }
 
-            return `
+              return `
       <div style="
         padding:12px;
         border:1px solid var(--border);
@@ -2928,17 +2941,19 @@
           color:#777;
         ">
           ${new Date(
-              item.scanned_at
-            ).toLocaleString()}
+                item.scanned_at
+              ).toLocaleString()}
         </div>
 
       </div>
     `;
 
-          }).join("");
+            }).join("");
         }
 
         async function openCustomerModal(customerId) {
+
+          window.currentCustomerModalId = customerId;
 
           const modal =
             document.getElementById("customerModal");
@@ -3125,12 +3140,44 @@
         <div>
 
   <div style="
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:10px;
+">
+
+  <div style="
     font-size:12px;
     color:#777;
-    margin-bottom:10px;
   ">
-    Visit Timeline
+    Visit History
   </div>
+
+  <select
+    onchange="changeHistoryLimit(this.value)"
+    style="
+      padding:4px 8px;
+      border-radius:8px;
+      border:1px solid #ddd;
+      font-size:12px;
+    "
+  >
+
+    <option value="5" ${historyLimit === 5 ? "selected" : ""}>
+      5
+    </option>
+
+    <option value="10" ${historyLimit === 10 ? "selected" : ""}>
+      10
+    </option>
+
+    <option value="9999" ${historyLimit === 9999 ? "selected" : ""}>
+      All
+    </option>
+
+  </select>
+
+</div>
 
   <div style="
     display:flex;
