@@ -1394,6 +1394,51 @@ app.get(
     res.json(data);
   });
 
+app.get(
+  '/merchant/customer-history/:customerId',
+  verifySession,
+  async (req, res) => {
+
+    const { customerId } =
+      req.params;
+
+    const { data, error } =
+      await supabase
+        .from('scan_logs')
+        .select(`
+          scanned_at,
+          result
+        `)
+        .eq(
+          'merchant_id',
+          req.merchant.id
+        )
+        .eq(
+          'customer_id',
+          customerId
+        )
+        .order(
+          'scanned_at',
+          { ascending: false }
+        )
+        .limit(20);
+
+    if (error) {
+
+      console.log(
+        "CUSTOMER HISTORY ERROR:",
+        error
+      );
+
+      return res.status(500).json({
+        error: "failed_to_load_history"
+      });
+    }
+
+    res.json(data || []);
+  }
+);
+
 app.get('/merchant/:slug', async (req, res) => {
   const { slug } = req.params;
 

@@ -2861,6 +2861,83 @@
           }
         }
 
+        async function loadCustomerHistory(customerId) {
+
+          const res = await fetch(
+            `${API}/merchant/customer-history/${customerId}`,
+            {
+              headers: {
+                authorization: getToken()
+              }
+            }
+          );
+
+          const data = await res.json();
+
+          if (!Array.isArray(data)) {
+            return `
+      <div style="
+        color:#777;
+        font-size:13px;
+      ">
+        Failed to load history
+      </div>
+    `;
+          }
+
+          if (data.length === 0) {
+
+            return `
+      <div style="
+        color:#777;
+        font-size:13px;
+      ">
+        No visit history yet
+      </div>
+    `;
+          }
+
+          return data.map(item => {
+
+            let parsed = {};
+
+            try {
+              parsed =
+                typeof item.result === "string"
+                  ? JSON.parse(item.result)
+                  : item.result || {};
+            } catch { }
+
+            return `
+      <div style="
+        padding:12px;
+        border:1px solid var(--border);
+        border-radius:12px;
+      ">
+
+        <div style="
+          font-size:13px;
+          font-weight:600;
+          margin-bottom:4px;
+        ">
+          Visit ${parsed.visit || "-"}
+        </div>
+
+        <div style="
+          font-size:12px;
+          color:#777;
+        ">
+          ${new Date(
+              item.scanned_at
+            ).toLocaleString()}
+        </div>
+
+      </div>
+    `;
+
+          }).join("");
+        }
+
         async function openCustomerModal(customerId) {
 
           const modal =
@@ -2889,6 +2966,11 @@
             );
 
             const customer = await res.json();
+
+            const historyHTML =
+              await loadCustomerHistory(
+                customer.id
+              );
 
             if (!res.ok) {
 
@@ -3039,6 +3121,28 @@
             ${customer.visit_count || 0}/5
           </div>
         </div>
+
+        <div>
+
+  <div style="
+    font-size:12px;
+    color:#777;
+    margin-bottom:10px;
+  ">
+    Visit Timeline
+  </div>
+
+  <div style="
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    max-height:220px;
+    overflow-y:auto;
+  ">
+    ${historyHTML}
+  </div>
+
+</div>
 
         ${customer.computed_status !== "active"
                 ? `
