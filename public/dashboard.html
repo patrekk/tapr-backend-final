@@ -703,6 +703,14 @@
         <div id="customersSection" class="section">
           <h3>Customers</h3>
           <input id="customerSearch" placeholder="Search customer" style="
+              width:100%;
+              margin-bottom:16px;
+              padding:12px;
+              border-radius:10px;
+              border:1px solid var(--border);
+              box-sizing:border-box;
+            ">
+          <select id="customerFilter" style="
     width:100%;
     margin-bottom:16px;
     padding:12px;
@@ -710,6 +718,28 @@
     border:1px solid var(--border);
     box-sizing:border-box;
   ">
+
+            <option value="all">
+              All Customers
+            </option>
+
+            <option value="active">
+              Active Membership
+            </option>
+
+            <option value="expired">
+              Expired Membership
+            </option>
+
+            <option value="inactive">
+              Inactive Membership
+            </option>
+
+            <option value="repeat">
+              Repeat Customers
+            </option>
+
+          </select>
           <table>
             <thead>
               <tr id="customerTableHead"></tr>
@@ -2626,6 +2656,10 @@
               .toLowerCase()
               .trim();
 
+          const filter =
+            document.getElementById("customerFilter")
+              .value;
+
           const rows =
             document.querySelectorAll(
               "#customersTable tr"
@@ -2636,8 +2670,45 @@
             const text =
               row.innerText.toLowerCase();
 
+            let visible =
+              text.includes(query);
+
+            if (filter === "active") {
+              visible =
+                visible &&
+                text.includes("active");
+            }
+
+            if (filter === "expired") {
+              visible =
+                visible &&
+                text.includes("expired");
+            }
+
+            if (filter === "inactive") {
+              visible =
+                visible &&
+                text.includes("inactive");
+            }
+
+            if (filter === "repeat") {
+
+              const cells =
+                row.querySelectorAll("td");
+
+              const visits =
+                Number(
+                  cells[cells.length - 1]
+                    ?.innerText || 0
+                );
+
+              visible =
+                visible &&
+                visits > 1;
+            }
+
             row.style.display =
-              text.includes(query)
+              visible
                 ? ""
                 : "none";
           });
@@ -3010,6 +3081,9 @@
 
           document.getElementById("customerSearch")
             .addEventListener("input", filterCustomers);
+
+          document.getElementById("customerFilter")
+            .addEventListener("change", filterCustomers);
 
           document.getElementById("logoInput")
             .addEventListener("change", e => {
