@@ -1828,7 +1828,7 @@
 
               table.innerHTML += `
       <tr
-  onclick='openCustomerModal(${JSON.stringify(c)})'
+  onclick="openCustomerModal('${c.id}')"
   style="cursor:pointer;"
 >
 
@@ -2745,7 +2745,7 @@
           }
         }
 
-        function openCustomerModal(customer) {
+        async function openCustomerModal(customerId) {
 
           const modal =
             document.getElementById("customerModal");
@@ -2753,134 +2753,200 @@
           const content =
             document.getElementById("customerModalContent");
 
-          const expired =
-            customer.membership_expires_at &&
-            new Date() > new Date(customer.membership_expires_at);
-
-          const daysLeft =
-            customer.membership_expires_at
-              ? Math.max(
-                0,
-                Math.ceil(
-                  (
-                    new Date(customer.membership_expires_at)
-                    - new Date()
-                  ) / (1000 * 60 * 60 * 24)
-                )
-              )
-              : null;
-
-          let status = "🟡 Inactive";
-
-          if (
-            customer.computed_status === "expired"
-          ) {
-
-            status = "🔴 Expired";
-
-          } else if (
-            customer.computed_status === "active"
-          ) {
-
-            status = "🟢 Active";
-          }
+          modal.style.display = "flex";
 
           content.innerHTML = `
-
-    <div style="
-      font-size:22px;
-      font-weight:700;
-      margin-bottom:20px;
-    ">
-      ${customer.name || "Customer"}
-    </div>
-
-    <div style="display:flex; flex-direction:column; gap:14px;">
-
-      <div>
-        <div style="font-size:12px; color:#777;">
-          Phone
-        </div>
-
-        <div>${customer.phone}</div>
-      </div>
-
-      <div>
-        <div style="font-size:12px; color:#777;">
-          Birthday
-        </div>
-
-        <div>${customer.birthday || "-"}</div>
-      </div>
-
-      <div>
-        <div style="font-size:12px; color:#777;">
-          Membership Status
-        </div>
-
-        <div>${status}</div>
-      </div>
-
-      <div>
-        <div style="font-size:12px; color:#777;">
-          Expiration
-        </div>
-
-        <div>
-          ${customer.membership_expires_at
-              ? new Date(
-                customer.membership_expires_at
-              ).toLocaleDateString()
-              : "-"
-            }
-        </div>
-      </div>
-
-      <div>
-        <div style="font-size:12px; color:#777;">
-          Days Remaining
-        </div>
-
-        <div>
-          ${daysLeft !== null
-              ? daysLeft + " days"
-              : "-"
-            }
-        </div>
-      </div>
-
-      <div>
-        <div style="font-size:12px; color:#777;">
-          Total Visits
-        </div>
-
-        <div>${customer.total_visits || 0}</div>
-      </div>
-
-      <div>
-        <div style="font-size:12px; color:#777;">
-          Current Progress
-        </div>
-
-        <div>${customer.visit_count || 0}/5</div>
-      </div>
-
-      ${customer.computed_status !== "active"
-              ? `
-            <button
-              onclick="renewMembership('${customer.id}', this)"
-              style="margin-top:10px;"
-            >
-              Renew Membership
-            </button>
-          `
-              : ""
-            }
-
+    <div style="padding:20px;">
+      Loading...
     </div>
   `;
 
-          modal.style.display = "flex";
+          try {
+
+            const res = await fetch(
+              `${API}/merchant/customer/${customerId}`,
+              {
+                headers: {
+                  authorization: getToken()
+                }
+              }
+            );
+
+            const customer = await res.json();
+
+            if (!res.ok) {
+
+              content.innerHTML = `
+        <div>
+          Failed to load customer
+        </div>
+      `;
+
+              return;
+            }
+
+            const daysLeft =
+              customer.membership_expires_at
+                ? Math.max(
+                  0,
+                  Math.ceil(
+                    (
+                      new Date(customer.membership_expires_at)
+                      - new Date()
+                    ) / (1000 * 60 * 60 * 24)
+                  )
+                )
+                : null;
+
+            let status = "🟡 Inactive";
+
+            if (
+              customer.computed_status === "expired"
+            ) {
+
+              status = "🔴 Expired";
+
+            } else if (
+              customer.computed_status === "active"
+            ) {
+
+              status = "🟢 Active";
+            }
+
+            content.innerHTML = `
+
+      <div style="
+        font-size:22px;
+        font-weight:700;
+        margin-bottom:20px;
+      ">
+        ${customer.name || "Customer"}
+      </div>
+
+      <div style="
+        display:flex;
+        flex-direction:column;
+        gap:14px;
+      ">
+
+        <div>
+          <div style="
+            font-size:12px;
+            color:#777;
+          ">
+            Phone
+          </div>
+
+          <div>${customer.phone}</div>
+        </div>
+
+        <div>
+          <div style="
+            font-size:12px;
+            color:#777;
+          ">
+            Birthday
+          </div>
+
+          <div>
+            ${customer.birthday || "-"}
+          </div>
+        </div>
+
+        <div>
+          <div style="
+            font-size:12px;
+            color:#777;
+          ">
+            Membership Status
+          </div>
+
+          <div>${status}</div>
+        </div>
+
+        <div>
+          <div style="
+            font-size:12px;
+            color:#777;
+          ">
+            Expiration
+          </div>
+
+          <div>
+            ${customer.membership_expires_at
+                ? new Date(
+                  customer.membership_expires_at
+                ).toLocaleDateString()
+                : "-"
+              }
+          </div>
+        </div>
+
+        <div>
+          <div style="
+            font-size:12px;
+            color:#777;
+          ">
+            Days Remaining
+          </div>
+
+          <div>
+            ${daysLeft !== null
+                ? daysLeft + " days"
+                : "-"
+              }
+          </div>
+        </div>
+
+        <div>
+          <div style="
+            font-size:12px;
+            color:#777;
+          ">
+            Total Visits
+          </div>
+
+          <div>
+            ${customer.total_visits || 0}
+          </div>
+        </div>
+
+        <div>
+          <div style="
+            font-size:12px;
+            color:#777;
+          ">
+            Current Progress
+          </div>
+
+          <div>
+            ${customer.visit_count || 0}/5
+          </div>
+        </div>
+
+        ${customer.computed_status !== "active"
+                ? `
+              <button
+                onclick="renewMembership('${customer.id}', this)"
+                style="margin-top:10px;"
+              >
+                Renew Membership
+              </button>
+            `
+                : ""
+              }
+
+      </div>
+    `;
+
+          } catch (err) {
+
+            content.innerHTML = `
+      <div>
+        Failed to load customer
+      </div>
+    `;
+          }
         }
 
         document.addEventListener("DOMContentLoaded", async () => {

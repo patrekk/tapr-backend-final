@@ -141,6 +141,36 @@ function cleanString(value) {
   return value.trim();
 }
 
+function normalizePhone(phone) {
+
+  phone = cleanString(phone);
+
+  // remove spaces/dashes/etc
+  phone = phone.replace(/\D/g, '');
+
+  // 0917...
+  if (phone.startsWith('0')) {
+    phone = '63' + phone.slice(1);
+  }
+
+  // 917...
+  if (
+    phone.length === 10 &&
+    phone.startsWith('9')
+  ) {
+    phone = '63' + phone;
+  }
+
+  // final validation
+  if (
+    !/^639\d{9}$/.test(phone)
+  ) {
+    return null;
+  }
+
+  return phone;
+}
+
 function isValidEmail(email) {
 
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -718,7 +748,13 @@ app.post('/wallet/:slug', async (req, res) => {
   const { slug } = req.params;
   let { phone, name, email, birthday } = req.body;
 
-  phone = cleanString(phone);
+  phone = normalizePhone(phone);
+
+  if (!phone) {
+    return res.json({
+      error: "Invalid phone number"
+    });
+  }
   name = cleanString(name);
   email = cleanString(email).toLowerCase();
   birthday = cleanString(birthday);
@@ -1202,6 +1238,58 @@ app.get(
     res.json(customers);
 
   });
+
+app.get(
+  '/merchant/customer/:id',
+  verifySession,
+  async (req, res) => {
+
+    const { id } = req.params;
+
+    const { data: customer, error } =
+      await supabase
+        .from('customers')
+        .select('*')
+        .eq('id', id)
+        .eq('merchant_id', req.merchant.id)
+        .single();
+
+    if (error || !customer) {
+
+      return res.status(404).json({
+        error: "Customer not found"
+      });
+    }
+
+    const computed_status =
+      getCustomerComputedStatus(customer);
+
+    let days_left = null;
+
+    if (
+      customer.membership_expires_at
+    ) {
+
+      const diff =
+        new Date(customer.membership_expires_at)
+        - new Date();
+
+      days_left =
+        Math.max(
+          0,
+          Math.ceil(
+            diff / (1000 * 60 * 60 * 24)
+          )
+        );
+    }
+
+    res.json({
+      ...customer,
+      computed_status,
+      days_left
+    });
+  }
+);
 
 app.post('/merchant/activate-customer', verifySession, async (req, res) => {
 
