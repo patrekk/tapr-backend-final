@@ -1246,6 +1246,38 @@ app.get(
 
     const { id } = req.params;
 
+    const { data: customer } = await supabase
+      .from('customers')
+      .select('*')
+      .eq('id', id)
+      .eq('merchant_id', req.merchant.id)
+      .single();
+
+    if (!customer) {
+
+      return res.status(404).json({
+        error: "Customer not found"
+      });
+    }
+
+    const computed_status =
+      getCustomerComputedStatus(customer);
+
+    res.json({
+      ...customer,
+      computed_status
+    });
+
+  }
+);
+
+app.get(
+  '/merchant/customer/:id',
+  verifySession,
+  async (req, res) => {
+
+    const { id } = req.params;
+
     const { data: customer, error } =
       await supabase
         .from('customers')
