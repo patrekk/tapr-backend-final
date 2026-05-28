@@ -1240,6 +1240,9 @@
         let filteredCustomers = [];
         let currentPage = 1;
         const customersPerPage = 25;
+        let allLogs = [];
+        let currentLogsPage = 1;
+        let logsPerPage = 25;
 
         function showPage(page, el) {
           document.getElementById("dashboardPage").style.display = "none";
@@ -2042,6 +2045,8 @@
           const table = document.getElementById("logsTable");
           table.innerHTML = "";
 
+          allLogs = data;
+
           if (!Array.isArray(data)) {
             console.log("Logs error:", data);
             return;
@@ -2059,34 +2064,139 @@
             return;
           }
 
-          data.forEach(l => {
+          renderLogsTable(allLogs);
+        }
+
+        function renderLogsTable(logs) {
+
+          const table =
+            document.getElementById("logsTable");
+
+          table.innerHTML = "";
+
+          const start =
+            (currentLogsPage - 1) * logsPerPage;
+
+          const end =
+            start + logsPerPage;
+
+          const paginated =
+            logs.slice(start, end);
+
+          paginated.forEach(l => {
+
             let visit = "-";
             let discount = "-";
 
             if (typeof l.result === "string") {
+
               try {
+
                 const parsed = JSON.parse(l.result);
+
                 visit = parsed.visit ?? "-";
                 discount = parsed.discount ?? "-";
-              } catch {
-                visit = "-";
-                discount = "-";
-              }
+
+              } catch { }
+
             } else {
-              // ✅ already object (your current backend)
+
               visit = l.result?.visit ?? "-";
               discount = l.result?.discount ?? "-";
             }
 
             table.innerHTML += `
-  <tr>
-    <td>${l.phone}</td>
-    <td>${l.customers?.name ?? "-"}</td>
-    <td>${visit} • ₱${discount}</td>
-    <td>${new Date(l.scanned_at).toLocaleTimeString()}</td>
-  </tr>
-`;
+      <tr>
+
+        <td>${l.phone}</td>
+
+        <td>${l.customers?.name ?? "-"}</td>
+
+        <td>${visit} • ₱${discount}</td>
+
+        <td>
+          ${new Date(
+              l.scanned_at
+            ).toLocaleTimeString()}
+        </td>
+
+      </tr>
+    `;
+
           });
+
+          renderLogsPagination(logs.length);
+        }
+
+        function renderLogsPagination(total) {
+
+          let pagination =
+            document.getElementById(
+              "logsPagination"
+            );
+
+          if (!pagination) {
+
+            pagination =
+              document.createElement("div");
+
+            pagination.id =
+              "logsPagination";
+
+            pagination.style.marginTop =
+              "16px";
+
+            pagination.style.display =
+              "flex";
+
+            pagination.style.gap =
+              "10px";
+
+            pagination.style.alignItems =
+              "center";
+
+            document
+              .getElementById("logsSection")
+              .appendChild(pagination);
+          }
+
+          const totalPages =
+            Math.ceil(total / logsPerPage);
+
+          pagination.innerHTML = `
+
+    <button
+      class="secondary"
+      ${currentLogsPage === 1 ? "disabled" : ""}
+      onclick="changeLogsPage(-1)"
+    >
+      Previous
+    </button>
+
+    <div style="
+      font-size:13px;
+      color:#777;
+    ">
+      Page ${currentLogsPage}
+      of
+      ${totalPages || 1}
+    </div>
+
+    <button
+      class="secondary"
+      ${currentLogsPage >= totalPages ? "disabled" : ""}
+      onclick="changeLogsPage(1)"
+    >
+      Next
+    </button>
+  `;
+        }
+
+        function changeLogsPage(direction) {
+
+          currentLogsPage += direction;
+
+          renderLogsTable(allLogs);
         }
 
         async function generateQR() {
