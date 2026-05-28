@@ -3161,25 +3161,10 @@
   </div>
 
   <div style="
-    background:#f9fafb;
-    border-radius:12px;
-    padding:12px;
-  ">
-    <div style="
-      font-size:11px;
-      color:#777;
-      margin-bottom:6px;
-    ">
-      Progress
-    </div>
-
-    <div style="
-      font-size:20px;
-      font-weight:700;
-    ">
-      ${customer.visit_count || 0}/5
-    </div>
-  </div>
+  display:grid;
+  grid-template-columns:repeat(2, 1fr);
+  gap:10px;
+">
 
   <div style="
     background:#f9fafb;
