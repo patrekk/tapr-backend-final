@@ -1237,6 +1237,9 @@
         let merchantData = null;
         let historyLimit = 5;
         let allCustomers = [];
+        let filteredCustomers = [];
+        let currentPage = 1;
+        const customersPerPage = 25;
 
         function showPage(page, el) {
           document.getElementById("dashboardPage").style.display = "none";
@@ -1661,6 +1664,7 @@
           table.innerHTML = "";
 
           allCustomers = data;
+          filteredCustomers = data;
 
           if (!Array.isArray(data)) {
             console.log("Customers error:", data);
@@ -1862,62 +1866,139 @@
   `;
 
           }
+          renderCustomersTable(filteredCustomers);
 
-          data.forEach(c => {
+        }
 
-            // PAID MEMBERSHIP MODE
+        function renderCustomersTable(customers) {
+
+          const table =
+            document.getElementById("customersTable");
+
+          table.innerHTML = "";
+
+          const start =
+            (currentPage - 1) * customersPerPage;
+
+          const end =
+            start + customersPerPage;
+
+          const paginated =
+            customers.slice(start, end);
+
+          paginated.forEach(c => {
+
             if (merchantMode === "paid") {
 
               table.innerHTML += `
-      <tr
-  onclick="openCustomerModal('${c.id}')"
-  style="cursor:pointer;"
->
+        <tr
+          onclick="openCustomerModal('${c.id}')"
+          style="cursor:pointer;"
+        >
 
-        <td>${c.phone}</td>
+          <td>${c.phone}</td>
 
-        <td>${c.name || "-"}</td>
+          <td>${c.name || "-"}</td>
 
-        <td>
-          ${c.computed_status === "active"
+          <td>
+            ${c.computed_status === "active"
                   ? "🟢 Active"
                   : c.computed_status === "expired"
                     ? "🔴 Expired"
                     : "🟡 Inactive"}
-        </td>
+          </td>
 
-        <td>${c.visit_count || 0}/5</td>
+          <td>${c.visit_count || 0}/5</td>
 
-        <td>${c.total_visits || 0}</td>
+          <td>${c.total_visits || 0}</td>
 
-      </tr>
-    `;
+        </tr>
+      `;
 
-            }
-
-            // FREE LOYALTY MODE
-            else {
+            } else {
 
               table.innerHTML += `
-                <tr
-  onclick='openCustomerModal(${JSON.stringify(c)})'
-  style="cursor:pointer;"
->
+        <tr
+          onclick='openCustomerModal("${c.id}")'
+          style="cursor:pointer;"
+        >
 
-                <td>${c.phone}</td>
+          <td>${c.phone}</td>
 
-                <td>${c.name || "-"}</td>
+          <td>${c.name || "-"}</td>
 
-                <td>${c.visit_count || 0}/5</td>
+          <td>${c.visit_count || 0}/5</td>
 
-                <td>${c.total_visits || 0}</td>
+          <td>${c.total_visits || 0}</td>
 
-  </tr>
-`;
-
+        </tr>
+      `;
             }
 
           });
+
+          renderPagination(customers.length);
+        }
+
+        function renderPagination(total) {
+
+          let pagination =
+            document.getElementById("pagination");
+
+          if (!pagination) {
+
+            pagination = document.createElement("div");
+
+            pagination.id = "pagination";
+
+            pagination.style.marginTop = "16px";
+
+            pagination.style.display = "flex";
+
+            pagination.style.gap = "10px";
+
+            pagination.style.alignItems = "center";
+
+            document
+              .getElementById("customersSection")
+              .appendChild(pagination);
+          }
+
+          const totalPages =
+            Math.ceil(total / customersPerPage);
+
+          pagination.innerHTML = `
+
+    <button
+      class="secondary"
+      ${currentPage === 1 ? "disabled" : ""}
+      onclick="changePage(-1)"
+    >
+      Previous
+    </button>
+
+    <div style="
+      font-size:13px;
+      color:#777;
+    ">
+      Page ${currentPage} of ${totalPages || 1}
+    </div>
+
+    <button
+      class="secondary"
+      ${currentPage >= totalPages ? "disabled" : ""}
+      onclick="changePage(1)"
+    >
+      Next
+    </button>
+  `;
+        }
+
+        function changePage(direction) {
+
+          currentPage += direction;
+
+          renderCustomersTable(filteredCustomers);
         }
 
         async function activateCustomer(customerId) {
@@ -2666,62 +2747,48 @@
               "#customersTable tr"
             );
 
-          rows.forEach(row => {
+          filteredCustomers = allCustomers.filter(c => {
 
-            const cells =
-              row.querySelectorAll("td");
-
-            const searchableText = `
-              ${cells[0]?.innerText || ""}
-              ${cells[1]?.innerText || ""}
-            `
-              .toLowerCase();
-
-            const text =
-              row.innerText.toLowerCase();
+            const searchable =
+              `
+      ${c.phone || ""}
+      ${c.name || ""}
+    `
+                .toLowerCase();
 
             let visible =
-              searchableText.includes(query);
+              searchable.includes(query);
 
             if (filter === "active") {
               visible =
                 visible &&
-                text.includes("active");
+                c.computed_status === "active";
             }
 
             if (filter === "expired") {
               visible =
                 visible &&
-                text.includes("expired");
+                c.computed_status === "expired";
             }
 
             if (filter === "inactive") {
               visible =
                 visible &&
-                text.includes("inactive");
+                c.computed_status === "inactive";
             }
 
             if (filter === "repeat") {
-
-              const cells =
-                row.querySelectorAll("td");
-
-              const visits =
-                Number(
-                  cells[cells.length - 1]
-                    ?.innerText || 0
-                );
-
               visible =
                 visible &&
-                visits > 1;
+                (c.total_visits || 0) > 1;
             }
 
-            row.style.display =
-              visible
-                ? ""
-                : "none";
+            return visible;
           });
+
+          currentPage = 1;
+
+          renderCustomersTable(filteredCustomers);
         }
 
         function selectPlan(plan) {
