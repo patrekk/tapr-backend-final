@@ -740,6 +740,31 @@
             </option>
 
           </select>
+          <select id="customerSort" style="
+  width:100%;
+  margin-bottom:16px;
+  padding:12px;
+  border-radius:10px;
+  border:1px solid var(--border);
+  box-sizing:border-box;
+">
+
+            <option value="recent">
+              Most Recent
+            </option>
+
+            <option value="visits">
+              Most Visits
+            </option>
+
+            <option value="name">
+              Name A-Z
+            </option>
+
+          </select>
+          <button onclick="exportCustomers()" class="secondary" style="margin-bottom:16px;">
+            Export CSV
+          </button>
           <table>
             <thead>
               <tr id="customerTableHead"></tr>
@@ -2896,9 +2921,89 @@
             return visible;
           });
 
+          const sort =
+            document.getElementById("customerSort").value;
+
+          if (sort === "visits") {
+
+            filteredCustomers.sort(
+              (a, b) =>
+                (b.total_visits || 0) -
+                (a.total_visits || 0)
+            );
+
+          }
+
+          if (sort === "name") {
+
+            filteredCustomers.sort(
+              (a, b) =>
+                (a.name || "")
+                  .localeCompare(b.name || "")
+            );
+
+          }
+
           currentPage = 1;
 
           renderCustomersTable(filteredCustomers);
+        }
+
+        function exportCustomers() {
+
+          const rows = allCustomers.map(c => [
+
+            c.phone || "",
+
+            c.name || "",
+
+            c.computed_status || "",
+
+            c.visit_count || 0,
+
+            c.total_visits || 0,
+
+            c.birthday || ""
+
+          ]);
+
+          const csv = [
+
+            [
+              "Phone",
+              "Name",
+              "Status",
+              "Loop",
+              "Total Visits",
+              "Birthday"
+            ],
+
+            ...rows
+
+          ]
+            .map(r => r.join(","))
+            .join("\n");
+
+          const blob =
+            new Blob(
+              [csv],
+              { type: "text/csv" }
+            );
+
+          const url =
+            URL.createObjectURL(blob);
+
+          const a =
+            document.createElement("a");
+
+          a.href = url;
+
+          a.download =
+            "tapr-customers.csv";
+
+          a.click();
+
+          URL.revokeObjectURL(url);
         }
 
         function selectPlan(plan) {
@@ -3496,6 +3601,9 @@
             .addEventListener("input", filterCustomers);
 
           document.getElementById("customerFilter")
+            .addEventListener("change", filterCustomers);
+
+          document.getElementById("customerSort")
             .addEventListener("change", filterCustomers);
 
           document.getElementById("logoInput")
