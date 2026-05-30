@@ -1018,6 +1018,15 @@
 
           <h3>Billing</h3>
 
+          <div id="subscriptionVisibilityCard" style="
+  margin-bottom:24px;
+  padding:16px;
+  border:1px solid var(--border);
+  border-radius:16px;
+  background:#fafafa;
+">
+          </div>
+
           <div style="
       display:flex;
       flex-direction:column;
@@ -1180,6 +1189,40 @@
               <button id="cancelSubscriptionBtn" class="secondary" onclick="cancelSubscription(event)">
                 Cancel Subscription
               </button>
+
+            </div>
+
+            <div style="
+  margin-top:32px;
+  border-top:1px solid var(--border);
+  padding-top:24px;
+">
+
+              <h3 style="margin-bottom:16px;">
+                Billing Activity
+              </h3>
+
+              <table>
+
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Event</th>
+                    <th>Details</th>
+                  </tr>
+                </thead>
+
+                <tbody id="billingHistoryTable">
+
+                  <tr>
+                    <td colspan="3" style="color:#777;">
+                      Loading...
+                    </td>
+                  </tr>
+
+                </tbody>
+
+              </table>
 
             </div>
 
@@ -2364,6 +2407,152 @@
               "colorInput"
             ).value = data.hex_color;
           }
+        }
+
+        async function loadBillingHistory() {
+
+          try {
+
+            const res = await fetch(
+              `${API}/merchant/billing-history`,
+              {
+                headers: {
+                  authorization: getToken()
+                }
+              }
+            );
+
+            const data = await res.json();
+
+            const table =
+              document.getElementById(
+                "billingHistoryTable"
+              );
+
+            if (!Array.isArray(data)) {
+
+              table.innerHTML = `
+        <tr>
+          <td colspan="3">
+            No billing activity yet
+          </td>
+        </tr>
+      `;
+
+              return;
+            }
+
+            table.innerHTML =
+              data.map(item => `
+
+        <tr>
+
+          <td>
+            ${new Date(
+                item.created_at
+              ).toLocaleDateString()}
+          </td>
+
+          <td>
+            ${item.event_type}
+          </td>
+
+          <td>
+            ${item.description || "-"}
+          </td>
+
+        </tr>
+
+      `).join("");
+
+          } catch {
+
+            document.getElementById(
+              "billingHistoryTable"
+            ).innerHTML = `
+      <tr>
+        <td colspan="3">
+          Failed to load billing history
+        </td>
+      </tr>
+    `;
+          }
+        }
+
+        function renderSubscriptionVisibility() {
+
+          const merchant = merchantData;
+
+          if (!merchant) return;
+
+          const card =
+            document.getElementById(
+              "subscriptionVisibilityCard"
+            );
+
+          const expiry =
+            merchant.subscription_expires_at;
+
+          const daysRemaining =
+            expiry
+              ? Math.max(
+                0,
+                Math.ceil(
+                  (
+                    new Date(expiry)
+                    - new Date()
+                  ) /
+                  (1000 * 60 * 60 * 24)
+                )
+              )
+              : 0;
+
+          card.innerHTML = `
+
+    <div style="
+      display:grid;
+      grid-template-columns:
+      repeat(2,1fr);
+      gap:16px;
+    ">
+
+      <div>
+
+        <div style="
+          font-size:12px;
+          color:#777;
+        ">
+          Expires
+        </div>
+
+        <div>
+          ${expiry
+              ? new Date(expiry)
+                .toLocaleDateString()
+              : "-"
+            }
+        </div>
+
+      </div>
+
+      <div>
+
+        <div style="
+          font-size:12px;
+          color:#777;
+        ">
+          Days Remaining
+        </div>
+
+        <div>
+          ${daysRemaining}
+        </div>
+
+      </div>
+
+    </div>
+
+  `;
         }
 
         async function applyBranding() {
@@ -3584,6 +3773,8 @@
           await applyBranding();
           loadMerchantName();
           loadProfile();
+          renderSubscriptionVisibility();
+          loadBillingHistory();
           loadPass();
 
           loadStats();

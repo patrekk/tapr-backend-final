@@ -2256,6 +2256,15 @@ app.post(
           merchantId
         );
 
+        await supabase
+          .from('billing_events')
+          .insert([{
+            merchant_id: merchantId,
+            event_type: 'Payment Received',
+            description:
+              `${plan.toUpperCase()} ${interval}`
+          }]);
+
         // 🔥 MARK WEBHOOK AS PROCESSED
 
         await supabase
@@ -2662,6 +2671,14 @@ app.post(
         });
       }
 
+      await supabase
+        .from('billing_events')
+        .insert([{
+          merchant_id: merchant.id,
+          event_type: 'Cancellation Scheduled',
+          description: 'Ends at current billing period'
+        }]);
+
       res.json({
         success: true
       });
@@ -2677,6 +2694,28 @@ app.post(
         error: "server_error"
       });
     }
+  }
+);
+
+app.get(
+  '/merchant/billing-history',
+  verifySession,
+  async (req, res) => {
+
+    const { data } =
+      await supabase
+        .from('billing_events')
+        .select('*')
+        .eq(
+          'merchant_id',
+          req.merchant.id
+        )
+        .order(
+          'created_at',
+          { ascending: false }
+        );
+
+    res.json(data || []);
   }
 );
 
