@@ -3551,13 +3551,16 @@
 
         ${customer.computed_status !== "active"
                 ? `
-              <button
-                onclick="renewMembership('${customer.id}', this)"
-                style="margin-top:10px;"
-              >
-                Renew Membership
-              </button>
-            `
+      <button
+        onclick="renewMembership('${customer.id}', this)"
+        style="margin-top:10px;"
+      >
+        ${customer.computed_status === "inactive"
+                  ? "Activate Membership"
+                  : "Renew Membership"
+                }
+      </button>
+    `
                 : ""
               }
 
