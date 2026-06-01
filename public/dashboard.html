@@ -2422,9 +2422,14 @@
               }
             );
 
-            const data = await res.json();
-            console.log("BILLING HISTORY RESPONSE");
-            console.log(data);
+            console.log("STATUS:", res.status);
+
+            const raw = await res.text();
+
+            console.log("RAW RESPONSE:");
+            console.log(raw);
+
+            return;
 
             const table =
               document.getElementById(
