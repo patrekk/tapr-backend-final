@@ -2424,12 +2424,9 @@
 
             console.log("STATUS:", res.status);
 
-            const raw = await res.text();
+            const data = await res.json();
 
-            console.log("RAW RESPONSE:");
-            console.log(raw);
-
-            return;
+            console.log("BILLING HISTORY:", data);
 
             const table =
               document.getElementById(
