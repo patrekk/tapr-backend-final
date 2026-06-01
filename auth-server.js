@@ -2702,7 +2702,12 @@ app.get(
   verifySession,
   async (req, res) => {
 
-    const { data } =
+    console.log(
+      "BILLING HISTORY REQUEST",
+      req.merchant.id
+    );
+
+    const result =
       await supabase
         .from('billing_events')
         .select('*')
@@ -2715,7 +2720,12 @@ app.get(
           { ascending: false }
         );
 
-    res.json(data || []);
+    console.log(
+      "BILLING HISTORY RESULT",
+      JSON.stringify(result)
+    );
+
+    return res.json(result);
   }
 );
 
