@@ -1414,11 +1414,28 @@ app.get(
   async (req, res) => {
 
     console.log(
-      "🔥 BILLING HISTORY ROUTE V2 🔥"
+      "MERCHANT ID:",
+      req.merchant?.id
+    );
+
+    const { data, error } =
+      await supabase
+        .from('billing_events')
+        .select('*');
+
+    console.log(
+      "ROWS FOUND:",
+      data?.length
+    );
+
+    console.log(
+      "ERROR:",
+      error
     );
 
     return res.json({
-      route_version: "billing-v2-test"
+      merchant_id: req.merchant?.id,
+      rows: data
     });
   }
 );
