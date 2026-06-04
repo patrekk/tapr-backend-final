@@ -2436,7 +2436,9 @@
                 "billingHistoryTable"
               );
 
-            if (!Array.isArray(data)) {
+            const rows = data.rows || [];
+
+            if (!Array.isArray(rows)) {
 
               table.innerHTML = `
         <tr>
@@ -2450,7 +2452,7 @@
             }
 
             table.innerHTML =
-              data.map(item => `
+              rows.map(item => `
 
         <tr>
 
