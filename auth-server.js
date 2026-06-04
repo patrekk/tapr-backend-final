@@ -1408,6 +1408,21 @@ app.get(
   }
 );
 
+app.get(
+  '/merchant/billing-history',
+  verifySession,
+  async (req, res) => {
+
+    console.log(
+      "🔥 BILLING HISTORY ROUTE V2 🔥"
+    );
+
+    return res.json({
+      route_version: "billing-v2-test"
+    });
+  }
+);
+
 app.get('/merchant/:slug', async (req, res) => {
   const { slug } = req.params;
 
@@ -2694,21 +2709,6 @@ app.post(
         error: "server_error"
       });
     }
-  }
-);
-
-app.get(
-  '/merchant/billing-history',
-  verifySession,
-  async (req, res) => {
-
-    console.log(
-      "🔥 BILLING HISTORY ROUTE V2 🔥"
-    );
-
-    return res.json({
-      route_version: "billing-v2-test"
-    });
   }
 );
 
