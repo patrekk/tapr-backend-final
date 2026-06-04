@@ -3484,6 +3484,18 @@
                 )
                 : null;
 
+            const rewards = [10, 10, 20, 0, 50];
+
+            let lifetimeRewards = 0;
+
+            for (
+              let i = 0;
+              i < (customer.total_visits || 0);
+              i++
+            ) {
+              lifetimeRewards += rewards[i % 5];
+            }
+
             let status = "🟡 Inactive";
 
             if (
@@ -3608,7 +3620,7 @@
 
         <div style="
   display:grid;
-  grid-template-columns:repeat(2, 1fr);
+  grid-template-columns:repeat(3, 1fr);
   gap:10px;
 ">
 
@@ -3653,6 +3665,27 @@
       ${daysLeft !== null ? daysLeft : "-"}
     </div>
   </div>
+
+  <div style="
+  background:#f9fafb;
+  border-radius:12px;
+  padding:12px;
+">
+  <div style="
+    font-size:11px;
+    color:#777;
+    margin-bottom:6px;
+  ">
+    Lifetime Rewards
+  </div>
+
+  <div style="
+    font-size:20px;
+    font-weight:700;
+  ">
+    ₱${lifetimeRewards}
+  </div>
+</div>
 
 </div>
 
