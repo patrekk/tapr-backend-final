@@ -2703,35 +2703,12 @@ app.get(
   async (req, res) => {
 
     console.log(
-      "BILLING HISTORY REQUEST",
-      req.merchant.id
+      "🔥 BILLING HISTORY ROUTE V2 🔥"
     );
 
-    const {
-      data,
-      error
-    } = await supabase
-      .from('billing_events')
-      .select('*')
-      .eq(
-        'merchant_id',
-        req.merchant.id
-      )
-      .order(
-        'created_at',
-        { ascending: false }
-      );
-
-    console.log("BILLING EVENTS:", data);
-    console.log("BILLING ERROR:", error);
-
-    if (error) {
-      return res.status(500).json({
-        error: error.message
-      });
-    }
-
-    return res.json(data || []);
+    return res.json({
+      route_version: "billing-v2-test"
+    });
   }
 );
 
