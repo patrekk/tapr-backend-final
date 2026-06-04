@@ -1413,28 +1413,26 @@ app.get(
   verifySession,
   async (req, res) => {
 
-    console.log(
-      "MERCHANT ID:",
-      req.merchant?.id
-    );
-
     const { data, error } =
       await supabase
         .from('billing_events')
-        .select('*');
+        .select('*')
+        .eq(
+          'merchant_id',
+          req.merchant.id
+        )
+        .order(
+          'created_at',
+          { ascending: false }
+        );
 
-    console.log(
-      "ROWS FOUND:",
-      data?.length
-    );
-
-    console.log(
-      "ERROR:",
-      error
-    );
+    if (error) {
+      return res.status(500).json({
+        error: error.message
+      });
+    }
 
     return res.json({
-      merchant_id: req.merchant?.id,
       rows: data
     });
   }

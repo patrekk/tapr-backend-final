@@ -2410,7 +2410,6 @@
         }
 
         async function loadBillingHistory() {
-          console.log("LOAD BILLING HISTORY START");
 
           try {
 
@@ -2423,13 +2422,7 @@
               }
             );
 
-            console.log("STATUS:", res.status);
-
             const data = await res.json();
-
-            console.log("DATA:", data);
-
-            console.log("BILLING HISTORY:", data);
 
             const table =
               document.getElementById(
