@@ -2707,25 +2707,31 @@ app.get(
       req.merchant.id
     );
 
-    const result =
-      await supabase
-        .from('billing_events')
-        .select('*')
-        .eq(
-          'merchant_id',
-          req.merchant.id
-        )
-        .order(
-          'created_at',
-          { ascending: false }
-        );
+    const {
+      data,
+      error
+    } = await supabase
+      .from('billing_events')
+      .select('*')
+      .eq(
+        'merchant_id',
+        req.merchant.id
+      )
+      .order(
+        'created_at',
+        { ascending: false }
+      );
 
-    console.log(
-      "BILLING HISTORY RESULT",
-      JSON.stringify(result)
-    );
+    console.log("BILLING EVENTS:", data);
+    console.log("BILLING ERROR:", error);
 
-    return res.json(result);
+    if (error) {
+      return res.status(500).json({
+        error: error.message
+      });
+    }
+
+    return res.json(data || []);
   }
 );
 
