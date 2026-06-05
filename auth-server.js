@@ -2938,6 +2938,14 @@ app.get(
           head: true
         });
 
+    const { count: walletSyncs } =
+      await supabase
+        .from('wallet_sync_logs')
+        .select('*', {
+          count: 'exact',
+          head: true
+        });
+
     res.json({
       active,
       trial,
