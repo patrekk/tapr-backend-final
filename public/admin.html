@@ -252,10 +252,8 @@
 
                     div.innerHTML = `
             <strong>
-                Wallet Sync Batch
-            </strong>
-            <br>
             ${row.merchants?.name || 'Unknown Merchant'}
+            </strong>
             <br>
             Customers: ${row.total_customers}
             <br>
@@ -307,7 +305,7 @@
 
                     div.innerHTML = `
                 <strong>
-                    FAILED
+                ${row.merchants?.name || 'Unknown Merchant'}
                 </strong>
                 <br>
                 ${row.error_message || ''}
