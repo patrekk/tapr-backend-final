@@ -437,10 +437,39 @@
             merchantId
         ) {
 
-            document.getElementById(
-                'merchantDetail'
-            ).innerHTML = `
-        Loading merchant...
+            const container =
+                document.getElementById(
+                    'merchantDetail'
+                );
+
+            container.innerHTML =
+                'Loading merchant...';
+
+            const res =
+                await fetch(
+                    `/admin/merchant/${merchantId}`
+                );
+
+            const merchant =
+                await res.json();
+
+            container.innerHTML = `
+            <strong>
+            ${merchant.name}
+            </strong>
+            <br>
+            ${merchant.email}
+            <br>
+            Status:
+            ${merchant.subscription_status}
+            <br>
+            Customers:
+            ${merchant.customers?.length || 0}
+            <br>
+            Created:
+            ${new Date(
+                merchant.created_at
+            ).toLocaleDateString()}
     `;
 
         }
