@@ -2983,6 +2983,35 @@ app.get(
   }
 );
 
+app.get(
+  '/admin/recent-wallet-syncs',
+  async (req, res) => {
+
+    const { data, error } =
+      await supabase
+        .from('wallet_sync_logs')
+        .select('*')
+        .order(
+          'created_at',
+          { ascending: false }
+        )
+        .limit(10);
+
+    if (error) {
+
+      console.log(
+        "RECENT WALLET SYNCS ERROR:",
+        error
+      );
+
+      return res.json([]);
+    }
+
+    res.json(data);
+
+  }
+);
+
 // fallback
 
 app.use((err, req, res, next) => {
