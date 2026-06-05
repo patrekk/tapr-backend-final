@@ -408,11 +408,8 @@
             <br>
             ${row.email}
             <br>
-            <small>
-                ${new Date(
-                    row.created_at
-                ).toLocaleDateString()}
-            </small>
+            ${row.customers?.length || 0}
+            customers
         `;
 
                 container.appendChild(div);
