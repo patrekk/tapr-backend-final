@@ -3058,8 +3058,11 @@ app.get(
           name,
           email,
           subscription_status,
-          created_at
-        `)
+          created_at,
+          customers (
+            id
+            )
+          `)
         .order(
           'created_at',
           { ascending: false }
