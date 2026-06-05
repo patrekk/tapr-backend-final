@@ -2990,7 +2990,12 @@ app.get(
     const { data, error } =
       await supabase
         .from('wallet_sync_logs')
-        .select('*')
+        .select(`
+  *,
+  merchants (
+    name
+  )
+`)
         .not('total_customers', 'is', null)
         .order('created_at', { ascending: false })
         .limit(10);
