@@ -2304,6 +2304,74 @@ app.post(
           }]);
       }
 
+      // FAILED PAYMENT
+
+      if (
+        eventType ===
+        "checkout_session.payment.failed"
+      ) {
+
+        const attributes =
+          payload.data.attributes.data.attributes;
+
+        const metadata =
+          attributes.metadata || {};
+
+        const merchantId =
+          metadata.merchant_id;
+
+        if (merchantId) {
+
+          await supabase
+            .from('billing_events')
+            .insert([{
+              merchant_id: merchantId,
+              event_type: 'Payment Failed',
+              description: 'Checkout payment failed'
+            }]);
+        }
+
+        await supabase
+          .from('processed_webhooks')
+          .insert([{
+            event_id: webhookEventId
+          }]);
+      }
+
+      // EXPIRED CHECKOUT
+
+      if (
+        eventType ===
+        "checkout_session.expired"
+      ) {
+
+        const attributes =
+          payload.data.attributes.data.attributes;
+
+        const metadata =
+          attributes.metadata || {};
+
+        const merchantId =
+          metadata.merchant_id;
+
+        if (merchantId) {
+
+          await supabase
+            .from('billing_events')
+            .insert([{
+              merchant_id: merchantId,
+              event_type: 'Checkout Expired',
+              description: 'Checkout session expired'
+            }]);
+        }
+
+        await supabase
+          .from('processed_webhooks')
+          .insert([{
+            event_id: webhookEventId
+          }]);
+      }
+
       res.sendStatus(200);
 
     } catch (err) {
@@ -2347,7 +2415,9 @@ app.get(
               attributes: {
 
                 events: [
-                  "checkout_session.payment.paid"
+                  "checkout_session.payment.paid",
+                  "checkout_session.payment.failed",
+                  "checkout_session.expired"
                 ],
 
                 url:
