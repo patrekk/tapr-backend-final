@@ -2990,12 +2990,7 @@ app.get(
     const { data, error } =
       await supabase
         .from('wallet_sync_logs')
-        .select(`
-          *,
-          merchants (
-            name
-          )
-        `)
+        .select('*')
         .order('created_at', { ascending: false })
         .limit(10);
 
@@ -3023,10 +3018,10 @@ app.get(
         .from('wallet_sync_logs')
         .select(`
           *,
-          merchants (
+          merchants(
             name
           )
-        `)
+            `)
         .eq('status', 'FAILED')
         .order('created_at', { ascending: false })
         .limit(10);
