@@ -2996,7 +2996,6 @@ app.get(
             name
           )
         `)
-        .not('total_customers', 'is', null)
         .order('created_at', { ascending: false })
         .limit(10);
 
