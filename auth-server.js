@@ -132,6 +132,32 @@ const CLASS_ID = `${ISSUER_ID}.tapr_class_v2`;
 
 const LOOP = CONFIG.LOOP;
 
+async function logError(
+  module,
+  error,
+  merchantId = null
+) {
+
+  try {
+
+    await supabase
+      .from('error_logs')
+      .insert([{
+        module,
+        merchant_id: merchantId,
+        error_message:
+          error?.message || String(error)
+      }]);
+
+  } catch (e) {
+
+    console.log(
+      "FAILED TO SAVE ERROR LOG",
+      e
+    );
+  }
+}
+
 function cleanString(value) {
 
   if (typeof value !== "string") {
@@ -1110,6 +1136,18 @@ app.post(
         console.log("SYNC ERROR:", err.message);
       }
     }
+
+    await supabase
+      .from('wallet_sync_logs')
+      .insert([{
+        merchant_id: req.merchant.id,
+        total_customers:
+          customers?.length || 0,
+        success_count:
+          walletSyncSuccess,
+        failed_count:
+          walletSyncFailed
+      }]);
 
     res.json({
       success: true,
@@ -2188,6 +2226,25 @@ app.post(
         const merchantId =
           metadata.merchant_id;
 
+        await supabase
+          .from('webhook_logs')
+          .insert([{
+            event_id:
+              webhookEventId,
+
+            event_type:
+              eventType,
+
+            merchant_id:
+              merchantId,
+
+            status:
+              "received",
+
+            details:
+              "Webhook received"
+          }]);
+
         const plan =
           metadata.plan;
 
@@ -2477,6 +2534,10 @@ app.get('/scanner', (req, res) => {
 
 app.get('/signup', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'signup.html'));
+});
+
+app.get('/admin', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
 
 // OPTIONAL: block direct .html access
@@ -2794,6 +2855,50 @@ app.post(
         error: "server_error"
       });
     }
+  }
+);
+
+app.get(
+  '/admin/stats',
+  async (req, res) => {
+
+    const { count: active } =
+      await supabase
+        .from('merchants')
+        .select('*', {
+          count: 'exact',
+          head: true
+        })
+        .eq(
+          'subscription_status',
+          'active'
+        );
+
+    const { count: trial } =
+      await supabase
+        .from('merchants')
+        .select('*', {
+          count: 'exact',
+          head: true
+        })
+        .eq(
+          'subscription_status',
+          'trial'
+        );
+
+    const { count: customers } =
+      await supabase
+        .from('customers')
+        .select('*', {
+          count: 'exact',
+          head: true
+        });
+
+    res.json({
+      active,
+      trial,
+      customers
+    });
   }
 );
 
