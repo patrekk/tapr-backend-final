@@ -85,6 +85,32 @@
 
         async function loadStats() {
 
+            const res =
+
+                await fetch(
+
+                    '/admin/stats'
+
+                );
+
+            const data =
+                await res.json();
+
+            document.getElementById(
+                'active'
+            ).textContent =
+                data.active;
+
+            document.getElementById(
+                'trial'
+            ).textContent =
+                data.trial;
+
+            document.getElementById(
+                'customers'
+            ).textContent =
+                data.customers;
+
             document.getElementById(
                 'webhooks'
             ).textContent =
@@ -99,42 +125,6 @@
                 'errors'
             ).textContent =
                 data.errors;
-
-            const res =
-
-                await fetch(
-
-                    '/admin/stats'
-
-                );
-
-            const data =
-
-                await res.json();
-
-            document.getElementById(
-
-                'active'
-
-            ).textContent =
-
-                data.active;
-
-            document.getElementById(
-
-                'trial'
-
-            ).textContent =
-
-                data.trial;
-
-            document.getElementById(
-
-                'customers'
-
-            ).textContent =
-
-                data.customers;
 
         }
 
