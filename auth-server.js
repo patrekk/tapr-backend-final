@@ -2929,6 +2929,40 @@ app.get(
   }
 );
 
+app.get(
+  '/admin/recent-webhooks',
+  async (req, res) => {
+
+    const { data, error } =
+      await supabase
+        .from('billing_history')
+        .select(`
+          event_type,
+          created_at,
+          merchants (
+            name
+          )
+        `)
+        .order(
+          'created_at',
+          { ascending: false }
+        )
+        .limit(10);
+
+    if (error) {
+
+      console.log(
+        "ADMIN WEBHOOKS ERROR:",
+        error
+      );
+
+      return res.json([]);
+    }
+
+    res.json(data);
+  }
+);
+
 // fallback
 
 app.use((err, req, res, next) => {
