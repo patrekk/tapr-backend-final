@@ -3046,6 +3046,34 @@ app.get(
   }
 );
 
+app.get(
+  '/admin/recent-errors',
+  async (req, res) => {
+
+    const { data, error } =
+      await supabase
+        .from('error_logs')
+        .select('*')
+        .order(
+          'created_at',
+          { ascending: false }
+        )
+        .limit(10);
+
+    if (error) {
+
+      console.log(
+        "RECENT ERRORS ERROR:",
+        error
+      );
+
+      return res.json([]);
+    }
+
+    res.json(data);
+  }
+);
+
 // fallback
 
 app.use((err, req, res, next) => {
