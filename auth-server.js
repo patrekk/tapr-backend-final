@@ -2991,10 +2991,8 @@ app.get(
       await supabase
         .from('wallet_sync_logs')
         .select('*')
-        .order(
-          'created_at',
-          { ascending: false }
-        )
+        .not('status', 'is', null)
+        .order('created_at', { ascending: false })
         .limit(10);
 
     if (error) {
