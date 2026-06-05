@@ -2991,7 +2991,7 @@ app.get(
       await supabase
         .from('wallet_sync_logs')
         .select('*')
-        .not('status', null)
+        .not('total_customers', 'is', null)
         .order('created_at', { ascending: false })
         .limit(10);
 
