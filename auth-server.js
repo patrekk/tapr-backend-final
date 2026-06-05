@@ -2458,6 +2458,11 @@ app.post(
         err
       );
 
+      await logError(
+        "PAYMONGO_WEBHOOK",
+        err
+      );
+
       res.sendStatus(500);
     }
   }
