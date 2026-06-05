@@ -3111,6 +3111,40 @@ app.get(
   }
 );
 
+app.get(
+  '/admin/merchant/:id',
+  async (req, res) => {
+
+    const { id } =
+      req.params;
+
+    const { data, error } =
+      await supabase
+        .from('merchants')
+        .select(`
+          *,
+          customers (
+            id
+          )
+        `)
+        .eq('id', id)
+        .single();
+
+    if (error) {
+
+      console.log(
+        "ADMIN MERCHANT DETAIL ERROR:",
+        error
+      );
+
+      return res.json({});
+    }
+
+    res.json(data);
+
+  }
+);
+
 // fallback
 
 app.use((err, req, res, next) => {
