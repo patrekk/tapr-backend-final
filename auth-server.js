@@ -3047,6 +3047,40 @@ app.get(
 );
 
 app.get(
+  '/admin/merchants',
+  async (req, res) => {
+
+    const { data, error } =
+      await supabase
+        .from('merchants')
+        .select(`
+          id,
+          name,
+          email,
+          subscription_status,
+          created_at
+        `)
+        .order(
+          'created_at',
+          { ascending: false }
+        );
+
+    if (error) {
+
+      console.log(
+        "ADMIN MERCHANTS ERROR:",
+        error
+      );
+
+      return res.json([]);
+    }
+
+    res.json(data);
+
+  }
+);
+
+app.get(
   '/admin/recent-errors',
   async (req, res) => {
 
