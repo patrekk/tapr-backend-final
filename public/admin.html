@@ -66,9 +66,39 @@
 
     </div>
 
+    <div class="card">
+        <div>Webhook Events</div>
+        <div id="webhooks" class="value">-</div>
+    </div>
+
+    <div class="card">
+        <div>Wallet Sync Logs</div>
+        <div id="walletSyncs" class="value">-</div>
+    </div>
+
+    <div class="card">
+        <div>Error Logs</div>
+        <div id="errors" class="value">-</div>
+    </div>
+
     <script>
 
         async function loadStats() {
+
+            document.getElementById(
+                'webhooks'
+            ).textContent =
+                data.webhooks;
+
+            document.getElementById(
+                'walletSyncs'
+            ).textContent =
+                data.walletSyncs;
+
+            document.getElementById(
+                'errors'
+            ).textContent =
+                data.errors;
 
             const res =
 

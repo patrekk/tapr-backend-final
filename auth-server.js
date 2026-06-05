@@ -2894,10 +2894,37 @@ app.get(
           head: true
         });
 
+    const { count: webhooks } =
+      await supabase
+        .from('webhook_logs')
+        .select('*', {
+          count: 'exact',
+          head: true
+        });
+
+    const { count: walletSyncs } =
+      await supabase
+        .from('wallet_sync_logs')
+        .select('*', {
+          count: 'exact',
+          head: true
+        });
+
+    const { count: errors } =
+      await supabase
+        .from('error_logs')
+        .select('*', {
+          count: 'exact',
+          head: true
+        });
+
     res.json({
       active,
       trial,
-      customers
+      customers,
+      webhooks,
+      walletSyncs,
+      errors
     });
   }
 );
