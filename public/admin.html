@@ -433,6 +433,18 @@
 
         }
 
+        async function loadMerchantDetail(
+            merchantId
+        ) {
+
+            document.getElementById(
+                'merchantDetail'
+            ).innerHTML = `
+        Loading merchant...
+    `;
+
+        }
+
         loadStats();
         loadRecentWebhooks();
         loadRecentWalletSyncs();
