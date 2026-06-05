@@ -2536,6 +2536,30 @@ app.get('/test-live', (req, res) => {
 
 });
 
+app.get(
+  '/test-error',
+  async (req, res) => {
+
+    try {
+
+      throw new Error(
+        'Test Error'
+      );
+
+    } catch (err) {
+
+      await logError(
+        'TEST',
+        err
+      );
+
+      res.json({
+        success: true
+      });
+    }
+  }
+);
+
 // CLEAN ROUTES (NO .html)
 app.get('/login', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'login.html'));
