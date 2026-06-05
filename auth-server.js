@@ -2344,7 +2344,7 @@ app.post(
         );
 
         await supabase
-          .from('billing_history')
+          .from('billing_events')
           .insert([{
             merchant_id: merchantId,
             event_type: 'Payment Received',
