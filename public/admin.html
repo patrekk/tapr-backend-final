@@ -202,11 +202,14 @@
 
                 div.innerHTML = `
             <strong>
-                ${row.status}
+                ${row.failed_count > 0 ? 'FAILED' : 'SUCCESS'}
             </strong>
             <br>
-            Merchant ID:
-            ${row.merchant_id}
+            Customers: ${row.total_customers}
+            <br>
+            Success: ${row.success_count}
+            <br>
+            Failed: ${row.failed_count}
             <br>
             ${row.error_message || ''
                     }
