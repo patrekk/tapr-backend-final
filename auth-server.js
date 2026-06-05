@@ -3010,6 +3010,36 @@ app.get(
   }
 );
 
+app.get(
+  '/admin/recent-wallet-sync-errors',
+  async (req, res) => {
+
+    const { data, error } =
+      await supabase
+        .from('wallet_sync_logs')
+        .select('*')
+        .eq('status', 'FAILED')
+        .order(
+          'created_at',
+          { ascending: false }
+        )
+        .limit(10);
+
+    if (error) {
+
+      console.log(
+        "WALLET SYNC ERRORS ERROR:",
+        error
+      );
+
+      return res.json([]);
+    }
+
+    res.json(data);
+
+  }
+);
+
 // fallback
 
 app.use((err, req, res, next) => {
