@@ -2530,35 +2530,6 @@ app.get(
 
 // ---------- TEST ROUTE ----------
 
-app.get('/test-live', (req, res) => {
-
-  res.json({ status: "LIVE CODE" });
-
-});
-
-app.get(
-  '/test-error',
-  async (req, res) => {
-
-    try {
-
-      throw new Error(
-        'Test Error'
-      );
-
-    } catch (err) {
-
-      await logError(
-        'TEST',
-        err
-      );
-
-      res.json({
-        success: true
-      });
-    }
-  }
-);
 
 // CLEAN ROUTES (NO .html)
 app.get('/login', (req, res) => {
