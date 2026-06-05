@@ -1,3 +1,117 @@
-<h1>Tapr Admin</h1>
+<!DOCTYPE html>
 
-<div id="stats"></div>
+<html>
+
+<head>
+
+    <title>Tapr Admin</title>
+
+    <style>
+        body {
+
+            font-family: Arial, sans-serif;
+
+            padding: 40px;
+
+        }
+
+        .card {
+
+            border: 1px solid #ddd;
+
+            padding: 20px;
+
+            margin-bottom: 16px;
+
+            border-radius: 8px;
+
+        }
+
+        .value {
+
+            font-size: 32px;
+
+            font-weight: bold;
+
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <h1>Tapr Admin Dashboard</h1>
+
+    <div class="card">
+
+        <div>Active Merchants</div>
+
+        <div id="active" class="value">-</div>
+
+    </div>
+
+    <div class="card">
+
+        <div>Trial Merchants</div>
+
+        <div id="trial" class="value">-</div>
+
+    </div>
+
+    <div class="card">
+
+        <div>Total Customers</div>
+
+        <div id="customers" class="value">-</div>
+
+    </div>
+
+    <script>
+
+        async function loadStats() {
+
+            const res =
+
+                await fetch(
+
+                    '/admin/stats'
+
+                );
+
+            const data =
+
+                await res.json();
+
+            document.getElementById(
+
+                'active'
+
+            ).textContent =
+
+                data.active;
+
+            document.getElementById(
+
+                'trial'
+
+            ).textContent =
+
+                data.trial;
+
+            document.getElementById(
+
+                'customers'
+
+            ).textContent =
+
+                data.customers;
+
+        }
+
+        loadStats();
+
+    </script>
+
+</body>
+
+</html>
