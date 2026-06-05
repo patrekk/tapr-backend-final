@@ -10,28 +10,53 @@
         body {
 
             font-family: Arial, sans-serif;
+            padding: 24px;
+            background: #f7f7f7;
 
-            padding: 40px;
+        }
+
+        .stats-grid {
+
+            display: grid;
+            grid-template-columns:
+                repeat(auto-fit, minmax(180px, 1fr));
+
+            gap: 16px;
+            margin-bottom: 24px;
+
+        }
+
+        .feed-grid {
+
+            display: grid;
+            grid-template-columns:
+                repeat(auto-fit, minmax(400px, 1fr));
+
+            gap: 16px;
+            margin-bottom: 24px;
 
         }
 
         .card {
 
+            background: white;
             border: 1px solid #ddd;
-
-            padding: 20px;
-
-            margin-bottom: 16px;
-
             border-radius: 8px;
+            padding: 16px;
 
         }
 
         .value {
 
             font-size: 32px;
-
             font-weight: bold;
+            margin-top: 8px;
+
+        }
+
+        h2 {
+
+            margin-top: 32px;
 
         }
     </style>
@@ -41,7 +66,7 @@
 <body>
 
     <h1>Tapr Admin Dashboard</h1>
-
+    <div class="stats-grid"></div>
     <div class="card">
         <div>Active Merchants</div>
         <div id="active" class="value">-</div>
@@ -70,6 +95,7 @@
     <div class="card">
         <div>Error Logs</div>
         <div id="errors" class="value">-</div>
+    </div>
     </div>
 
     <div class="card">
