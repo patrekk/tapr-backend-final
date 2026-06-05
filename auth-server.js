@@ -917,8 +917,7 @@ app.get('/merchant/me', verifySession, async (req, res) => {
 
 // 🔧 UPDATE PROFILE
 
-app.post(
-  '/merchant/update-profile',
+app.post('/merchant/update-profile',
   verifySession,
   upload.fields([
     { name: 'logo', maxCount: 1 },
@@ -1131,9 +1130,30 @@ app.post(
 
         walletSyncSuccess++;
 
+        await supabase
+          .from('wallet_sync_logs')
+          .insert([{
+            merchant_id: req.merchant.id,
+            customer_id: customer.id,
+            status: 'SUCCESS'
+          }]);
+
       } catch (err) {
         walletSyncFailed++;
-        console.log("SYNC ERROR:", err.message);
+
+        await supabase
+          .from('wallet_sync_logs')
+          .insert([{
+            merchant_id: req.merchant.id,
+            customer_id: customer.id,
+            status: 'FAILED',
+            error_message: err.message
+          }]);
+
+        console.log(
+          "SYNC ERROR:",
+          err.message
+        );
       }
     }
 
