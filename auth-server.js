@@ -2935,7 +2935,7 @@ app.get(
 
     const { data, error } =
       await supabase
-        .from('billing_history')
+        .from('billing_events')
         .select(`
           event_type,
           created_at,
