@@ -1898,6 +1898,14 @@ app.post('/merchant/signup', async (req, res) => {
 
   }
 
+  await supabase
+    .from('branches')
+    .insert([{
+      merchant_id: data.id,
+      name: 'Main Branch',
+      active: true
+    }]);
+
   // ✅ CLEAN VERIFIED CODE
 
   await supabase

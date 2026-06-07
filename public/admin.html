@@ -454,23 +454,47 @@
                 await res.json();
 
             container.innerHTML = `
-            <strong>
-            ${merchant.name}
-            </strong>
-            <br>
-            ${merchant.email}
-            <br>
-            Status:
-            ${merchant.subscription_status}
-            <br>
-            Customers:
-            ${merchant.customers?.length || 0}
-            <br>
-            Created:
-            ${new Date(
-                merchant.created_at
-            ).toLocaleDateString()}
-    `;
+    <strong>
+        ${merchant.name}
+    </strong>
+    <br>
+    ${merchant.email}
+    <br><br>
+
+    Status:
+    ${merchant.subscription_status}
+    <br>
+
+    Plan:
+    ${merchant.subscription_plan || '-'}
+    <br>
+
+    Interval:
+    ${merchant.subscription_interval || '-'}
+    <br>
+
+    Expires:
+    ${merchant.subscription_expires_at
+                    ? new Date(
+                        merchant.subscription_expires_at
+                    ).toLocaleDateString()
+                    : '-'
+                }
+    <br>
+
+    Customers:
+    ${merchant.customers?.length || 0}
+    <br>
+
+    Membership Mode:
+    ${merchant.membership_mode}
+    <br>
+
+    Created:
+    ${new Date(
+                    merchant.created_at
+                ).toLocaleDateString()}
+`;
 
         }
 
