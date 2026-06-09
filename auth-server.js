@@ -3130,14 +3130,14 @@ app.get(
       await supabase
         .from('merchants')
         .select(`
-  *,
-  customers (
-    id
-  ),
-  branches (
-    id
-  )
-`)
+        *,
+        customers (
+          id
+        ),
+        branches (
+          id
+        )
+      `)
         .eq('id', id)
         .single();
 
