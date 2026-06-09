@@ -221,6 +221,7 @@
       "https://tapr-backend-final-production.up.railway.app";
 
     let verifiedEmail = "";
+    let verifiedCode = "";
 
     function showError(msg) {
       document.getElementById("status").innerText = msg;
@@ -338,6 +339,8 @@
 
       }
 
+      verifiedCode = code;
+
       document
         .getElementById("step2")
         .classList.add("hidden");
@@ -418,7 +421,8 @@
             last_name,
             name,
             email: verifiedEmail,
-            password
+            password,
+            code: verifiedCode
           })
         }
       );
