@@ -1349,6 +1349,94 @@ app.get(
   }
 );
 
+app.get(
+  '/merchant/branches',
+  verifySession,
+  async (req, res) => {
+
+    const { data, error } =
+      await supabase
+        .from('branches')
+        .select('*')
+        .eq(
+          'merchant_id',
+          req.merchant.id
+        )
+        .order(
+          'created_at',
+          { ascending: true }
+        );
+
+    if (error) {
+
+      console.log(
+        "BRANCHES ERROR:",
+        error
+      );
+
+      return res.status(500).json({
+        error: "Failed to load branches"
+      });
+    }
+
+    res.json(data || []);
+  }
+);
+
+app.post(
+  '/merchant/branches',
+  verifySession,
+  async (req, res) => {
+
+    let { name } = req.body;
+
+    name = cleanString(name);
+
+    if (!name) {
+
+      return res.json({
+        error: "Branch name required"
+      });
+
+    }
+
+    if (!validateLength(name, 80)) {
+
+      return res.json({
+        error: "Branch name too long"
+      });
+
+    }
+
+    const { data, error } =
+      await supabase
+        .from('branches')
+        .insert([{
+          merchant_id: req.merchant.id,
+          name,
+          active: true
+        }])
+        .select()
+        .single();
+
+    if (error) {
+
+      console.log(
+        "ADD BRANCH ERROR:",
+        error
+      );
+
+      return res.status(500).json({
+        error: "Failed to create branch"
+      });
+
+    }
+
+    res.json(data);
+
+  }
+);
+
 
 app.post('/merchant/activate-customer', verifySession, async (req, res) => {
 
